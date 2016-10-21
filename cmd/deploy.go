@@ -32,10 +32,20 @@ var (
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "deploy a docker app",
-	Long: `For example:
+	Short: "deploy an application",
+	Long: `Deploy an application. An application may be a combination of
+Marathon + Chronos tasks defined in $HOME/.duncan.yml. Deployment requires
+the BetterDoctor repo where Marathon and Chronos task definitions (JSON)
+can be found. Deployment also requires a Docker image w/ the provided
+git tag exists in the Docker registry.
 
-duncan deploy --app dex --env stage --tag release-1.2.3`,
+Marathon JSON files ending with "-group.json" will be deployed
+as Marathon Groups (collection of containers) otherwise will be deployed as
+Marathon Apps.
+
+Example:
+
+duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		sanityCheck()
