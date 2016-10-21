@@ -13,9 +13,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+var marathonPath string
+
+func init() {
+	marathonPath = viper.GetString("marathon_json_path")
+}
+
 // Deploy deploys a given marathon app, env and tag
 func Deploy(app, env, tag string) error {
-	marathonPath := viper.GetString("marathon_json_path")
 	deployment := viper.GetStringMap("apps")[app]
 	if deployment == nil {
 		return fmt.Errorf("invalid YAML config for %s\n", app)
@@ -23,22 +28,15 @@ func Deploy(app, env, tag string) error {
 	for k, v := range deployment.(map[interface{}]interface{}) {
 		if k.(string) == "marathon" {
 			for _, x := range v.([]interface{}) {
-				mj := path.Join(marathonPath, strings.Replace(x.(string), "{{env}}", env, -1))
+				mj := marathonJSONPath(x.(string), env)
 				body, err := ioutil.ReadFile(mj)
 				if err != nil {
 					return fmt.Errorf("Marathon JSON file does not exist %s: %s\n", mj, err)
 				}
-				re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
-				marathonJSON := re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))
-				m, err := regexp.MatchString("group", mj)
+				marathonJSON := marathonJSON(string(body), app, tag)
+				url, err := deploymentURL(marathonJSON)
 				if err != nil {
 					return err
-				}
-				var url string
-				if m {
-					url = fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host"))
-				} else {
-					url = fmt.Sprintf("%s/service/marathon/v2/apps/%s-%s", viper.GetString("marathon_host"), app, env)
 				}
 				client := &http.Client{}
 				req, _ := http.NewRequest("PUT", url, strings.NewReader(marathonJSON))
@@ -95,4 +93,26 @@ func waitForDeployment(id string) error {
 	}
 
 	return nil
+}
+
+// deploymentURL returns a Marathon API deployment URL to deploy
+// a Marathon App or Marathon Group depending on the JSON
+func deploymentURL(mj string) (string, error) {
+	dj := &DeploymentJSON{}
+	if err := json.Unmarshal([]byte(mj), &dj); err != nil {
+		return "", err
+	}
+	if len(dj.Apps) == 0 {
+		return fmt.Sprintf("%s/service/marathon/v2/apps/%s", viper.GetString("marathon_host"), dj.ID), nil
+	}
+	return fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host")), nil
+}
+
+func marathonJSONPath(f, env string) string {
+	return path.Join(marathonPath, strings.Replace(f, "{{env}}", env, -1))
+}
+
+func marathonJSON(body, app, tag string) string {
+	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
+	return re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))
 }

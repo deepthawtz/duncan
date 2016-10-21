@@ -1,8 +1,9 @@
 package marathon
 
-// Group represents a Marathon group
-type Group struct {
-	Apps []App `json:"apps"`
+// DeploymentJSON represents a Marathon app or group definition
+type DeploymentJSON struct {
+	App
+	Apps []App `json:"apps,omitempty"`
 }
 
 // App represents a Marathon app
@@ -16,7 +17,7 @@ type Container struct {
 	Docker Docker `json:"docker"`
 }
 
-// Docker represents marathon docker metadata
+// Docker represents Marathon Docker metadata
 type Docker struct {
 	Image string `json:"image"`
 }
