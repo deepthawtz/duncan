@@ -34,6 +34,30 @@ func makeClientWithConfig(t *testing.T, cb1 configCallback, cb2 testutil.ServerC
 }
 
 func TestUpdateTags(t *testing.T) {
+	c, s := makeClient(t)
+	defer s.Stop()
+	kv := c.KV()
+
+	cases := []struct {
+		prev string
+		curr string
+		out  string
+	}{
+		{prev: "", curr: "v1.2.3", out: ""},
+		{prev: "v1.2.3", curr: "v1.2.3", out: "v1.2.3"},
+		{prev: "v1.2.3", curr: "v1.2.4", out: "v1.2.3"},
+	}
+
+	for _, test := range cases {
+		_, _ = kv.Put(&consul.KVPair{Key: "deploys/yo/stage/previous", Value: []byte(test.prev)}, nil)
+		prev, err := UpdateTags("yo", "stage", test.curr, kv)
+		if err != nil {
+			t.Error(err)
+		}
+		if prev != test.out {
+			t.Errorf("expected %s but got %s", test.out, prev)
+		}
+	}
 }
 
 // func TestDiff(t *testing.T) {

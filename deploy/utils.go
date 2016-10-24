@@ -45,9 +45,10 @@ func UpdateTags(app, env, tag string, client *consul.KV) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		return string(previous.Value), nil
 	}
 
-	return string(previous.Value), nil
+	return "", nil
 }
 
 // Diff returns a GitHub link to view the git diff of changes
