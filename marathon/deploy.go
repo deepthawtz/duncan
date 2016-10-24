@@ -13,14 +13,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var marathonPath string
-
-func init() {
-	marathonPath = viper.GetString("marathon_json_path")
-}
-
 // Deploy deploys a given marathon app, env and tag
 func Deploy(app, env, tag string) error {
+	marathonPath := viper.GetString("marathon_json_path")
 	deployment := viper.GetStringMap("apps")[app]
 	if deployment == nil {
 		return fmt.Errorf("invalid YAML config for %s\n", app)
@@ -28,10 +23,10 @@ func Deploy(app, env, tag string) error {
 	for k, v := range deployment.(map[interface{}]interface{}) {
 		if k.(string) == "marathon" {
 			for _, x := range v.([]interface{}) {
-				mj := marathonJSONPath(x.(string), env)
+				mj := marathonJSONPath(marathonPath, x.(string), env)
 				body, err := ioutil.ReadFile(mj)
 				if err != nil {
-					return fmt.Errorf("Marathon JSON file does not exist %s: %s\n", mj, err)
+					return fmt.Errorf("Marathon JSON file does not exist: %s\n", mj)
 				}
 				marathonJSON := marathonJSON(string(body), app, tag)
 				url, err := deploymentURL(marathonJSON)
@@ -64,6 +59,7 @@ func Deploy(app, env, tag string) error {
 func waitForDeployment(id string) error {
 	fmt.Println("Waiting for deploy....")
 	go func() {
+		defer fmt.Println("")
 		for {
 			for _, r := range `-\|/` {
 				fmt.Printf("\r%c", r)
@@ -108,7 +104,7 @@ func deploymentURL(mj string) (string, error) {
 	return fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host")), nil
 }
 
-func marathonJSONPath(f, env string) string {
+func marathonJSONPath(marathonPath, f, env string) string {
 	return path.Join(marathonPath, strings.Replace(f, "{{env}}", env, -1))
 }
 

@@ -45,7 +45,7 @@ func TestMarathonJSONPath(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		mjp := marathonJSONPath(test.in, test.env)
+		mjp := marathonJSONPath("", test.in, test.env)
 		if mjp != test.out {
 			t.Errorf("expected %s but got %s", test.out, mjp)
 		}

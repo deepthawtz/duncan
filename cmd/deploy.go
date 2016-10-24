@@ -19,8 +19,10 @@ import (
 	"os"
 
 	"github.com/betterdoctor/duncan/chronos"
+	"github.com/betterdoctor/duncan/deploy"
 	"github.com/betterdoctor/duncan/docker"
 	"github.com/betterdoctor/duncan/marathon"
+	"github.com/betterdoctor/duncan/notify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -58,6 +60,17 @@ duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
 			fmt.Println(err)
 			os.Exit(-1)
 		}
+
+		prev, err := deploy.UpdateTags(app, env, tag, nil)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+
+		notify.Slack(
+			fmt.Sprintf("%s %s (%s)", app, env, tag),
+			fmt.Sprintf("%s :shipit: %s", notify.Emoji(env), deploy.Diff(app, prev, tag)),
+		)
 	},
 }
 
