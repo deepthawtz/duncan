@@ -69,7 +69,7 @@ duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
 
 		notify.Slack(
 			fmt.Sprintf("%s %s (%s)", app, env, tag),
-			fmt.Sprintf("%s :shipit: %s", notify.Emoji(env), deploy.Diff(app, prev, tag)),
+			fmt.Sprintf("%s :shipit: docker deploy :whale: %s", notify.Emoji(env), deploy.Diff(app, prev, tag)),
 		)
 	},
 }
