@@ -54,8 +54,8 @@ func UpdateTags(app, env, tag string, client *consul.KV) (string, error) {
 // Diff returns a GitHub link to view the git diff of changes
 // being deployed
 func Diff(app, prev, tag string) string {
-	if prev == tag {
-		return "re-deployment, no changes"
+	if prev == tag || prev == "" {
+		return "no changes"
 	}
 	// TODO: handle if YAML is not filled out correctly
 	repo := viper.GetStringMapString("repos")[app]
