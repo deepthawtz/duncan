@@ -94,7 +94,7 @@ func waitForDeployment(id string) error {
 // deploymentURL returns a Marathon API deployment URL to deploy
 // a Marathon App or Marathon Group depending on the JSON
 func deploymentURL(mj string) (string, error) {
-	dj := &DeploymentJSON{}
+	dj := &Group{}
 	if err := json.Unmarshal([]byte(mj), &dj); err != nil {
 		return "", err
 	}
