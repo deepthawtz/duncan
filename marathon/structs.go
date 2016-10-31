@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -31,10 +32,17 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 						if x.ID == "" {
 							continue
 						}
-						data = append(data, []string{strings.Split(x.ID, "/")[2], x.Release(), strconv.Itoa(x.Instances), fmt.Sprintf("%.2f", x.CPUs), strconv.Itoa(x.Mem)})
+						data = append(data, []string{
+							strings.Split(x.ID, "/")[2],
+							x.Release(),
+							strconv.Itoa(x.Instances),
+							fmt.Sprintf("%.2f", x.CPUs),
+							strconv.Itoa(x.Mem),
+							x.Version.Format("2006-01-02T15:04:05"),
+						})
 					}
 					table := tablewriter.NewWriter(os.Stdout)
-					table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem MB"})
+					table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem MB", "Deployed At"})
 					table.AppendBulk(data)
 					table.Render()
 				}
@@ -60,6 +68,7 @@ type App struct {
 	Instances int       `json:"instances"`
 	CPUs      float64   `json:"cpus"`
 	Mem       int       `json:"mem"`
+	Version   time.Time `json:"version"`
 }
 
 // Release returns the git tag for a given app
