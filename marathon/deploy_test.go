@@ -9,9 +9,8 @@ import (
 )
 
 func TestDeploymentURL(t *testing.T) {
-	// marathon app + group JSON, truncated for brevity
+	// marathon group JSON, truncated for brevity
 	group := `{"id": "yo-dawg-group", "apps": [{"id": "web"}]}`
-	app := `{"id": "yo-dawg"}`
 
 	base := fmt.Sprintf("%s/service/marathon/v2/", viper.GetString("marathon_host"))
 	cases := []struct {
@@ -19,14 +18,10 @@ func TestDeploymentURL(t *testing.T) {
 		out string
 	}{
 		{in: group, out: base + "groups/"},
-		{in: app, out: base + "apps/yo-dawg"},
 	}
 
 	for _, test := range cases {
-		url, err := deploymentURL(test.in)
-		if err != nil {
-			t.Error(err)
-		}
+		url := deploymentURL()
 
 		if url != test.out {
 			t.Errorf("expected %s but got %s", test.out, url)
@@ -72,15 +67,8 @@ func TestMarathonJSON(t *testing.T) {
 			t.Error(err)
 		}
 
-		if len(dj.Apps) > 0 {
-			for _, a := range dj.Apps {
-				image := a.Container.Docker.Image
-				if image != test.out {
-					t.Errorf("expected %s but got %s", test.out, image)
-				}
-			}
-		} else {
-			image := dj.Container.Docker.Image
+		for _, a := range dj.Apps {
+			image := a.Container.Docker.Image
 			if image != test.out {
 				t.Errorf("expected %s but got %s", test.out, image)
 			}

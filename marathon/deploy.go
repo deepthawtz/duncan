@@ -29,12 +29,8 @@ func Deploy(app, env, tag string) error {
 					return fmt.Errorf("Marathon JSON file does not exist: %s\n", mj)
 				}
 				marathonJSON := marathonJSON(string(body), app, tag)
-				url, err := deploymentURL(marathonJSON)
-				if err != nil {
-					return err
-				}
 				client := &http.Client{}
-				req, _ := http.NewRequest("PUT", url, strings.NewReader(marathonJSON))
+				req, _ := http.NewRequest("PUT", deploymentURL(), strings.NewReader(marathonJSON))
 				req.Header.Set("Content-Type", "application/json")
 				resp, err := client.Do(req)
 				if err != nil {
@@ -91,17 +87,9 @@ func waitForDeployment(id string) error {
 	return nil
 }
 
-// deploymentURL returns a Marathon API deployment URL to deploy
-// a Marathon App or Marathon Group depending on the JSON
-func deploymentURL(mj string) (string, error) {
-	dj := &Group{}
-	if err := json.Unmarshal([]byte(mj), &dj); err != nil {
-		return "", err
-	}
-	if len(dj.Apps) == 0 {
-		return fmt.Sprintf("%s/service/marathon/v2/apps/%s", viper.GetString("marathon_host"), dj.ID), nil
-	}
-	return fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host")), nil
+// deploymentURL returns a Marathon API endpoint to deploy/scale
+func deploymentURL() string {
+	return fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host"))
 }
 
 func marathonJSONPath(marathonPath, f, env string) string {
