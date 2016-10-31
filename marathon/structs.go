@@ -54,21 +54,25 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 }
 
 // Group represents a Marathon app or group definition
-//
-// TODO: deploy all applications as groups
 type Group struct {
-	App        // TODO: can remove when feedback converted to a group
-	Apps []App `json:"apps,omitempty"`
+	ID   string `json:"id"`
+	Apps []*App `json:"apps,omitempty"`
 }
 
 // App represents a Marathon app
 type App struct {
-	ID        string    `json:"id"`
-	Container Container `json:"container"`
-	Instances int       `json:"instances"`
-	CPUs      float64   `json:"cpus"`
-	Mem       int       `json:"mem"`
-	Version   time.Time `json:"version"`
+	ID           string                   `json:"id"`
+	Instances    int                      `json:"instances"`
+	CPUs         float64                  `json:"cpus"`
+	Mem          int                      `json:"mem"`
+	Cmd          string                   `json:"cmd,omitempty"`
+	URIs         []string                 `json:"uris,omitempty"`
+	Dependencies []string                 `json:"dependencies,omitempty"`
+	Container    *Container               `json:"container"`
+	Env          map[string]string        `json:"env,omitempty"`
+	Labels       map[string]string        `json:"labels,omitempty"`
+	HealthChecks []map[string]interface{} `json:"healthChecks,omitempty"`
+	Version      time.Time                `json:"version,omitempty"`
 }
 
 // Release returns the git tag for a given app
@@ -82,12 +86,16 @@ func (a *App) Release() string {
 
 // Container represents a Marathon container
 type Container struct {
-	Docker Docker `json:"docker"`
+	Docker *Docker `json:"docker"`
 }
 
 // Docker represents Marathon Docker metadata
 type Docker struct {
-	Image string `json:"image"`
+	Type           string                   `json:"type"`
+	Image          string                   `json:"image"`
+	ForcePullImage bool                     `json:"forcePullImage,omitempty"`
+	Network        string                   `json:"network"`
+	PortMappings   []map[string]interface{} `json:"portMappings"`
 }
 
 // Deployment represents a Marathon deployment

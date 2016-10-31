@@ -51,6 +51,20 @@ func UpdateTags(app, env, tag string, client *consul.KV) (string, error) {
 	return "", nil
 }
 
+// CurrentTag returns the currently deployed git tag for an app and environment
+func CurrentTag(app, env string, client *consul.KV) (string, error) {
+	prefix := fmt.Sprintf("deploys/%s/%s/", app, env)
+	if client == nil {
+		client = newConsulClient()
+	}
+	curr, _, err := client.Get(prefix+"current", nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(curr.Value), nil
+}
+
 // Diff returns a GitHub link to view the git diff of changes
 // being deployed
 func Diff(app, prev, tag string) string {
