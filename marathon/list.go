@@ -10,12 +10,17 @@ import (
 )
 
 // List shows the list of applications duncan knows about
-func List(env string) error {
+func List(app, env string) error {
 	groups, err := listGroups()
 	if err != nil {
 		return err
 	}
 	apps := viper.GetStringMapString("apps")
+	if app != "" {
+		apps = map[string]string{
+			app: apps[app],
+		}
+	}
 	if err := groups.DisplayAppStatus(apps, env); err != nil {
 		return err
 	}
