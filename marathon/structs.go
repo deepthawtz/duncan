@@ -34,7 +34,7 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 						}
 						data = append(data, []string{
 							strings.Split(x.ID, "/")[2],
-							x.Release(),
+							x.ReleaseTag(),
 							strconv.Itoa(x.Instances),
 							fmt.Sprintf("%.2f", x.CPUs),
 							strconv.Itoa(x.Mem),
@@ -75,8 +75,8 @@ type App struct {
 	Version      time.Time                `json:"version,omitempty"`
 }
 
-// Release returns the git tag for a given app
-func (a *App) Release() string {
+// ReleaseTag returns the git tag for a given app
+func (a *App) ReleaseTag() string {
 	p := strings.Split(a.Container.Docker.Image, ":")
 	if len(p) != 2 {
 		return "no tag!!!"
