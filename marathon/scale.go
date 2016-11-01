@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -37,7 +36,6 @@ func Scale(app, env string, procs []string) error {
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
 				return err
 			}
-			fmt.Printf("Scaling %s\n", app)
 			if err := waitForDeployment(d.ID); err != nil {
 				return err
 			}
@@ -69,9 +67,7 @@ func scaledMarathonJSON(group *Group, app, env string, procs []string) (string, 
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
 
-				re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
-				image := re.ReplaceAllString(a.Container.Docker.Image, fmt.Sprintf("$1:%s$2", tag))
-				a.Container.Docker.Image = image
+				a.UpdateReleaseTag(tag)
 			}
 		}
 	}

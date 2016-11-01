@@ -84,6 +84,12 @@ func (a *App) ReleaseTag() string {
 	return p[1]
 }
 
+// UpdateRelease updates the release tag of an app's Docker image
+func (a *App) UpdateReleaseTag(tag string) {
+	image := strings.Split(a.Container.Docker.Image, ":")[0]
+	a.Container.Docker.Image = strings.Join([]string{image, tag}, ":")
+}
+
 // Container represents a Marathon container
 type Container struct {
 	Docker *Docker `json:"docker"`
