@@ -14,9 +14,6 @@ import (
 // Scale increases or decreases number of running instances of
 // an application within a Marathon Group
 func Scale(app, env string, procs []string) error {
-	// 1) get marathon group JSON from API
-	// 2) modify JSON
-	// 3) PUT new JSON
 	groups, err := listGroups()
 	if err != nil {
 		return err
@@ -64,8 +61,8 @@ func scaledMarathonJSON(group *Group, app, env string, procs []string) (string, 
 			}
 
 			if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
-				// prev := a.Instances
-				// fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
+				prev := a.Instances
+				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
 
 				re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
