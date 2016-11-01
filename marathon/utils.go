@@ -57,7 +57,7 @@ func marathonJSONPath(marathonPath, f, env string) string {
 	return path.Join(marathonPath, strings.Replace(f, "{{env}}", env, -1))
 }
 
-func marathonJSON(body, app, tag string) string {
+func marathonJSON(body []byte, app, tag string) string {
 	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
 	return re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))
 }

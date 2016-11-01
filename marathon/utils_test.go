@@ -61,7 +61,7 @@ func TestMarathonJSON(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		m := marathonJSON(test.body, test.app, test.tag)
+		m := marathonJSON([]byte(test.body), test.app, test.tag)
 		dj := &Group{}
 		if err := json.Unmarshal([]byte(m), &dj); err != nil {
 			t.Error(err)
