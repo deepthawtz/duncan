@@ -3,6 +3,7 @@ package marathon
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -84,10 +85,16 @@ func (a *App) ReleaseTag() string {
 	return p[1]
 }
 
-// UpdateRelease updates the release tag of an app's Docker image
+// UpdateReleaseTag updates the release tag of an app's Docker image
 func (a *App) UpdateReleaseTag(tag string) {
 	image := strings.Split(a.Container.Docker.Image, ":")[0]
 	a.Container.Docker.Image = strings.Join([]string{image, tag}, ":")
+}
+
+// IsApp returns true if Docker image matches app name
+func (a *App) IsApp(app string) bool {
+	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/)?%s:?(.*)?", app))
+	return re.MatchString(a.Container.Docker.Image)
 }
 
 // Container represents a Marathon container

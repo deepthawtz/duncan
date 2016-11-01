@@ -48,3 +48,27 @@ func TestAppUpdateReleaseTag(t *testing.T) {
 		}
 	}
 }
+
+func TestAppIsApp(t *testing.T) {
+	cases := []struct {
+		image string
+		app   string
+		exp   bool
+	}{
+		{image: "redis:3.2", app: "foo", exp: false},
+		{image: "quay.io/betterdoctor/foo:3.2", app: "foo", exp: true},
+		{image: "foo:3.2", app: "foo", exp: true},
+	}
+
+	for _, test := range cases {
+		a := &App{
+			Container: &Container{
+				Docker: &Docker{Image: test.image},
+			},
+		}
+		b := a.IsApp(test.app)
+		if test.exp != b {
+			t.Errorf("expected %v but got %v for %v", test.exp, b, test.image)
+		}
+	}
+}
