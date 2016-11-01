@@ -1,6 +1,7 @@
 package marathon
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,12 +21,16 @@ func Scale(app, env string, procs []string) error {
 
 	for _, g := range groups.Groups {
 		if g.ID == "/"+strings.Join([]string{app, env}, "-") {
-			marathonJSON, err := scaledMarathonJSON(&g, app, env, procs)
+			tag, err := deploy.CurrentTag(app, env, nil)
+			if err != nil {
+				return err
+			}
+			mj, err := scaledMarathonJSON(&g, app, env, tag, procs)
 			if err != nil {
 				return err
 			}
 			client := &http.Client{}
-			req, _ := http.NewRequest("PUT", deploymentURL(), strings.NewReader(marathonJSON))
+			req, _ := http.NewRequest("PUT", deploymentURL(), bytes.NewReader(mj))
 			req.Header.Set("Content-Type", "application/json")
 			resp, err := client.Do(req)
 			if err != nil {
@@ -44,22 +49,18 @@ func Scale(app, env string, procs []string) error {
 	return nil
 }
 
-func scaledMarathonJSON(group *Group, app, env string, procs []string) (string, error) {
-	tag, err := deploy.CurrentTag(app, env, nil)
-	if err != nil {
-		return "", err
-	}
+func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) ([]byte, error) {
 	for _, a := range group.Apps {
 		for _, proc := range procs {
 			s := strings.Split(proc, "=")
 			proc := s[0]
 			count, err := strconv.Atoi(s[1])
 			if err != nil {
-				return "", err
+				return []byte(""), err
 			}
 
 			if count < 0 {
-				return "", fmt.Errorf("cannot scale %s below zero", proc)
+				return []byte(""), fmt.Errorf("cannot scale %s below zero", proc)
 			}
 
 			if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
@@ -72,9 +73,5 @@ func scaledMarathonJSON(group *Group, app, env string, procs []string) (string, 
 		}
 	}
 
-	j, err := json.Marshal(group)
-	if err != nil {
-		return "", err
-	}
-	return string(j), nil
+	return json.Marshal(group)
 }
