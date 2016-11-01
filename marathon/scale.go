@@ -60,6 +60,10 @@ func scaledMarathonJSON(group *Group, app, env string, procs []string) (string, 
 				return "", err
 			}
 
+			if count < 0 {
+				return "", fmt.Errorf("cannot scale %s below zero", proc)
+			}
+
 			if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
 				prev := a.Instances
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
