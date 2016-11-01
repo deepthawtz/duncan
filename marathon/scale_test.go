@@ -40,7 +40,7 @@ func TestScaledMarathonJSON(t *testing.T) {
 				},
 			},
 		}
-		mj, _ := scaledMarathonJSON(g, app, env, tag, test.scale)
+		_, mj, _ := scaledMarathonJSON(g, app, env, tag, test.scale)
 		if test.valid && len(mj) == 0 {
 			t.Errorf("expected %s argument to be invalid", test.scale)
 		}
@@ -51,15 +51,24 @@ func TestScaledMarathonJSON(t *testing.T) {
 				t.Error(err)
 			}
 
+			// var s = make(map[string]map[string]int)
 			for _, a := range ng.Apps {
 				for _, proc := range test.scale {
 					s := strings.Split(proc, "=")
 					proc := s[0]
 					count, _ := strconv.Atoi(s[1])
+					// s[proc] = map[string]int{
+					// 	"prev": 1,
+					// 	"curr": count,
+					// }
 					if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
 						if count != a.Instances {
 							t.Errorf("expected %v to scale instances to %v", test.scale, count)
 						}
+
+						// if s[proc]["curr"] != count {
+						// 	t.Errorf("expected %v but got %v", count, s[proc]["curr"])
+						// }
 					}
 				}
 			}

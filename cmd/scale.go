@@ -20,7 +20,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/betterdoctor/duncan/deploy"
 	"github.com/betterdoctor/duncan/marathon"
+	"github.com/betterdoctor/duncan/notify"
 	"github.com/spf13/cobra"
 )
 
@@ -56,10 +58,21 @@ If application cannot scale due to insufficient cluster resources an error will 
 				printUsageAndExit()
 			}
 		}
-		if err := marathon.Scale(app, env, args); err != nil {
+		se, err := marathon.Scale(app, env, args)
+		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}
+		msg := fmt.Sprintf("%s :shipit: docker containers scaled :whale:\n", notify.Emoji(env))
+		for k, v := range se {
+			msg += fmt.Sprintf("    %s instances scaled from %v to %v", k, v["prev"], v["curr"])
+		}
+		tag, err := deploy.CurrentTag(app, env, nil)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+		notify.Slack(fmt.Sprintf("%s %s (%s)", app, env, tag), msg)
 	},
 }
 

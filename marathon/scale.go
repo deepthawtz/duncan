@@ -11,56 +11,63 @@ import (
 	"github.com/betterdoctor/duncan/deploy"
 )
 
+type scaleEvent map[string]map[string]int
+
 // Scale increases or decreases number of running instances of
 // an application within a Marathon Group
-func Scale(app, env string, procs []string) error {
+func Scale(app, env string, procs []string) (scaleEvent, error) {
 	groups, err := listGroups()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	var (
+		scaled scaleEvent
+		mj     []byte
+	)
 	for _, g := range groups.Groups {
 		if g.ID == "/"+strings.Join([]string{app, env}, "-") {
 			tag, err := deploy.CurrentTag(app, env, nil)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			mj, err := scaledMarathonJSON(&g, app, env, tag, procs)
+			scaled, mj, err = scaledMarathonJSON(&g, app, env, tag, procs)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			client := &http.Client{}
 			req, _ := http.NewRequest("PUT", deploymentURL(), bytes.NewReader(mj))
 			req.Header.Set("Content-Type", "application/json")
 			resp, err := client.Do(req)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			defer resp.Body.Close()
 			d := &DeploymentResponse{}
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
-				return err
+				return nil, err
 			}
 			if err := waitForDeployment(d.ID); err != nil {
-				return err
+				return nil, err
 			}
 		}
 	}
-	return nil
+	return scaled, nil
 }
 
-func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) ([]byte, error) {
+func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (scaleEvent, []byte, error) {
+	var scaled = make(scaleEvent)
 	for _, a := range group.Apps {
 		for _, proc := range procs {
 			s := strings.Split(proc, "=")
 			proc := s[0]
 			count, err := strconv.Atoi(s[1])
 			if err != nil {
-				return []byte(""), err
+				return nil, []byte(""), err
 			}
 
 			if count < 0 {
-				return []byte(""), fmt.Errorf("cannot scale %s below zero", proc)
+				return nil, []byte(""), fmt.Errorf("cannot scale %s below zero", proc)
 			}
 
 			if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
@@ -68,10 +75,16 @@ func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) ([]b
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
 
+				scaled[strings.Split(a.ID, "/")[2]] = map[string]int{
+					"prev": prev,
+					"curr": count,
+				}
+
 				a.UpdateReleaseTag(tag)
 			}
 		}
 	}
 
-	return json.Marshal(group)
+	j, err := json.Marshal(group)
+	return scaled, j, err
 }
