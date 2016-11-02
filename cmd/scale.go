@@ -40,32 +40,20 @@ duncan scale web=2 worker=5 --app foo --env production
 If application cannot scale due to insufficient cluster resources an error will be returned
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			printUsageAndExit()
-		}
-		if env != "" && env != "stage" && env != "production" {
-			fmt.Printf("env %s is not a valid deployment environment\n", env)
-			os.Exit(-1)
-		}
-		// validate args match proc=count format
-		for _, p := range args {
-			s := strings.Split(p, "=")
-			if len(s) != 2 {
-				printUsageAndExit()
-			}
-			_, err := strconv.Atoi(s[1])
-			if err != nil {
-				printUsageAndExit()
-			}
-		}
+		validateArgs(args)
+
 		se, err := marathon.Scale(app, env, args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		msg := fmt.Sprintf("%s :shipit: docker containers scaled :whale:\n", notify.Emoji(env))
+		msg := fmt.Sprintf("%s docker containers scaled :whale:\n", notify.Emoji(env))
 		for k, v := range se {
-			msg += fmt.Sprintf("    %s instances scaled from %v to %v", k, v["prev"], v["curr"])
+			if v["curr"] > v["prev"] {
+				msg += fmt.Sprintf("    :point_up: %s scaled up from %v to %v instances", k, v["prev"], v["curr"])
+			} else {
+				msg += fmt.Sprintf("    :point_down: %s scaled down from %v to %v instances", k, v["prev"], v["curr"])
+			}
 		}
 		tag, err := deploy.CurrentTag(app, env, nil)
 		if err != nil {
@@ -81,6 +69,27 @@ func init() {
 
 	scaleCmd.Flags().StringVarP(&app, "app", "a", "", "optionally filter by app")
 	scaleCmd.Flags().StringVarP(&env, "env", "e", "", "optionally filter by environment (stage, production)")
+}
+
+func validateArgs(args []string) {
+	if len(args) == 0 {
+		printUsageAndExit()
+	}
+	if env != "" && env != "stage" && env != "production" {
+		fmt.Printf("env %s is not a valid deployment environment\n", env)
+		os.Exit(-1)
+	}
+	// validate args match proc=count format
+	for _, p := range args {
+		s := strings.Split(p, "=")
+		if len(s) != 2 {
+			printUsageAndExit()
+		}
+		_, err := strconv.Atoi(s[1])
+		if err != nil {
+			printUsageAndExit()
+		}
+	}
 }
 
 func printUsageAndExit() {
