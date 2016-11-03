@@ -34,7 +34,7 @@ var (
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
-	Short: "deploy an application",
+	Short: "Deploy an application",
 	Long: `Deploy an application. An application may be a combination of
 Marathon + Chronos tasks defined in $HOME/.duncan.yml. Deployment requires
 the BetterDoctor repo where Marathon and Chronos task definitions (JSON)

@@ -3,12 +3,15 @@ TAG := $(shell git tag | sort -r | head -n 1)
 
 .PHONY: install release test
 
-release:
+release: deps
 	mkdir -p release
 	perl -p -i -e 's/{{VERSION}}/$(TAG)/g' cmd/version.go
 	GOOS=darwin GOARCH=amd64 go build -o release/duncan-darwin-amd64 $(package)
 	GOOS=linux GOARCH=amd64 go build -o release/duncan-linux-amd64 $(package)
 	perl -p -i -e 's/$(TAG)/{{VERSION}}/g' cmd/version.go
+
+deps:
+	glide install
 
 install:
 	cp release/duncan-darwin-amd64 /usr/local/bin/duncan

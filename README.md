@@ -9,17 +9,20 @@ Usage:
   duncan [command]
 
 Available Commands:
-  deploy      deploy an application
+  deploy      Deploy an application
   list        List applications
+  secrets     Manage Vault secrets (ENV vars) for an app
   scale       Scale an app process
   version     Print the version of duncan
 ```
 
 ### Getting Started
 
+#### Installation
+
 Download a [binary release](https://github.com/betterdoctor/duncan/releases)
 
-**OR**
+**OR** build from source
 
 Requires [Golang](https://golang.org/)
 
@@ -27,9 +30,16 @@ Requires [Golang](https://golang.org/)
 # clone to $GOPATH
 cd $GOPATH/src/github.com/betterdoctor
 git clone git@github.com:betterdoctor/duncan.git && cd duncan
-make release
+make
 make install
 
 # confirm installation
 duncan version
+```
+
+#### Configuration
+
+```bash
+cp ~/example_duncan.yml $HOME/.duncan.yml
+# populate YAML w/ valid values (ask ops team for help if stuck)
 ```

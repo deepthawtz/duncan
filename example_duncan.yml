@@ -1,0 +1,48 @@
+# populate w/ valid values and save at ~/.duncan.yml
+---
+marathon_host: https://mesos-host.com
+marathon_json_path: /path/to/mesos/marathon
+
+chronos_host: https://mesos-host.com
+chronos_json_path: /path/to/mesos/chronos
+
+quay_token: *****************************
+slack_webhook_url: https://hooks.slack.com/services/**********************
+consul_host: consul-host.com
+vault_host: vault-host.com
+vault_token: ************************
+
+apps:
+  dex:
+    marathon:
+      - dex-{{env}}-group.json
+    chronos:
+      - dex-{{env}}-db-migrate.json
+  etl:
+    marathon:
+      - etl-{{env}}-group.json
+  dapi:
+    marathon:
+      - dapi-{{env}}-group.json
+  validation-service:
+    marathon:
+      - validation-service-{{env}}-group.json
+  papi:
+    marathon:
+      - papi-{{env}}-group.json
+  feedback:
+    marathon:
+      - feedback-{{env}}-group.json
+    chronos:
+      - feedback-{{env}}-db-migrate.json
+      - feedback-{{env}}-sync-salesforce.json
+
+# used to generate github diff links
+# mapping necessary because there is not a consistent naming convention
+repos:
+  dex: betterdoctor-dex
+  etl: betterdoctor-etl
+  dapi: betterdoctor-dapi
+  validation-service: validation-service
+  papi: betterdoctor-api-proxy
+  feedback: betterdoctor-feedback

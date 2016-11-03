@@ -25,7 +25,7 @@ import (
 // secretsCmd represents the secrets command
 var secretsCmd = &cobra.Command{
 	Use:   "secrets",
-	Short: "Manage secret key/value pairs for an app",
+	Short: "Manage Vault secrets (ENV vars) for an app",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("must call secrets subcommand")
 		os.Exit(-1)
