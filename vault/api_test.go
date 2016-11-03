@@ -39,8 +39,8 @@ func TestRead(t *testing.T) {
 	ts = getSecretsServer(false)
 	defer ts.Close()
 	s, err = Read(ts.URL)
-	if err == nil {
-		t.Error("expected error but got nil")
+	if err != nil {
+		t.Errorf("expected nil but got %s", err)
 	}
 
 	ts = failServer()

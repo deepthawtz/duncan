@@ -23,14 +23,24 @@ func Read(url string) (*Secrets, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(s.KVPairs) == 0 {
-		return nil, fmt.Errorf("no secrets yet")
-	}
 	return s, nil
 }
 
 // Write sets the given key/value pairs at the provided prefix
 func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
+	if len(s.KVPairs) == 0 {
+		fmt.Println("no secrets yet, bootstrapping new prefix")
+		s.KVPairs = make(map[string]string)
+		for _, kvp := range kvs {
+			p := strings.Split(kvp, "=")
+			s.KVPairs[p[0]] = p[1]
+		}
+		if err := updateSecrets(url, s); err != nil {
+			return nil, err
+		}
+		return s, nil
+	}
+
 	for _, kvp := range kvs {
 		p := strings.Split(kvp, "=")
 		for k, v := range s.KVPairs {
@@ -82,7 +92,7 @@ func readSecrets(url string) (*Secrets, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
