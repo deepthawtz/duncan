@@ -18,33 +18,24 @@ type Secrets struct {
 
 // Read displays all key/value pairs at the given prefix if no key is given
 // If a key is passed will just display the key/value pair for the key
-func Read(app, env string) error {
-	s, err := readSecrets(app, env)
+func Read(url string) (*Secrets, error) {
+	s, err := readSecrets(url)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if len(s.KVPairs) == 0 {
-		return fmt.Errorf("no secrets for --app %s --env %s", app, env)
+		return nil, fmt.Errorf("no secrets yet")
 	}
-	for k, v := range s.KVPairs {
-		fmt.Printf("%s=%s\n", k, v)
-	}
-	return nil
+	return s, nil
 }
 
 // Write sets the given key/value pairs at the provided prefix
-func Write(app, env string, kvs []string) error {
-	s, err := readSecrets(app, env)
-	if err != nil {
-		return err
-	}
-	for i, kvp := range kvs {
+func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
+	for _, kvp := range kvs {
+		p := strings.Split(kvp, "=")
 		for k, v := range s.KVPairs {
-			p := strings.Split(kvp, "=")
 			if k == p[0] {
 				fmt.Printf("changing %s from %s => %s\n", k, v, p[1])
-				s.KVPairs[k] = p[1]
-				kvs = append(kvs[:i], kvs[i+1:]...)
 			}
 		}
 	}
@@ -54,44 +45,37 @@ func Write(app, env string, kvs []string) error {
 		s.KVPairs[p[0]] = p[1]
 	}
 
-	if err := updateSecrets(app, env, s); err != nil {
-		return err
+	if err := updateSecrets(url, s); err != nil {
+		return nil, err
 	}
 
-	for k, v := range s.KVPairs {
-		fmt.Printf("%s=%s\n", k, v)
-	}
-
-	return nil
+	return s, nil
 }
 
 // Delete removes a key/value pair from the prefix
-func Delete(app, env, key string) error {
-	s, err := readSecrets(app, env)
-	if err != nil {
-		return err
-	}
-	b := len(s.KVPairs)
-	for k, _ := range s.KVPairs {
-		if k == key {
-			delete(s.KVPairs, k)
+func Delete(url string, keys []string, s *Secrets) (*Secrets, error) {
+	var count int
+	for _, key := range keys {
+		for k := range s.KVPairs {
+			if k == key {
+				delete(s.KVPairs, k)
+			}
+			count = len(s.KVPairs)
+		}
+		if len(s.KVPairs) != count {
+			fmt.Printf("deleted key %s\n", key)
 		}
 	}
-	if len(s.KVPairs) == b {
-		fmt.Printf("key %s does not exist\n", key)
-		return nil
+	if err := updateSecrets(url, s); err != nil {
+		return nil, err
 	}
-	if err := updateSecrets(app, env, s); err != nil {
-		return err
-	}
-	fmt.Printf("deleted key %s\n", key)
 
-	return nil
+	return s, nil
 }
 
-func readSecrets(app, env string) (*Secrets, error) {
+func readSecrets(url string) (*Secrets, error) {
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", vaultSecretURL(app, env), strings.NewReader(""))
+	req, _ := http.NewRequest("GET", url, strings.NewReader(""))
 	req.Header.Set("X-Vault-Token", viper.GetString("vault_token"))
 	resp, err := client.Do(req)
 	if err != nil {
@@ -112,13 +96,13 @@ func readSecrets(app, env string) (*Secrets, error) {
 	return s, nil
 }
 
-func updateSecrets(app, env string, s *Secrets) error {
+func updateSecrets(url string, s *Secrets) error {
 	j, err := json.Marshal(s.KVPairs)
 	if err != nil {
 		return err
 	}
 	client := &http.Client{}
-	req, _ := http.NewRequest("POST", vaultSecretURL(app, env), bytes.NewReader(j))
+	req, _ := http.NewRequest("POST", url, bytes.NewReader(j))
 	req.Header.Set("X-Vault-Token", viper.GetString("vault_token"))
 	resp, err := client.Do(req)
 	if err != nil {
@@ -135,7 +119,9 @@ func updateSecrets(app, env string, s *Secrets) error {
 	return nil
 }
 
-func vaultSecretURL(app, env string) string {
+// SecretsURL returns the Vault API endpoint to GET and POST secrets
+// for a given app and env
+func SecretsURL(app, env string) string {
 	vaultHost := viper.GetString("vault_host")
 	return fmt.Sprintf("https://%s/v1/%s", vaultHost, prefix(app, env))
 }

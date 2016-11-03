@@ -30,23 +30,24 @@ var setCmd = &cobra.Command{
 		checkAppEnv(app, env)
 		validateKeyValues(args)
 
-		if err := vault.Write(app, env, args); err != nil {
+		u := vault.SecretsURL(app, env)
+		s, err := vault.Read(u)
+		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
+		}
+		s, err = vault.Write(u, args, s)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+
+		for k, v := range s.KVPairs {
+			fmt.Printf("%s=%s\n", k, v)
 		}
 	},
 }
 
 func init() {
 	secretsCmd.AddCommand(setCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// setCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// setCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

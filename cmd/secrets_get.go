@@ -29,9 +29,15 @@ var getCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		checkAppEnv(app, env)
 
-		if err := vault.Read(app, env); err != nil {
+		u := vault.SecretsURL(app, env)
+		s, err := vault.Read(u)
+		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
+		}
+
+		for k, v := range s.KVPairs {
+			fmt.Printf("%s=%s\n", k, v)
 		}
 	},
 }

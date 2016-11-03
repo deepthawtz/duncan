@@ -30,11 +30,15 @@ var delCmd = &cobra.Command{
 		checkAppEnv(app, env)
 		validateKeys(args)
 
-		for _, arg := range args {
-			if err := vault.Delete(app, env, arg); err != nil {
-				fmt.Println(err)
-				os.Exit(-1)
-			}
+		u := vault.SecretsURL(app, env)
+		s, err := vault.Read(u)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+		if _, err := vault.Delete(u, args, s); err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
 		}
 	},
 }
