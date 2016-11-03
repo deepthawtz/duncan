@@ -67,8 +67,8 @@ If application cannot scale due to insufficient cluster resources an error will 
 func init() {
 	RootCmd.AddCommand(scaleCmd)
 
-	scaleCmd.Flags().StringVarP(&app, "app", "a", "", "optionally filter by app")
-	scaleCmd.Flags().StringVarP(&env, "env", "e", "", "optionally filter by environment (stage, production)")
+	scaleCmd.Flags().StringVarP(&app, "app", "a", "", "app to scale")
+	scaleCmd.Flags().StringVarP(&env, "env", "e", "", "environment (stage, production)")
 }
 
 func validateArgs(args []string) {
