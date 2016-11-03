@@ -22,10 +22,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// getCmd represents the get command
-var getCmd = &cobra.Command{
+var secretsGetCmd = &cobra.Command{
 	Use:   "get",
-	Short: "display secrets for an app",
+	Short: "Display secrets for an app",
 	Run: func(cmd *cobra.Command, args []string) {
 		checkAppEnv(app, env)
 
@@ -43,5 +42,5 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	secretsCmd.AddCommand(getCmd)
+	secretsCmd.AddCommand(secretsGetCmd)
 }

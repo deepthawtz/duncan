@@ -22,8 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// setCmd represents the set command
-var setCmd = &cobra.Command{
+var secretsSetCmd = &cobra.Command{
 	Use:   "set KEY=VALUE [KEY2=VALUE2 ...]",
 	Short: "Set one or more secret key/value pairs for an app",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -49,5 +48,5 @@ var setCmd = &cobra.Command{
 }
 
 func init() {
-	secretsCmd.AddCommand(setCmd)
+	secretsCmd.AddCommand(secretsSetCmd)
 }

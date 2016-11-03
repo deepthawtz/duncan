@@ -35,7 +35,7 @@ var secretsCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(secretsCmd)
 
-	secretsCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to deploy")
+	secretsCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage secrets for")
 	secretsCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
 }
 

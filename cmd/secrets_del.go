@@ -22,10 +22,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// delCmd represents the del command
-var delCmd = &cobra.Command{
+var secretsDelCmd = &cobra.Command{
 	Use:   "del KEY [KEY ...]",
-	Short: "Delete a secret key/value pair for an app",
+	Short: "Delete one or more secrets for an app",
 	Run: func(cmd *cobra.Command, args []string) {
 		checkAppEnv(app, env)
 		validateKeys(args)
@@ -44,5 +43,5 @@ var delCmd = &cobra.Command{
 }
 
 func init() {
-	secretsCmd.AddCommand(delCmd)
+	secretsCmd.AddCommand(secretsDelCmd)
 }
