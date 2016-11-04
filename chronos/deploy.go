@@ -18,8 +18,8 @@ func Deploy(app, env, tag string) error {
 	if deployment == nil {
 		return fmt.Errorf("invalid YAML config for %s\n", app)
 	}
-	for k, v := range deployment.(map[interface{}]interface{}) {
-		if k.(string) == "chronos" {
+	for k, v := range deployment.(map[string]interface{}) {
+		if k == "chronos" {
 			for _, x := range v.([]interface{}) {
 				cj := path.Join(chronosPath, strings.Replace(x.(string), "{{env}}", env, -1))
 				body, err := ioutil.ReadFile(cj)

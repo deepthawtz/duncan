@@ -55,7 +55,7 @@ If application cannot scale due to insufficient cluster resources an error will 
 				msg += fmt.Sprintf("    :point_down: %s scaled down from %v to %v instances", k, v["prev"], v["curr"])
 			}
 		}
-		tag, err := deployment.CurrentTag(app, env, nil)
+		tag, err := deployment.CurrentTag(app, env)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)

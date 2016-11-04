@@ -125,3 +125,15 @@ func EnvURL(app, env string) string {
 	ch := viper.GetString("consul_host")
 	return fmt.Sprintf("https://%s/v1/kv/env/%s/%s", ch, app, env)
 }
+
+// CurrentDeploymentTagURL returns URL to fetch currently deployed tag
+func CurrentDeploymentTagURL(app, env string) string {
+	ch := viper.GetString("consul_host")
+	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw", ch, app, env)
+}
+
+// DeploymentTagURL returns URL to PUT release tags to (current/previous)
+func DeploymentTagURL(app, env string) string {
+	ch := viper.GetString("consul_host")
+	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, app, env)
+}

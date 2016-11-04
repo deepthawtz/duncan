@@ -31,7 +31,7 @@ func Scale(app, env string, procs []string) (ScaleEvent, error) {
 	)
 	for _, g := range groups.Groups {
 		if g.ID == deployment.MarathonGroupID(app, env) {
-			tag, err := deployment.CurrentTag(app, env, nil)
+			tag, err := deployment.CurrentTag(app, env)
 			if err != nil {
 				return nil, err
 			}

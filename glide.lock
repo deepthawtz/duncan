@@ -1,16 +1,10 @@
-hash: 29a4a1ae5cc6b5189b484966a08403a849a92dd142158bd266dd6d10db9eeecd
-updated: 2016-11-03T11:03:53.938694445-07:00
+hash: 05cc9f3c87314671592ff4c51af3a484d3c827df574c05f6d3724d29b96c2859
+updated: 2016-11-04T15:58:53.418499136-07:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
-- name: github.com/hashicorp/consul
-  version: a189091a3530051285c12c726ca28ea55e015336
-  subpackages:
-  - api
-- name: github.com/hashicorp/go-cleanhttp
-  version: ad28ea4487f05916463e2423a55166280e8254b5
 - name: github.com/hashicorp/hcl
-  version: 6e968a3fcdcbab092f5307fd0d85479d5af1e4dc
+  version: f74cf8281543a0797d7b4ab7d88e76e7ba125308
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -20,10 +14,6 @@ imports:
   - hcl/strconv
   - json/scanner
   - json/token
-- name: github.com/hashicorp/serf
-  version: e0680ca729b018b791af1add413faebe3e1c147e
-  subpackages:
-  - coordinate
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/kr/fs

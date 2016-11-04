@@ -61,7 +61,7 @@ duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
 			os.Exit(-1)
 		}
 
-		prev, err := deployment.UpdateTags(app, env, tag, nil)
+		prev, err := deployment.UpdateReleaseTags(app, env, tag)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
