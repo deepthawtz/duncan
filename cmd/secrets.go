@@ -62,6 +62,10 @@ func validateKeyValues(kvs []string) {
 }
 
 func validateKeys(keys []string) {
+	if len(keys) == 0 {
+		fmt.Println("must provide one or more keys")
+		os.Exit(-1)
+	}
 	for _, k := range keys {
 		p := strings.Split(k, "=")
 		if len(p) > 1 {
