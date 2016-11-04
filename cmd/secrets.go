@@ -47,6 +47,11 @@ func checkAppEnv(app, env string) {
 }
 
 func validateKeyValues(kvs []string) {
+	if len(kvs) == 0 {
+		fmt.Println("must provide key/value pairs in KEY=VALUE format")
+		os.Exit(-1)
+	}
+
 	for _, k := range kvs {
 		p := strings.Split(k, "=")
 		if len(p) != 2 {
