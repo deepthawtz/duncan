@@ -50,7 +50,8 @@ Example:
 duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		sanityCheck()
+		validateDeployFlags()
+
 		if err := marathon.Deploy(app, env, tag); err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
@@ -81,9 +82,7 @@ func init() {
 	deployCmd.Flags().StringVarP(&tag, "tag", "t", "", "git tag to deploy")
 }
 
-// sanityCheck checks that the most important pre-conditions are met before
-// a deployment can proceed and dies if anything is not right
-func sanityCheck() {
+func validateDeployFlags() {
 	if app == "" || env == "" || tag == "" {
 		fmt.Println("must supply all flags for deploy command")
 		os.Exit(-1)
