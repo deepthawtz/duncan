@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/betterdoctor/duncan/deploy"
 	"github.com/spf13/viper"
 )
 
@@ -27,7 +28,7 @@ func Deploy(app, env, tag string) error {
 
 	// check JSON to see if group has already been deployed
 	for _, g := range groups.Groups {
-		if g.ID == "/"+strings.Join([]string{app, env}, "-") {
+		if g.ID == deploy.MarathonGroupID(app, env) {
 			for _, a := range g.Apps {
 				if a.IsApp(app) {
 					a.UpdateReleaseTag(tag)

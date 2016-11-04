@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"fmt"
+	"strings"
 
 	consul "github.com/hashicorp/consul/api"
 	"github.com/spf13/viper"
@@ -63,6 +64,11 @@ func CurrentTag(app, env string, client *consul.KV) (string, error) {
 	}
 
 	return string(curr.Value), nil
+}
+
+// MarathonGroupID returns a Marathon Group id for an app and env
+func MarathonGroupID(app, env string) string {
+	return "/" + strings.Join([]string{app, env}, "-")
 }
 
 // Diff returns a GitHub link to view the git diff of changes

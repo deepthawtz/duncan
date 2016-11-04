@@ -26,7 +26,7 @@ func Scale(app, env string, procs []string) (scaleEvent, error) {
 		mj     []byte
 	)
 	for _, g := range groups.Groups {
-		if g.ID == "/"+strings.Join([]string{app, env}, "-") {
+		if g.ID == deploy.MarathonGroupID(app, env) {
 			tag, err := deploy.CurrentTag(app, env, nil)
 			if err != nil {
 				return nil, err
@@ -70,7 +70,7 @@ func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (sca
 				return nil, []byte(""), fmt.Errorf("cannot scale %s below zero", proc)
 			}
 
-			if a.ID == "/"+strings.Join([]string{app, env}, "-")+"/"+proc {
+			if a.ID == fmt.Sprintf("%s/%s", deploy.MarathonGroupID(app, env), proc) {
 				prev := a.Instances
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
