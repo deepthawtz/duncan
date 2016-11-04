@@ -1,4 +1,4 @@
-package deploy
+package deployment
 
 import (
 	"fmt"
@@ -71,9 +71,8 @@ func MarathonGroupID(app, env string) string {
 	return "/" + strings.Join([]string{app, env}, "-")
 }
 
-// Diff returns a GitHub link to view the git diff of changes
-// being deployed
-func Diff(app, prev, tag string) string {
+// GithubDiffLink returns a GitHub diff link to view deployment changes
+func GithubDiffLink(app, prev, tag string) string {
 	if prev == tag || prev == "" {
 		return "no changes"
 	}

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/betterdoctor/duncan/deploy"
+	"github.com/betterdoctor/duncan/deployment"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -26,7 +26,7 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 		for _, g := range gs.Groups {
 			envs := strings.Split(env, "|")
 			for _, e := range envs {
-				id := deploy.MarathonGroupID(a, e)
+				id := deployment.MarathonGroupID(a, e)
 				if g.ID == id {
 					fmt.Println(id)
 					var data = make([][]string, 10)

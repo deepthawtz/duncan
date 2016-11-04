@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/betterdoctor/duncan/deploy"
+	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/duncan/notify"
 	"github.com/spf13/cobra"
@@ -55,7 +55,7 @@ If application cannot scale due to insufficient cluster resources an error will 
 				msg += fmt.Sprintf("    :point_down: %s scaled down from %v to %v instances", k, v["prev"], v["curr"])
 			}
 		}
-		tag, err := deploy.CurrentTag(app, env, nil)
+		tag, err := deployment.CurrentTag(app, env, nil)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)

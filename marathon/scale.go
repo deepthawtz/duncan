@@ -8,26 +8,30 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/betterdoctor/duncan/deploy"
+	"github.com/betterdoctor/duncan/deployment"
 )
 
-type scaleEvent map[string]map[string]int
+// ScaleEvent represents a Marathon Group scale event
+//
+// One or more containers within a Group may be scaled
+// up or down at once
+type ScaleEvent map[string]map[string]int
 
 // Scale increases or decreases number of running instances of
 // an application within a Marathon Group
-func Scale(app, env string, procs []string) (scaleEvent, error) {
+func Scale(app, env string, procs []string) (ScaleEvent, error) {
 	groups, err := listGroups()
 	if err != nil {
 		return nil, err
 	}
 
 	var (
-		scaled scaleEvent
+		scaled ScaleEvent
 		mj     []byte
 	)
 	for _, g := range groups.Groups {
-		if g.ID == deploy.MarathonGroupID(app, env) {
-			tag, err := deploy.CurrentTag(app, env, nil)
+		if g.ID == deployment.MarathonGroupID(app, env) {
+			tag, err := deployment.CurrentTag(app, env, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -55,8 +59,8 @@ func Scale(app, env string, procs []string) (scaleEvent, error) {
 	return scaled, nil
 }
 
-func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (scaleEvent, []byte, error) {
-	var scaled = make(scaleEvent)
+func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (ScaleEvent, []byte, error) {
+	var scaled = make(ScaleEvent)
 	for _, a := range group.Apps {
 		for _, proc := range procs {
 			s := strings.Split(proc, "=")
@@ -70,7 +74,7 @@ func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (sca
 				return nil, []byte(""), fmt.Errorf("cannot scale %s below zero", proc)
 			}
 
-			if a.ID == fmt.Sprintf("%s/%s", deploy.MarathonGroupID(app, env), proc) {
+			if a.ID == fmt.Sprintf("%s/%s", deployment.MarathonGroupID(app, env), proc) {
 				prev := a.Instances
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
