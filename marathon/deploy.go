@@ -45,6 +45,9 @@ func Deploy(app, env, tag string) error {
 			if err != nil {
 				return err
 			}
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("failed to deploy: %s\n", resp.Status)
+			}
 			defer resp.Body.Close()
 			d := &DeploymentResponse{}
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
@@ -79,6 +82,9 @@ func Deploy(app, env, tag string) error {
 				resp, err := client.Do(req)
 				if err != nil {
 					return err
+				}
+				if resp.StatusCode != http.StatusOK {
+					return fmt.Errorf("failed to deploy: %s\n", resp.Status)
 				}
 				defer resp.Body.Close()
 				d := &DeploymentResponse{}
