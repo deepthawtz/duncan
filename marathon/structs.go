@@ -108,8 +108,8 @@ type Docker struct {
 	Type           string                   `json:"type"`
 	Image          string                   `json:"image"`
 	ForcePullImage bool                     `json:"forcePullImage,omitempty"`
-	Network        string                   `json:"network"`
-	PortMappings   []map[string]interface{} `json:"portMappings"`
+	Network        string                   `json:"network,omitempty"`
+	PortMappings   []map[string]interface{} `json:"portMappings,omitempty"`
 }
 
 // Deployment represents a Marathon deployment
