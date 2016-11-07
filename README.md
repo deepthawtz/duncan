@@ -10,6 +10,7 @@ Usage:
 
 Available Commands:
   deploy      Deploy an application
+  env         Manage Consul key/values (ENV vars) for an app
   list        List applications
   secrets     Manage Vault secrets (ENV vars) for an app
   scale       Scale an app process
