@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Slack notifies slack with the botname to use and message
 func Slack(botname, message string) error {
 	url := viper.GetString("slack_webhook_url")
 	msg := messageBody(botname, message)
