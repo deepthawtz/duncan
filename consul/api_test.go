@@ -3,9 +3,34 @@ package consul
 import (
 	"encoding/base64"
 	"fmt"
+	"html/template"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/spf13/viper"
 )
+
+const envJSONTemplate = `
+[
+  {
+    "LockIndex": 0,
+    "Key": "env/{{.App}}/{{.Env}}/FOO_ENABLED",
+    "Flags": 0,
+    "Value": "Kg==",
+    "CreateIndex": 2255959,
+    "ModifyIndex": 2255959
+  },
+  {
+    "LockIndex": 0,
+    "Key": "env/{{.App}}/{{.Env}}/BAR_ENABLED",
+    "Flags": 0,
+    "Value": "Kg==",
+    "CreateIndex": 2255959,
+    "ModifyIndex": 2255959
+  }
+]`
 
 func TestEnvMap(t *testing.T) {
 	data := map[string][]byte{
@@ -37,4 +62,106 @@ func TestEnvMap(t *testing.T) {
 			t.Errorf("expected %s but got %s", m[key], value)
 		}
 	}
+}
+
+func TestEnvURL(t *testing.T) {
+	cases := []struct {
+		app string
+		env string
+	}{
+		{app: "foo", env: "stage"},
+		{app: "foo", env: "production"},
+	}
+	ch := "consul.yodawg.com"
+	viper.Set("consul_host", ch)
+
+	for _, test := range cases {
+		exp := fmt.Sprintf("https://%s/v1/kv/env/%s/%s", ch, test.app, test.env)
+		u := EnvURL(test.app, test.env)
+		if exp != u {
+			t.Errorf("expected %s but got %s", exp, u)
+		}
+	}
+}
+
+func TestCurrentDeploymentTagURL(t *testing.T) {
+	cases := []struct {
+		app string
+		env string
+	}{
+		{app: "foo", env: "stage"},
+		{app: "foo", env: "production"},
+	}
+	ch := "consul.yodawg.com"
+	viper.Set("consul_host", ch)
+
+	for _, test := range cases {
+		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw", ch, test.app, test.env)
+		u := CurrentDeploymentTagURL(test.app, test.env)
+		if exp != u {
+			t.Errorf("expected %s but got %s", exp, u)
+		}
+	}
+}
+
+func TestDeploymentTagURL(t *testing.T) {
+	cases := []struct {
+		app string
+		env string
+	}{
+		{app: "foo", env: "stage"},
+		{app: "foo", env: "production"},
+	}
+	ch := "consul.yodawg.com"
+	viper.Set("consul_host", ch)
+
+	for _, test := range cases {
+		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, test.app, test.env)
+		u := DeploymentTagURL(test.app, test.env)
+		if exp != u {
+			t.Errorf("expected %s but got %s", exp, u)
+		}
+	}
+}
+
+// TestApp represents a test app
+type TestApp struct {
+	App, Env string
+	exists   bool
+}
+
+func TestRead(t *testing.T) {
+	apps := []TestApp{
+		{App: "foo", Env: "stage", exists: true},
+		{App: "foo", Env: "production", exists: false},
+	}
+
+	for _, app := range apps {
+		ts := getEnvServer(app)
+		env, err := Read(ts.URL)
+		if err != nil {
+			t.Error(err)
+		}
+		if app.exists && len(env) == 0 {
+			t.Errorf("expected populated ENV map but got %v", env)
+		}
+		if !app.exists && len(env) != 0 {
+			t.Errorf("expected empty ENV map but got %v", env)
+		}
+	}
+}
+
+func getEnvServer(app TestApp) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.exists {
+			t := template.Must(template.New("env_json").Parse(envJSONTemplate))
+			err := t.Execute(w, app)
+			if err != nil {
+				panic(err)
+			}
+
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}))
 }
