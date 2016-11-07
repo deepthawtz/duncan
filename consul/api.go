@@ -29,10 +29,14 @@ func Read(url string) (map[string]string, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	var env []KVPair
+	if resp.StatusCode == http.StatusNotFound {
+		m := envMap(env)
+		return m, nil
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch ENV: %s", resp.Status)
 	}
-	var env []KVPair
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -56,7 +60,7 @@ func Write(url string, kvs []string) (map[string]string, error) {
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
 		for k, v := range env {
-			if k == a[0] {
+			if k == a[0] && v != a[1] {
 				fmt.Printf("changing %s from %s => %s\n", k, v, a[1])
 			}
 		}
@@ -114,8 +118,10 @@ func envMap(kvs []KVPair) map[string]string {
 	for _, env := range kvs {
 		p := strings.Split(env.Key, "/")
 		key := p[len(p)-1]
-		value, _ := base64.StdEncoding.DecodeString(env.Value)
-		m[key] = string(value)
+		if key != "" {
+			value, _ := base64.StdEncoding.DecodeString(env.Value)
+			m[key] = string(value)
+		}
 	}
 	return m
 }
