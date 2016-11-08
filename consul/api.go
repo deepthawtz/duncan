@@ -70,9 +70,8 @@ func Write(url string, kvs []string) (map[string]string, error) {
 		a := strings.Split(kvp, "=")
 		env[a[0]] = a[1]
 
-		url += fmt.Sprintf("/%s", a[0])
 		client := &http.Client{}
-		req, _ := http.NewRequest("PUT", url, strings.NewReader(fmt.Sprintf("%s", a[1])))
+		req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/%s", url, a[0]), strings.NewReader(fmt.Sprintf("%s", a[1])))
 		resp, err := client.Do(req)
 		if err != nil {
 			return nil, err
