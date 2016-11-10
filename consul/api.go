@@ -60,18 +60,20 @@ func Write(url string, kvs []string) (map[string]string, error) {
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
 		for k, v := range env {
-			if k == a[0] && v != a[1] {
-				fmt.Printf("changing %s from %s => %s\n", k, v, a[1])
+			val := strings.Join(a[1:], "")
+			if k == a[0] && v != val {
+				fmt.Printf("changing %s from %s => %s\n", k, v, val)
 			}
 		}
 	}
 
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
-		env[a[0]] = a[1]
+		val := strings.Join(a[1:], "")
+		env[a[0]] = val
 
 		client := &http.Client{}
-		req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/%s", url, a[0]), strings.NewReader(fmt.Sprintf("%s", a[1])))
+		req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/%s", url, a[0]), strings.NewReader(val))
 		resp, err := client.Do(req)
 		if err != nil {
 			return nil, err

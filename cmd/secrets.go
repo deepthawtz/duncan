@@ -54,7 +54,8 @@ func validateKeyValues(kvs []string) {
 
 	for _, k := range kvs {
 		p := strings.Split(k, "=")
-		if len(p) != 2 {
+		// len should be at least 2 (edgecase w/ values that contain '=' character)
+		if len(p) < 2 {
 			fmt.Println("must provide key/value pairs in KEY=VALUE format")
 			os.Exit(-1)
 		}

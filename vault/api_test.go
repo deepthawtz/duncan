@@ -74,6 +74,14 @@ func TestWrite(t *testing.T) {
 	if err == nil && len(s.KVPairs) != 4 {
 		t.Errorf("expected 4 secrets but got %v", s.KVPairs)
 	}
+
+	s, err = Write(sss.URL, []string{"VAR_WITH_EQUAL_SIGNS_IN_IT=bnv23=@#$"}, s)
+	if err != nil {
+		t.Errorf("expected success but failed: %s", err)
+	}
+	if err == nil && len(s.KVPairs) != 5 {
+		t.Errorf("expected 4 secrets but got %v", s.KVPairs)
+	}
 }
 
 func TestDelete(t *testing.T) {
