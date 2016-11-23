@@ -20,6 +20,7 @@ import (
 
 	"github.com/betterdoctor/duncan/consul"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var envSetCmd = &cobra.Command{
@@ -29,8 +30,10 @@ var envSetCmd = &cobra.Command{
 		checkAppEnv(app, env)
 		validateKeyValues(args)
 
-		u := consul.EnvURL(app, env)
-		env, err := consul.Write(u, args)
+		host := viper.GetString("consul_host")
+		token := viper.GetString("consul_token")
+		url := fmt.Sprintf("https://%s/v1/txn?token=%s", host, token)
+		env, err := consul.Write(app, env, url, args)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)

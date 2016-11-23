@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,10 +12,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TxnItem represents a KV element in a transaction
+type TxnItem struct {
+	KV *KVPair `json:"KV"`
+}
+
 // KVPair represents an individual key/value pair
 type KVPair struct {
 	Key   string `json:"Key"`
 	Value string `json:"Value"`
+	Verb  string `json:"Verb,omitempty"`
 }
 
 // Read returns ENV for given consul KV URL
@@ -51,8 +58,9 @@ func Read(url string) (map[string]string, error) {
 }
 
 // Write sets ENV vars for a given KV URL
-func Write(url string, kvs []string) (map[string]string, error) {
-	env, err := Read(url)
+func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) {
+	u := EnvURL(app, deployEnv)
+	env, err := Read(u)
 	if err != nil {
 		return nil, err
 	}
@@ -67,25 +75,38 @@ func Write(url string, kvs []string) (map[string]string, error) {
 		}
 	}
 
+	var txn []*TxnItem
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
 		val := strings.Join(a[1:], "")
 		env[a[0]] = val
+		txn = append(txn, &TxnItem{
+			KV: &KVPair{
+				Key:   fmt.Sprintf("env/%s/%s/%s", app, deployEnv, a[0]),
+				Value: base64.StdEncoding.EncodeToString([]byte(val)),
+				Verb:  "set",
+			},
+		})
+	}
 
-		client := &http.Client{}
-		req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/%s", url, a[0]), strings.NewReader(val))
-		resp, err := client.Do(req)
+	client := &http.Client{}
+	body, err := json.Marshal(txn)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(body))
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			b, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
-		}
+		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 	}
 
 	return env, nil
