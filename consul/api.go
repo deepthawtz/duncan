@@ -26,11 +26,8 @@ type KVPair struct {
 
 // Read returns ENV for given consul KV URL
 func Read(url string) (map[string]string, error) {
-	url += "?recurse"
-	token := viper.GetString("consul_token")
-	if token != "" {
-		url += fmt.Sprintf("&token=%s", token)
-	}
+	url += "&recurse"
+	url += fmt.Sprintf("?token=%s", viper.GetString("consul_token"))
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -114,8 +111,10 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 
 // Delete removes key/values from Consul by given keys
 func Delete(url string, keys []string) error {
+	token := viper.GetString("consul_token")
 	for _, k := range keys {
 		url += fmt.Sprintf("/%s", k)
+		url += fmt.Sprintf("?token=%s", token)
 		client := &http.Client{}
 		req, _ := http.NewRequest("DELETE", url, strings.NewReader(""))
 		resp, err := client.Do(req)
