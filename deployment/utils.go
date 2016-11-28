@@ -66,12 +66,14 @@ func CurrentTag(app, env string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	if resp.StatusCode == http.StatusOK {
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
 	}
-
-	return string(b), nil
+	return "", fmt.Errorf("could not fetch current release tag: %s", resp.Status)
 }
 
 // MarathonGroupID returns a Marathon Group id for an app and env

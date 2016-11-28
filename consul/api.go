@@ -156,11 +156,13 @@ func EnvURL(app, env string) string {
 // CurrentDeploymentTagURL returns URL to fetch currently deployed tag
 func CurrentDeploymentTagURL(app, env string) string {
 	ch := viper.GetString("consul_host")
-	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw", ch, app, env)
+	token := viper.GetString("consul_token")
+	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, app, env, token)
 }
 
 // DeploymentTagURL returns URL to PUT release tags to (current/previous)
 func DeploymentTagURL(app, env string) string {
 	ch := viper.GetString("consul_host")
-	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, app, env)
+	token := viper.GetString("consul_token")
+	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s?token=%s", ch, app, env, token)
 }
