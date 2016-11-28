@@ -17,5 +17,5 @@ install:
 	cp release/duncan-darwin-amd64 /usr/local/bin/duncan
 	chmod +x /usr/local/bin/duncan
 
-test:
+test: deps
 	go test -v -cover `go list ./... | grep -v vendor` | sed ''/PASS/s//`printf "\033[32mPASS\033[0m"`/'' | sed ''/FAIL/s//`printf "\033[31mFAIL\033[0m"`/''
