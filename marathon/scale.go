@@ -76,6 +76,9 @@ func scaledMarathonJSON(group *Group, app, env, tag string, procs []string) (Sca
 
 			if a.ID == fmt.Sprintf("%s/%s", deployment.MarathonGroupID(app, env), proc) {
 				prev := a.Instances
+				if prev == count {
+					return nil, []byte(""), fmt.Errorf("already running %d instances of %s", count, a.ID)
+				}
 				fmt.Printf("scaling %s from %d to %d\n", proc, prev, count)
 				a.Instances = count
 
