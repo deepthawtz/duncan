@@ -38,8 +38,10 @@ func UpdateReleaseTags(app, env, tag string) (string, error) {
 		"previous": prev,
 	}
 
+	token := viper.GetString("consul_token")
 	for k, v := range m {
 		url = strings.Join([]string{consul.DeploymentTagURL(app, env), k}, "/")
+		url += fmt.Sprintf("?token=%s", token)
 		client := &http.Client{}
 		req, _ := http.NewRequest("PUT", url, strings.NewReader(v))
 		resp, err := client.Do(req)
