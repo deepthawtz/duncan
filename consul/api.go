@@ -26,8 +26,8 @@ type KVPair struct {
 
 // Read returns ENV for given consul KV URL
 func Read(url string) (map[string]string, error) {
-	url += "&recurse"
-	url += fmt.Sprintf("?token=%s", viper.GetString("consul_token"))
+	url += "?recurse"
+	url += fmt.Sprintf("&token=%s", viper.GetString("consul_token"))
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -35,8 +35,7 @@ func Read(url string) (map[string]string, error) {
 	defer resp.Body.Close()
 	var env []KVPair
 	if resp.StatusCode == http.StatusNotFound {
-		m := envMap(env)
-		return m, nil
+		return nil, fmt.Errorf("failed to find ENV at: %s", url)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch ENV: %s", resp.Status)
