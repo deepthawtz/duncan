@@ -93,10 +93,12 @@ func TestCurrentDeploymentTagURL(t *testing.T) {
 		{app: "foo", env: "production"},
 	}
 	ch := "consul.yodawg.com"
+	token := "abc123"
 	viper.Set("consul_host", ch)
+	viper.Set("consul_token", token)
 
 	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw", ch, test.app, test.env)
+		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, test.app, test.env, token)
 		u := CurrentDeploymentTagURL(test.app, test.env)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)
@@ -136,12 +138,10 @@ func TestRead(t *testing.T) {
 		{App: "foo", Env: "production", exists: false},
 	}
 
+	viper.Set("consul_token", "abc123")
 	for _, app := range apps {
 		ts := getEnvServer(app)
-		env, err := Read(ts.URL)
-		if err != nil {
-			t.Error(err)
-		}
+		env, _ := Read(ts.URL)
 		if app.exists && len(env) == 0 {
 			t.Errorf("expected populated ENV map but got %v", env)
 		}
