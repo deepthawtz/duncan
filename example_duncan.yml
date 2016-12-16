@@ -6,12 +6,12 @@ marathon_json_path: /path/to/mesos/marathon
 chronos_host: https://mesos-host.com
 chronos_json_path: /path/to/mesos/chronos
 
-quay_token: *****************************
-slack_webhook_url: https://hooks.slack.com/services/**********************
-consul_host: consul-host.com
-consul_token: ***********************
-vault_host: vault-host.com
-vault_token: ************************
+quay_token:
+slack_webhook_url:
+consul_host: consul.betterdr.net
+consul_token:
+vault_host: vault.betterdr.net
+vault_token:
 
 apps:
   dex:
