@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/betterdoctor/duncan/notify"
 	"github.com/spf13/viper"
 )
 
@@ -41,22 +42,37 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 		return s, nil
 	}
 
+	var (
+		added   []string
+		changed []string
+	)
 	for _, kvp := range kvs {
 		p := strings.Split(kvp, "=")
+		key := p[0]
+		val := strings.Join(p[1:], "")
 		for k, v := range s.KVPairs {
-			if k == p[0] {
-				fmt.Printf("changing %s from %s => %s\n", k, v, strings.Join(p[1:], ""))
+			if k == key && v != val {
+				changed = append(changed, key)
+				fmt.Printf("changing %s from %s => %s\n", k, v, val)
 			}
 		}
-	}
-
-	for _, kvp := range kvs {
-		p := strings.Split(kvp, "=")
-		s.KVPairs[p[0]] = strings.Join(p[1:], "")
+		if _, ok := s.KVPairs[key]; !ok {
+			added = append(added, key)
+		}
+		s.KVPairs[key] = val
 	}
 
 	if err := updateSecrets(url, s); err != nil {
 		return nil, err
+	}
+
+	p := strings.Split(url, "/")
+	app, deployEnv := p[len(p)-2], p[len(p)-1]
+	if len(added) > 0 || len(changed) > 0 {
+		notify.Slack(
+			fmt.Sprintf("%s %s", app, deployEnv),
+			fmt.Sprintf("secrets updated and app restarted. changed: `%s` added: `%s`\n", changed, added),
+		)
 	}
 
 	return s, nil

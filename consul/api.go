@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/betterdoctor/duncan/notify"
 	"github.com/spf13/viper"
 )
 
@@ -55,30 +56,34 @@ func Read(url string) (map[string]string, error) {
 
 // Write sets ENV vars for a given KV URL
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) {
+	var (
+		added   []string
+		changed []string
+	)
 	u := EnvURL(app, deployEnv)
 	env, err := Read(u)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, kvp := range kvs {
-		a := strings.Split(kvp, "=")
-		for k, v := range env {
-			val := strings.Join(a[1:], "")
-			if k == a[0] && v != val {
-				fmt.Printf("changing %s from %s => %s\n", k, v, val)
-			}
-		}
-	}
-
 	var txn []*TxnItem
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
+		key := a[0]
 		val := strings.Join(a[1:], "")
+		for k, v := range env {
+			if k == key && v != val {
+				changed = append(changed, k)
+				fmt.Printf("changing %s from %s => %s\n", k, v, val)
+			}
+		}
+		if _, ok := env[key]; !ok {
+			added = append(added, key)
+		}
 		env[a[0]] = val
 		txn = append(txn, &TxnItem{
 			KV: &KVPair{
-				Key:   fmt.Sprintf("env/%s/%s/%s", app, deployEnv, a[0]),
+				Key:   fmt.Sprintf("env/%s/%s/%s", app, deployEnv, key),
 				Value: base64.StdEncoding.EncodeToString([]byte(val)),
 				Verb:  "set",
 			},
@@ -90,7 +95,6 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(body))
 	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
 	resp, err := client.Do(req)
 	if err != nil {
@@ -104,6 +108,10 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 		}
 		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 	}
+	notify.Slack(
+		fmt.Sprintf("%s %s", app, deployEnv),
+		fmt.Sprintf("ENV vars updated and app restarted. changed: `%s` added: `%s`\n", changed, added),
+	)
 
 	return env, nil
 }
