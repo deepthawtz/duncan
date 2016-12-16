@@ -41,6 +41,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.duncan.yml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
