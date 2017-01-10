@@ -41,6 +41,6 @@ duncan version
 #### Configuration
 
 ```bash
-cp ~/example_duncan.yml $HOME/.duncan.yml
+cp example_duncan.yml $HOME/.duncan.yml
 # populate YAML w/ valid values (ask ops team for help if stuck)
 ```
