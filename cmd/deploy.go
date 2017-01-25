@@ -47,7 +47,7 @@ Marathon Apps.
 
 Example:
 
-duncan deploy --app APP --env (stage,production) --tag GIT_TAG`,
+$ duncan deploy --app APP --env ENV --tag GIT_TAG`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		validateDeployFlags()
