@@ -90,10 +90,11 @@ func RunCommand(app, env, cmd string) error {
 		Env:      env,
 		Tag:      tag,
 		Command:  cmd,
-		TaskName: strings.Join([]string{app, env, sanitizedCommand(cmd)}, "-"),
+		TaskName: taskName(app, env, cmd),
 	}
-	url := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
-	if err := launchChronosOneOffCommand(url, task); err != nil {
+	chronosURL := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
+	mesosURL := fmt.Sprintf("%s/mesos/tasks", viper.GetString("marathon_host"))
+	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task); err != nil {
 		return err
 	}
 
@@ -115,15 +116,18 @@ func fetchCurrentTag(app, env string) (string, error) {
 	return string(tag), err
 }
 
-// sanitizedCommand strips out non-alphabet chars from commmand string
-// used to generate a valid Chronos task name which cannot contain special chars
-func sanitizedCommand(cmd string) string {
-	var out []string
-	re := regexp.MustCompile("[a-z]*")
+// taskName generates a valid Chronos task name based on the app/env/command given
+func taskName(app, env, cmd string) string {
+	out := []string{app, env}
+	re := regexp.MustCompile("[a-zA-Z0-9]*")
 	p := strings.Split(cmd, " ")
 	for _, c := range p {
 		m := re.FindAllString(strings.TrimSpace(c), -1)
-		out = append(out, strings.Join(m, "-"))
+		for _, x := range m {
+			if x != "" {
+				out = append(out, strings.ToLower(x))
+			}
+		}
 	}
 
 	return strings.Join(out, "-")
@@ -141,8 +145,8 @@ func renderChronosTaskJSON(task *TaskVars) (string, error) {
 	return j.String(), nil
 }
 
-func launchChronosOneOffCommand(url string, task *TaskVars) error {
-	tasks, err := scheduledTasks(task.TaskName)
+func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars) error {
+	tasks, err := scheduledTasks(mesosURL, task.TaskName)
 	if err != nil {
 		return err
 	}
@@ -151,7 +155,7 @@ func launchChronosOneOffCommand(url string, task *TaskVars) error {
 	if err != nil {
 		return err
 	}
-	resp, err := http.Post(url, "application/json", strings.NewReader(cj))
+	resp, err := http.Post(chronosURL, "application/json", strings.NewReader(cj))
 	if err != nil {
 		return err
 	}
@@ -163,18 +167,18 @@ func launchChronosOneOffCommand(url string, task *TaskVars) error {
 		return fmt.Errorf("failed to launch command: %s", body)
 	}
 	fmt.Printf("executing '%s' in instance of %s:%s (%s)\n", task.Command, task.App, task.Tag, task.Env)
-	if err = handleTask(task.TaskName, len(tasks)); err != nil {
+	if err = handleTask(mesosURL, task.TaskName, len(tasks)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func handleTask(name string, count int) error {
+func handleTask(url, name string, count int) error {
 	fmt.Println("scheduling task")
 	for {
 		time.Sleep(500 * time.Millisecond)
-		tasks, err := scheduledTasks(name)
+		tasks, err := scheduledTasks(url, name)
 		if err != nil {
 			return err
 		}
@@ -278,12 +282,12 @@ func openLogPage(t *mesos.Task) {
 
 // scheduledTasks fetches tasks from Mesos API and returns list of tasks that
 // match the given task name
-func scheduledTasks(name string) ([]*mesos.Task, error) {
+func scheduledTasks(url, name string) ([]*mesos.Task, error) {
 	var offset int
 	tasks := &mesos.Tasks{}
 	for {
-		url := fmt.Sprintf("%s/mesos/tasks?offset=%d", viper.GetString("marathon_host"), offset)
-		resp, err := http.Get(url)
+		u := fmt.Sprintf("%s?offset=%d", url, offset)
+		resp, err := http.Get(u)
 		if err != nil {
 			return nil, err
 		}
