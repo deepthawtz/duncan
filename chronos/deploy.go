@@ -178,6 +178,28 @@ func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars) err
 	return nil
 }
 
+func cleanupTask(name string) error {
+	url := fmt.Sprintf("%s/service/chronos/v1/scheduler/job/%s",
+		viper.GetString("chronos_host"),
+		name,
+	)
+	req, _ := http.NewRequest("DELETE", url, strings.NewReader(""))
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("could not clean up task: %s", name)
+	}
+	if resp.StatusCode != http.StatusNoContent {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf(string(b))
+	}
+	return nil
+}
+
 func handleTask(url, name string, count int) error {
 	fmt.Println("scheduling task")
 	for {
@@ -214,6 +236,10 @@ func handleTask(url, name string, count int) error {
 				if err := printLogs(task); err != nil {
 					return err
 				}
+				if err := cleanupTask(name); err != nil {
+					return err
+				}
+
 				return nil
 			case mesos.TaskFailed:
 				if err := openLogPage(task); err != nil {
@@ -227,12 +253,19 @@ func handleTask(url, name string, count int) error {
 					return err
 				}
 
+				if err := cleanupTask(name); err != nil {
+					return err
+				}
 				return fmt.Errorf("task failed: %.02f seconds\n", dur)
 			case mesos.TaskKilled:
 				dur, err := task.Duration()
 				if err != nil {
 					return err
 				}
+				if err := cleanupTask(name); err != nil {
+					return err
+				}
+
 				return fmt.Errorf("task killed: %.02f seconds\n", dur)
 			default:
 				return fmt.Errorf("task state unhandled: %s", task.State)
