@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var follow bool
+
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
@@ -44,7 +46,7 @@ $ duncan run -a foo -e production rake stuff:junk
 			os.Exit(-1)
 		}
 		command := strings.Join(args, " ")
-		if err := chronos.RunCommand(app, env, command); err != nil {
+		if err := chronos.RunCommand(app, env, command, follow); err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}
@@ -55,4 +57,5 @@ func init() {
 	RootCmd.AddCommand(runCmd)
 	runCmd.Flags().StringVarP(&app, "app", "a", "", "app to deploy")
 	runCmd.Flags().StringVarP(&env, "env", "e", "", "deployment environment (stage, production)")
+	runCmd.Flags().BoolVarP(&follow, "follow", "f", false, "open link to task sandbox to follow streaming logs")
 }

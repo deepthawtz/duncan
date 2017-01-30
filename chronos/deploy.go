@@ -80,7 +80,10 @@ func Deploy(app, env, tag string) error {
 }
 
 // RunCommand spins up a Chronos task to run the given command and exits
-func RunCommand(app, env, cmd string) error {
+func RunCommand(app, env, cmd string, follow bool) error {
+	if !follow {
+		logsOpened = true
+	}
 	tag, err := fetchCurrentTag(app, env)
 	if err != nil {
 		return err
