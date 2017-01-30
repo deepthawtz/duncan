@@ -12,8 +12,9 @@ Available Commands:
   deploy      Deploy an application
   env         Manage Consul key/values (ENV vars) for an app
   list        List applications
-  secrets     Manage Vault secrets (ENV vars) for an app
+  run         run a one-off process inside a remote container
   scale       Scale an app process
+  secrets     Manage Vault secrets (ENV vars) for an app
   version     Print the version of duncan
 ```
 
