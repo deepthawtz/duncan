@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 	"path"
 	"regexp"
@@ -41,6 +40,8 @@ type Executor struct {
 type TaskVars struct {
 	App, Env, Tag, Command, TaskName string
 }
+
+var logsOpened bool
 
 // Deploy deploys Chronos tasks for a given app, env and tag
 func Deploy(app, env, tag string) error {
@@ -192,22 +193,32 @@ func handleTask(url, name string, count int) error {
 			fmt.Printf("\rtask state: %s           \n", task.State)
 			switch task.State {
 			case mesos.TaskRunning:
-				openLogPage(task)
+				if err := openLogPage(task); err != nil {
+					return err
+				}
 				continue
 			case mesos.TaskStaging:
 				continue
 			case mesos.TaskFinished:
-				openLogPage(task)
+				if err := openLogPage(task); err != nil {
+					return err
+				}
 				dur, err := task.Duration()
 				if err != nil {
 					return err
 				}
 				fmt.Printf("task finished: %.02f seconds\n", dur)
-				printLogs(task)
+				if err := printLogs(task); err != nil {
+					return err
+				}
 				return nil
 			case mesos.TaskFailed:
-				openLogPage(task)
-				printLogs(task)
+				if err := openLogPage(task); err != nil {
+					return err
+				}
+				if err := printLogs(task); err != nil {
+					return err
+				}
 				dur, err := task.Duration()
 				if err != nil {
 					return err
@@ -227,11 +238,14 @@ func handleTask(url, name string, count int) error {
 	}
 }
 
-func printLogs(t *mesos.Task) {
-	dir, err := t.LogDirectory()
+func printLogs(t *mesos.Task) error {
+	ip, err := t.SlaveIP()
 	if err != nil {
-		fmt.Printf("cannot fetch logs: %s\n", err)
-		os.Exit(-1)
+		return err
+	}
+	dir, err := t.LogDirectory(ip)
+	if err != nil {
+		return fmt.Errorf("cannot fetch logs: %s\n", err)
 	}
 
 	var out string
@@ -241,43 +255,47 @@ func printLogs(t *mesos.Task) {
 		out = "stderr"
 	}
 
-	ip, err := t.SlaveIP()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	url := fmt.Sprintf("http://%s:5051/files/read?path=%s/%s&offset=0", ip, dir, out)
 	resp, err := http.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		fmt.Printf("could not fetch logs: %s\n", resp.Status)
+		return fmt.Errorf("could not fetch logs: %s\n", resp.Status)
 	}
 	l := &mesos.Logs{}
 	if err := json.NewDecoder(resp.Body).Decode(l); err != nil {
-		fmt.Println(err)
+		return err
 	}
 	lines := strings.Split(l.Data, "\n")
 	for _, l := range lines {
-		re := regexp.MustCompile("cpp:")
+		re := regexp.MustCompile("(cpp:|sandbox_directory)")
 		if !re.MatchString(l) {
 			fmt.Printf("\r%s\n", l)
 		}
 	}
+	return nil
 }
 
-func openLogPage(t *mesos.Task) {
-	dir, err := t.LogDirectory()
+func openLogPage(t *mesos.Task) error {
+	if logsOpened {
+		return nil
+	}
+	ip, err := t.SlaveIP()
 	if err != nil {
-		fmt.Printf("cannot fetch logs: %s\n", err)
-		os.Exit(-1)
+		return err
+	}
+	dir, err := t.LogDirectory(ip)
+	if err != nil {
+		return fmt.Errorf("cannot fetch logs: %s\n", err)
 	}
 	p := strings.Split(dir, "/var/lib/mesos/slave/slaves/")
 	slaveID := strings.Split(p[1], "/")[0]
 	url := fmt.Sprintf("%s/mesos/#/agents/%s/browse?path=%s", viper.GetString("marathon_host"), slaveID, dir)
 	cmd := exec.Command("open", url)
 	if err := cmd.Start(); err != nil {
-		fmt.Println("could not open link to task logs")
+		return fmt.Errorf("could not open link to task logs")
 	}
 	cmd.Wait()
+	logsOpened = true
+	return nil
 }
 
 // scheduledTasks fetches tasks from Mesos API and returns list of tasks that

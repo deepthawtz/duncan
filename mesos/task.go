@@ -93,14 +93,13 @@ func (t *Task) Duration() (float64, error) {
 }
 
 // LogDirectory returns the Mesos sandbox directory for a task
-func (t *Task) LogDirectory() (string, error) {
+func (t *Task) LogDirectory(host string) (string, error) {
+	if !strings.Contains(host, "://") {
+		host = "http://" + host + ":5051"
+	}
+	url := fmt.Sprintf("%s/state", host)
 	for {
-		time.Sleep(100 * time.Millisecond)
-		ip, err := t.SlaveIP()
-		if err != nil {
-			return "", err
-		}
-		url := fmt.Sprintf("http://%s:5051/state", ip)
+		time.Sleep(200 * time.Millisecond)
 		resp, err := http.Get(url)
 		if err != nil {
 			return "", err
@@ -116,23 +115,18 @@ func (t *Task) LogDirectory() (string, error) {
 			return "", err
 		}
 
-		var (
-			frameworks []*Framework
-			executors  []*Executor
-		)
-		if len(st.CompletedFrameworks) > 0 {
-			frameworks = st.CompletedFrameworks
-		} else {
-			frameworks = st.Frameworks
-		}
-		for _, f := range frameworks {
+		for _, f := range st.CompletedFrameworks {
 			if f.Name == TaskFramework {
-				if len(f.CompletedExecutors) > 0 {
-					executors = f.CompletedExecutors
-				} else {
-					executors = f.Executors
+				for _, e := range f.CompletedExecutors {
+					if e.ID == t.ID {
+						return e.Directory, nil
+					}
 				}
-				for _, e := range executors {
+			}
+		}
+		for _, f := range st.Frameworks {
+			if f.Name == TaskFramework {
+				for _, e := range f.Executors {
 					if e.ID == t.ID {
 						return e.Directory, nil
 					}

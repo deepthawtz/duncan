@@ -10,7 +10,7 @@ var taskTemplate = `
   "owner": "ops@betterdoctor.com",
   "container": {
     "type": "DOCKER",
-    "network": "BRIDGE",
+    "network": "HOST",
     "image": "quay.io/betterdoctor/{{.App}}:{{.Tag}}"
   },
   "command": "envconsul -config envconsul-{{.Env}}.hcl {{.Command}}",

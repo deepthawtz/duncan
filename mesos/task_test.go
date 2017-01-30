@@ -4,91 +4,51 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"testing"
 	"text/template"
 )
 
-const mesosTasks = `
-{
-  "tasks": [
-    {
-      "id": "ct:1485467406026:0:{{.TaskName}}:",
-      "name": "ChronosTask:{{.TaskName}}",
-      "framework_id": "8b63f436-482d-44d0-9052-17c23e72ef68-0002",
-      "executor_id": "",
-      "slave_id": "8b63f436-482d-44d0-9052-17c23e72ef68-S0",
-      "state": "TASK_FAILED",
-      "resources": {
-        "disk": 256,
-        "mem": 1024,
-        "gpus": 0,
-        "cpus": 1
-      },
-      "statuses": [
-        {
-          "state": "TASK_RUNNING",
-          "timestamp": 1485467407.53938,
-          "container_status": {
-            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
-          }
-        },
-        {
-          "state": "TASK_FAILED",
-          "timestamp": 1485467407.5402,
-          "container_status": {
-            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "ct:1485467338370:0:{{.TaskName}}:",
-      "name": "ChronosTask:{{.TaskName}}",
-      "framework_id": "8b63f436-482d-44d0-9052-17c23e72ef68-0002",
-      "executor_id": "",
-      "slave_id": "8b63f436-482d-44d0-9052-17c23e72ef68-S0",
-      "state": "TASK_FINISHED",
-      "resources": {
-        "disk": 256,
-        "mem": 1024,
-        "gpus": 0,
-        "cpus": 1
-      },
-      "statuses": [
-        {
-          "state": "TASK_RUNNING",
-          "timestamp": 1485467346.31432,
-          "container_status": {
-            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
-          }
-        },
-        {
-          "state": "TASK_FINISHED",
-          "timestamp": 1485467346.31504,
-          "container_status": {
-            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
-          }
-        }
-      ]
-    }
-  ]
-}
-`
-
-type TaskVars struct {
+type TestTask struct {
+	ID       string
 	TaskName string
+	State    string
+}
+
+var (
+	allTasks = map[string]*Tasks{}
+	tt       = &TestTask{
+		TaskName: "dogfood-production-echo-hi",
+		ID:       "ct:1485292701088:0:dogfood-production-echo-hi:",
+	}
+)
+
+func init() {
+	for _, x := range []string{"completed", "incomplete"} {
+		filename := filepath.Join("testdata", fmt.Sprintf("%s_tasks.json.tmpl", x))
+		ct, err := ioutil.ReadFile(filename)
+		if err != nil {
+			panic(err)
+		}
+		tt.State = x
+		t, err := createTasks(tt, string(ct))
+		if err != nil {
+			panic(err)
+		}
+		allTasks[x] = t
+	}
 }
 
 func TestTasksFor(t *testing.T) {
-	tv := &TaskVars{TaskName: "dogfood-production-echo-hi"}
-	tasks, err := tasks(tv)
-	if err != nil {
-		t.Error(err)
+	ct := allTasks["completed"]
+	taskCount := len(ct.Tasks)
+	if taskCount != 2 {
+		t.Errorf("expected 2 tasks but got %d", taskCount)
 	}
-	if len(tasks.Tasks) != 2 {
-		t.Errorf("expected 2 tasks but got %d", len(tasks.Tasks))
-	}
-	st, err := tasks.TasksFor(tv.TaskName)
+	st, err := ct.TasksFor(tt.TaskName)
 	if err != nil {
 		t.Errorf("expected nil but got: %s", err)
 	}
@@ -98,12 +58,8 @@ func TestTasksFor(t *testing.T) {
 }
 
 func TestSlaveIP(t *testing.T) {
-	tv := &TaskVars{TaskName: "dogfood-production-echo-hi"}
-	tasks, err := tasks(tv)
-	if err != nil {
-		t.Error(err)
-	}
-	for _, task := range tasks.Tasks {
+	ct := allTasks["completed"]
+	for _, task := range ct.Tasks {
 		ip, err := task.SlaveIP()
 		if err != nil {
 			t.Error(err)
@@ -115,12 +71,8 @@ func TestSlaveIP(t *testing.T) {
 }
 
 func TestDuration(t *testing.T) {
-	tv := &TaskVars{TaskName: "dogfood-production-echo-hi"}
-	tasks, err := tasks(tv)
-	if err != nil {
-		t.Error(err)
-	}
-	for _, task := range tasks.Tasks {
+	ct := allTasks["completed"]
+	for _, task := range ct.Tasks {
 		dur, err := task.Duration()
 		if err != nil {
 			t.Error(err)
@@ -129,12 +81,39 @@ func TestDuration(t *testing.T) {
 			t.Error("expected to calculate task duration")
 		}
 	}
+	it := allTasks["incomplete"]
+	for _, task := range it.Tasks {
+		_, err := task.Duration()
+		if err == nil {
+			t.Error("expected error")
+		}
+	}
 }
 
-func tasks(tv *TaskVars) (*Tasks, error) {
+// func TestLogDirectory(t *testing.T) {
+// 	t1 := &TestTask{
+// 		ID:    "ct:1485292701088:0:dogfood-production-echo-hi:",
+// 		State: "finished",
+// 	}
+// 	ma := mesosAgentServer(t1)
+// 	ct := allTasks["incomplete"]
+// 	fmt.Println(ma.URL)
+// 	for _, task := range ct.Tasks {
+// 		fmt.Println(task)
+// 		dir, err := task.LogDirectory(ma.URL)
+// 		if err != nil {
+// 			t.Error(err)
+// 		}
+// 		if dir == "" {
+// 			t.Error("expected mesos task sandbox")
+// 		}
+// 	}
+// }
+
+func createTasks(tt *TestTask, templ string) (*Tasks, error) {
 	j := new(bytes.Buffer)
-	template := template.Must(template.New("task_json").Parse(mesosTasks))
-	err := template.Execute(j, tv)
+	template := template.Must(template.New("task_json").Parse(templ))
+	err := template.Execute(j, tt)
 	if err != nil {
 		return nil, fmt.Errorf("expected nil but got: %s", err)
 	}
@@ -143,4 +122,20 @@ func tasks(tv *TaskVars) (*Tasks, error) {
 		return nil, fmt.Errorf("expected nil but got: %s", err)
 	}
 	return tasks, nil
+}
+
+func mesosAgentServer(tt *TestTask) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		filename := filepath.Join("testdata", fmt.Sprintf("agent_state_%s.json.tmpl", tt.State))
+		as, err := ioutil.ReadFile(filename)
+		if err != nil {
+			panic(err)
+		}
+		t := template.Must(template.New("agent_state").Parse(string(as)))
+		err = t.Execute(w, tt)
+		if err != nil {
+			panic(err)
+		}
+		return
+	}))
 }

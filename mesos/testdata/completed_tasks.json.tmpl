@@ -1,0 +1,64 @@
+{
+  "tasks": [
+    {
+      "id": "ct:1485467406026:0:{{.TaskName}}:",
+      "name": "ChronosTask:{{.TaskName}}",
+      "framework_id": "8b63f436-482d-44d0-9052-17c23e72ef68-0002",
+      "executor_id": "",
+      "slave_id": "8b63f436-482d-44d0-9052-17c23e72ef68-S0",
+      "state": "TASK_FAILED",
+      "resources": {
+        "disk": 256,
+        "mem": 1024,
+        "gpus": 0,
+        "cpus": 1
+      },
+      "statuses": [
+        {
+          "state": "TASK_RUNNING",
+          "timestamp": 1485467407.53938,
+          "container_status": {
+            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
+          }
+        },
+        {
+          "state": "TASK_FAILED",
+          "timestamp": 1485467407.5402,
+          "container_status": {
+            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ct:1485467338370:0:{{.TaskName}}:",
+      "name": "ChronosTask:{{.TaskName}}",
+      "framework_id": "8b63f436-482d-44d0-9052-17c23e72ef68-0002",
+      "executor_id": "",
+      "slave_id": "8b63f436-482d-44d0-9052-17c23e72ef68-S0",
+      "state": "TASK_FINISHED",
+      "resources": {
+        "disk": 256,
+        "mem": 1024,
+        "gpus": 0,
+        "cpus": 1
+      },
+      "statuses": [
+        {
+          "state": "TASK_RUNNING",
+          "timestamp": 1485467346.31432,
+          "container_status": {
+            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
+          }
+        },
+        {
+          "state": "TASK_FINISHED",
+          "timestamp": 1485467346.31504,
+          "container_status": {
+            "network_infos": [ { "ip_addresses": [ { "ip_address": "172.16.1.145" } ] } ]
+          }
+        }
+      ]
+    }
+  ]
+}
