@@ -215,7 +215,7 @@ func handleTask(url, name string, count int) error {
 		if len(tasks) == count+1 {
 			task := tasks[0]
 
-			fmt.Printf("\rtask state: %s           \n", task.State)
+			fmt.Printf("task state: %s\n", task.State)
 			switch task.State {
 			case mesos.TaskRunning:
 				if err := openLogPage(task); err != nil {
@@ -304,7 +304,7 @@ func printLogs(t *mesos.Task) error {
 	for _, l := range lines {
 		re := regexp.MustCompile("(cpp:|sandbox_directory)")
 		if !re.MatchString(l) {
-			fmt.Printf("\r%s\n", l)
+			fmt.Printf("%s\n", l)
 		}
 	}
 	return nil
