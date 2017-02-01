@@ -61,7 +61,7 @@ func Deploy(app, env, tag string) error {
 				re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
 				chronosJSON := re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))
 
-				url := fmt.Sprintf("%s/service/chronos/scheduler/iso8601", viper.GetString("chronos_host"))
+				url := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
 				client := &http.Client{}
 				req, _ := http.NewRequest("POST", url, strings.NewReader(chronosJSON))
 				req.Header.Set("Content-Type", "application/json")
