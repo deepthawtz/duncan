@@ -27,7 +27,7 @@ var cfgFile string
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "duncan",
-	Short: "Duncan is BetterDoctor's Docker deployment tool",
+	Short: "Duncan is a Docker deployment tool",
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -56,7 +56,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("could not find: %s\n", viper.ConfigFileUsed())
+		fmt.Printf("could not find config file: %s\n", viper.ConfigFileUsed())
 		os.Exit(-1)
 	}
 }
