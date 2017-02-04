@@ -38,9 +38,7 @@ var envSetCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		for k, v := range env {
-			fmt.Printf("%s=%s\n", k, v)
-		}
+		printSorted(env)
 	},
 }
 

@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/spf13/cobra"
 )
@@ -35,4 +36,15 @@ func init() {
 	RootCmd.AddCommand(envCmd)
 	envCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage ENV vars for")
 	envCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
+}
+
+func printSorted(m map[string]string) {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Printf("%s=%s\n", k, m[k])
+	}
 }

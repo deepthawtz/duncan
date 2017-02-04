@@ -41,9 +41,7 @@ var secretsSetCmd = &cobra.Command{
 			os.Exit(-1)
 		}
 
-		for k, v := range s.KVPairs {
-			fmt.Printf("%s=%s\n", k, v)
-		}
+		printSorted(s.KVPairs)
 	},
 }
 
