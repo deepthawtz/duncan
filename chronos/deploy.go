@@ -84,7 +84,7 @@ func RunCommand(app, env, cmd string, follow bool) error {
 	if !follow {
 		logsOpened = true
 	}
-	tag, err := fetchCurrentTag(app, env)
+	tag, err := consul.CurrentTag(app, env)
 	if err != nil {
 		return err
 	}
@@ -103,21 +103,6 @@ func RunCommand(app, env, cmd string, follow bool) error {
 	}
 
 	return nil
-}
-
-func fetchCurrentTag(app, env string) (string, error) {
-	resp, err := http.Get(consul.CurrentDeploymentTagURL(app, env))
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusForbidden {
-		return "", fmt.Errorf("ACL does not allow you to run comand for %s-%s", app, env)
-	}
-
-	tag, err := ioutil.ReadAll(resp.Body)
-	return string(tag), err
 }
 
 // taskName generates a valid Chronos task name based on the app/env/command given
