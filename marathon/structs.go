@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/betterdoctor/duncan/deployment"
+	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -22,25 +23,29 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 	if env == "" {
 		env = "stage|production"
 	}
+	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
+	white := color.New(color.FgWhite, color.Bold).SprintFunc()
+	green := color.New(color.FgGreen, color.Bold).SprintFunc()
 	for a := range apps {
 		for _, g := range gs.Groups {
 			envs := strings.Split(env, "|")
 			for _, e := range envs {
 				id := deployment.MarathonGroupID(a, e)
 				if g.ID == id {
-					fmt.Println(id)
+					fmt.Println(green(id))
 					var data = make([][]string, 10)
 					for _, x := range g.Apps {
 						if x.ID == "" {
 							continue
 						}
 						data = append(data, []string{
-							strings.Split(x.ID, "/")[2],
-							x.ReleaseTag(),
-							strconv.Itoa(x.Instances),
-							fmt.Sprintf("%.2f", x.CPUs),
-							strconv.Itoa(x.Mem),
-							x.Version.Format("2006-01-02T15:04:05"),
+							cyan(strings.Split(x.ID, "/")[2]),
+							white(x.ReleaseTag()),
+							yellow(strconv.Itoa(x.Instances)),
+							white(fmt.Sprintf("%.2f", x.CPUs)),
+							white(strconv.Itoa(x.Mem)),
+							white(x.Version.Format("2006-01-02T15:04:05")),
 						})
 					}
 					table := tablewriter.NewWriter(os.Stdout)
