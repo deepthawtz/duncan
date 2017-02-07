@@ -212,11 +212,11 @@ func handleTask(url, name string, count int) error {
 			case mesos.TaskStaging:
 				continue
 			case mesos.TaskFinished:
-				if err := openLogPage(task); err != nil {
-					return err
-				}
 				dur, err := task.Duration()
 				if err != nil {
+					return err
+				}
+				if err := openLogPage(task); err != nil {
 					return err
 				}
 				fmt.Printf("task finished: %.02f seconds\n", dur)
@@ -229,17 +229,17 @@ func handleTask(url, name string, count int) error {
 
 				return nil
 			case mesos.TaskFailed:
+				dur, err := task.Duration()
+				if err != nil {
+					return err
+				}
+
 				if err := openLogPage(task); err != nil {
 					return err
 				}
 				if err := printLogs(task); err != nil {
 					return err
 				}
-				dur, err := task.Duration()
-				if err != nil {
-					return err
-				}
-
 				if err := cleanupTask(name); err != nil {
 					return err
 				}
