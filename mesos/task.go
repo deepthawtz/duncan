@@ -35,18 +35,41 @@ type Tasks struct {
 }
 
 // TasksFor returns running task for given task app, env, name
-func (t *Tasks) TasksFor(name string) ([]*Task, error) {
-	var tasks []*Task
+func (t *Tasks) TasksFor(name string) (*Tasks, error) {
+	tasks := &Tasks{}
 	for _, task := range t.Tasks {
 		p := strings.Split(task.ID, ":")
 		if len(p) > 2 {
 			s := p[len(p)-2]
 			if name == s {
-				tasks = append(tasks, task)
+				tasks.Tasks = append(tasks.Tasks, task)
 			}
 		}
 	}
 	return tasks, nil
+}
+
+// Len helps Tasks implement the sort.Interface
+func (t *Tasks) Len() int {
+	return len(t.Tasks)
+}
+
+// Less helps Tasks implement the sort.Interface
+func (t *Tasks) Less(i, j int) bool {
+	ti := t.Tasks[i]
+	tj := t.Tasks[j]
+	if len(ti.Statuses) == 0 && len(tj.Statuses) >= 1 {
+		return false
+	}
+	if len(tj.Statuses) <= 0 && len(ti.Statuses) >= 1 {
+		return true
+	}
+	return ti.Statuses[len(ti.Statuses)-1].Timestamp < tj.Statuses[len(tj.Statuses)-1].Timestamp
+}
+
+// Swap helps Tasks implement the sort.Interface
+func (t *Tasks) Swap(i, j int) {
+	t.Tasks[i], t.Tasks[j] = t.Tasks[j], t.Tasks[i]
 }
 
 // Task repesents a Mesos task

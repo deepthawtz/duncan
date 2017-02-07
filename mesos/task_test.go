@@ -52,8 +52,8 @@ func TestTasksFor(t *testing.T) {
 	if err != nil {
 		t.Errorf("expected nil but got: %s", err)
 	}
-	if len(st) != 2 {
-		t.Errorf("expected 2 tasks but got %d", len(st))
+	if len(st.Tasks) != 2 {
+		t.Errorf("expected 2 tasks but got %d", len(st.Tasks))
 	}
 }
 

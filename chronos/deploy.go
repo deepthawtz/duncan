@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -156,7 +157,7 @@ func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars) err
 		return fmt.Errorf("failed to launch command: %s", body)
 	}
 	fmt.Printf("executing '%s' in instance of %s:%s (%s)\n", task.Command, task.App, task.Tag, task.Env)
-	if err = handleTask(mesosURL, task.TaskName, len(tasks)); err != nil {
+	if err = handleTask(mesosURL, task.TaskName, len(tasks.Tasks)); err != nil {
 		return err
 	}
 
@@ -193,12 +194,13 @@ func handleTask(url, name string, count int) error {
 		if err != nil {
 			return err
 		}
-		if len(tasks) == count {
+		if len(tasks.Tasks) == count {
 			fmt.Printf(".")
 			continue
 		}
-		if len(tasks) == count+1 {
-			task := tasks[0]
+		if len(tasks.Tasks) == count+1 {
+			sort.Sort(tasks)
+			task := tasks.Tasks[len(tasks.Tasks)-1]
 
 			fmt.Printf("task state: %s\n", task.State)
 			switch task.State {
@@ -322,7 +324,7 @@ func openLogPage(t *mesos.Task) error {
 
 // scheduledTasks fetches tasks from Mesos API and returns list of tasks that
 // match the given task name
-func scheduledTasks(url, name string) ([]*mesos.Task, error) {
+func scheduledTasks(url, name string) (*mesos.Tasks, error) {
 	var offset int
 	tasks := &mesos.Tasks{}
 	for {

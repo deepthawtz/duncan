@@ -32,12 +32,13 @@ func TestTaskName(t *testing.T) {
 func TestScheduledTasks(t *testing.T) {
 	tv := &TaskVars{TaskName: "dogfood-production-yo"}
 	ms := mesosServer(tv)
-	tasks, err := scheduledTasks(ms.URL, tv.TaskName)
+	ts, err := scheduledTasks(ms.URL, tv.TaskName)
 	if err != nil {
 		t.Errorf("expected nil but got: %s", err)
 	}
-	if len(tasks) != 2 {
-		t.Errorf("expected 2 tasks but got: %d", len(tasks))
+	l := len(ts.Tasks)
+	if l != 2 {
+		t.Errorf("expected 2 tasks but got: %d", l)
 	}
 }
 
