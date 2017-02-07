@@ -285,6 +285,7 @@ func printLogs(t *mesos.Task) error {
 	if err := json.NewDecoder(resp.Body).Decode(l); err != nil {
 		return err
 	}
+	fmt.Printf("\n\n")
 	lines := strings.Split(l.Data, "\n")
 	for _, l := range lines {
 		re := regexp.MustCompile("(cpp:|sandbox_directory)")
