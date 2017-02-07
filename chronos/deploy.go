@@ -281,7 +281,7 @@ func printLogs(t *mesos.Task) error {
 	url := fmt.Sprintf("http://%s:5051/files/read?path=%s/%s&offset=0", ip, dir, out)
 	resp, err := http.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("could not fetch logs: %s\n", resp.Status)
+		return fmt.Errorf("could not fetch logs from: %s\n%s\n", url, resp.Status)
 	}
 	l := &mesos.Logs{}
 	if err := json.NewDecoder(resp.Body).Decode(l); err != nil {
