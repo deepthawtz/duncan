@@ -101,7 +101,7 @@ func (t *Task) SlaveIP() (string, error) {
 func (t *Task) Duration() (float64, error) {
 	s := t.Statuses
 	if len(s) < 2 {
-		return 0.0, fmt.Errorf("task incomplete")
+		return 0.0, fmt.Errorf("task did not run properly")
 	}
 	end := s[len(s)-1]
 	start := s[len(s)-2]
