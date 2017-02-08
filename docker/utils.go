@@ -15,10 +15,6 @@ type TagResponse struct {
 }
 
 // Tag represents a Docker repository tag
-// if tag exists:
-// {"has_additional": false, "page": 1, "tags": [{"reversion": false, "start_ts": 1475014208, "name": "1.16.7", "docker_image_id": "b1864201c4a44db6c1b06423d21b2063194a4b595bf7c38f053a081b0ad6f397"}]}
-// or if tag does not exist:
-// {"has_additional": false, "page": 1, "tags": []}
 type Tag struct {
 	Name string `json:"name"`
 }
