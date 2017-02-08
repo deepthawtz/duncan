@@ -42,22 +42,19 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 		return s, nil
 	}
 
-	var (
-		added   []string
-		changed []string
-	)
+	changes := map[string][]string{}
 	for _, kvp := range kvs {
 		p := strings.Split(kvp, "=")
 		key := p[0]
 		val := strings.Join(p[1:], "")
 		for k, v := range s.KVPairs {
 			if k == key && v != val {
-				changed = append(changed, key)
+				changes[k] = []string{v, val}
 				fmt.Printf("changing %s from %s => %s\n", k, v, val)
 			}
 		}
 		if _, ok := s.KVPairs[key]; !ok {
-			added = append(added, key)
+			changes[key] = []string{val}
 		}
 		s.KVPairs[key] = val
 	}
@@ -68,33 +65,29 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 
 	p := strings.Split(url, "/")
 	app, deployEnv := p[len(p)-2], p[len(p)-1]
-	if len(added) > 0 || len(changed) > 0 {
-		notify.Slack(
-			fmt.Sprintf("%s %s", app, deployEnv),
-			fmt.Sprintf("secrets updated and app restarted. changed: `%s` added: `%s`\n", changed, added),
-		)
-	}
+	notify.ConfigChange("secrets", app, deployEnv, changes)
 
 	return s, nil
 }
 
 // Delete removes a key/value pair from the prefix
 func Delete(url string, keys []string, s *Secrets) (*Secrets, error) {
-	var count int
+	changes := map[string][]string{}
 	for _, key := range keys {
 		for k := range s.KVPairs {
 			if k == key {
+				fmt.Printf("deleting %s\n", k)
+				changes[k] = []string{}
 				delete(s.KVPairs, k)
 			}
-			count = len(s.KVPairs)
-		}
-		if len(s.KVPairs) != count {
-			fmt.Printf("deleted key %s\n", key)
 		}
 	}
 	if err := updateSecrets(url, s); err != nil {
 		return nil, err
 	}
+	p := strings.Split(url, "/")
+	app, deployEnv := p[len(p)-2], p[len(p)-1]
+	notify.ConfigChange("secrets", app, deployEnv, changes)
 
 	return s, nil
 }

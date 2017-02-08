@@ -29,7 +29,7 @@ var envDelCmd = &cobra.Command{
 		validateKeys(args)
 
 		url := consul.EnvURL(app, env)
-		if err := consul.Delete(url, args); err != nil {
+		if err := consul.Delete(app, env, url, args); err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}

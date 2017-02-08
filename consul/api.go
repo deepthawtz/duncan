@@ -56,10 +56,7 @@ func Read(url string) (map[string]string, error) {
 
 // Write sets ENV vars for a given KV URL
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) {
-	var (
-		added   []string
-		changed []string
-	)
+	changes := map[string][]string{}
 	u := EnvURL(app, deployEnv)
 	env, err := Read(u)
 	if err != nil {
@@ -73,12 +70,12 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 		val := strings.Join(a[1:], "")
 		for k, v := range env {
 			if k == key && v != val {
-				changed = append(changed, k)
+				changes[k] = []string{v, val}
 				fmt.Printf("changing %s from %s => %s\n", k, v, val)
 			}
 		}
 		if _, ok := env[key]; !ok {
-			added = append(added, key)
+			changes[key] = []string{val}
 		}
 		env[a[0]] = val
 		txn = append(txn, &TxnItem{
@@ -108,17 +105,15 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 		}
 		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 	}
-	notify.Slack(
-		fmt.Sprintf("%s %s", app, deployEnv),
-		fmt.Sprintf("ENV vars updated and app restarted. changed: `%s` added: `%s`\n", changed, added),
-	)
+	notify.ConfigChange("env", app, deployEnv, changes)
 
 	return env, nil
 }
 
 // Delete removes key/values from Consul by given keys
-func Delete(url string, keys []string) error {
+func Delete(app, deployEnv, url string, keys []string) error {
 	token := viper.GetString("consul_token")
+	changes := map[string][]string{}
 	for _, k := range keys {
 		u := fmt.Sprintf("%s/%s?token=%s", url, k, token)
 		client := &http.Client{}
@@ -135,8 +130,10 @@ func Delete(url string, keys []string) error {
 			}
 			return fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 		}
+		changes[k] = []string{}
 		fmt.Printf("deleted %s\n", k)
 	}
+	notify.ConfigChange("env", app, deployEnv, changes)
 	return nil
 }
 
