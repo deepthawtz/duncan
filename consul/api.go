@@ -120,10 +120,9 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 func Delete(url string, keys []string) error {
 	token := viper.GetString("consul_token")
 	for _, k := range keys {
-		url += fmt.Sprintf("/%s", k)
-		url += fmt.Sprintf("?token=%s", token)
+		u := fmt.Sprintf("%s/%s?token=%s", url, k, token)
 		client := &http.Client{}
-		req, _ := http.NewRequest("DELETE", url, strings.NewReader(""))
+		req, _ := http.NewRequest("DELETE", u, strings.NewReader(""))
 		resp, err := client.Do(req)
 		if err != nil {
 			return err
