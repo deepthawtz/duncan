@@ -10,13 +10,13 @@ import (
 var (
 	types  []string
 	colors = []func(...interface{}) string{
-		color.New(color.FgCyan).SprintFunc(),
-		color.New(color.FgYellow).SprintFunc(),
-		color.New(color.FgMagenta).SprintFunc(),
-		color.New(color.FgGreen).SprintFunc(),
-		color.New(color.FgWhite).SprintFunc(),
-		color.New(color.FgRed).SprintFunc(),
-		color.New(color.FgBlue).SprintFunc(),
+		color.New(color.FgCyan, color.Bold).SprintFunc(),
+		color.New(color.FgYellow, color.Bold).SprintFunc(),
+		color.New(color.FgMagenta, color.Bold).SprintFunc(),
+		color.New(color.FgGreen, color.Bold).SprintFunc(),
+		color.New(color.FgRed, color.Bold).SprintFunc(),
+		color.New(color.FgBlue, color.Bold).SprintFunc(),
+		color.New(color.FgWhite, color.Bold).SprintFunc(),
 	}
 	appTypes = map[string]string{}
 )
