@@ -39,6 +39,10 @@ duncan run -a APP -e ENV COMMAND
 Example:
 
 $ duncan run -a foo -e production rake stuff:junk
+
+If the command contains flags you will need to escape them
+$ duncan run -a foo -e stage -- ls -lh
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
