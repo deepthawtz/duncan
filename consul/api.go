@@ -146,7 +146,10 @@ func CurrentTag(app, env string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusForbidden {
-		return "", fmt.Errorf("ACL does not allow you to run comand for %s-%s", app, env)
+		return "", fmt.Errorf("ACL does not allow you to run comand for %s %s", app, env)
+	}
+	if resp.StatusCode == http.StatusNotFound {
+		return "", fmt.Errorf("No app found %s %s", app, env)
 	}
 
 	tag, err := ioutil.ReadAll(resp.Body)
