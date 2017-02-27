@@ -32,6 +32,10 @@ func Stream(app, env string, utc bool) {
 			os.Exit(-1)
 		}
 		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusNotFound {
+			fmt.Printf("no logs exist at: %s\n", index)
+			return
+		}
 		if resp.StatusCode == http.StatusOK {
 			r := &Result{}
 			if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
@@ -43,7 +47,7 @@ func Stream(app, env string, utc bool) {
 			continue
 		} else {
 			fmt.Println(resp.Status)
-			fmt.Println(url)
+			fmt.Println(index)
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}
