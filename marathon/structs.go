@@ -99,7 +99,7 @@ func (a *App) UpdateReleaseTag(tag string) {
 
 // IsApp returns true if Docker image matches app name
 func (a *App) IsApp(app string) bool {
-	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/)?%s:?(.*)?", app))
+	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):(.*)?", app))
 	return re.MatchString(a.Container.Docker.Image)
 }
 
