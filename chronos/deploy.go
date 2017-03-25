@@ -39,7 +39,7 @@ type Executor struct {
 
 // TaskVars represents a one-off Chronos task
 type TaskVars struct {
-	App, Env, Tag, Command, TaskName string
+	App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string
 }
 
 var logsOpened bool
@@ -59,7 +59,7 @@ func Deploy(app, env, tag string) error {
 				if err != nil {
 					return fmt.Errorf("Chronos JSON does not exist %s: %s\n", cj, err)
 				}
-				re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):.*(\",?)", app))
+				re := regexp.MustCompile(fmt.Sprintf("(%s/%s):.*(\",?)", viper.GetString("docker_repo_prefix"), app))
 				chronosJSON := re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))
 
 				url := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
@@ -91,11 +91,13 @@ func RunCommand(app, env, cmd string, follow bool) error {
 	}
 
 	task := &TaskVars{
-		App:      app,
-		Env:      env,
-		Tag:      tag,
-		Command:  cmd,
-		TaskName: taskName(app, env, cmd),
+		App:              app,
+		Env:              env,
+		Tag:              tag,
+		Command:          cmd,
+		TaskName:         taskName(app, env, cmd),
+		DockerRepoPrefix: viper.GetString("docker_repo_prefix"),
+		DockerConfURL:    viper.GetString("docker_conf_url"),
 	}
 	chronosURL := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
 	mesosURL := fmt.Sprintf("%s/mesos/tasks", viper.GetString("marathon_host"))

@@ -57,7 +57,7 @@ func TestAppIsApp(t *testing.T) {
 	}{
 		{image: "redis:3.2", app: "foo", exp: false},
 		{image: "quay.io/betterdoctor/foo:3.2", app: "foo", exp: true},
-		{image: "foo:3.2", app: "foo", exp: true},
+		{image: "foo:3.2", app: "foo", exp: false},
 	}
 
 	for _, test := range cases {

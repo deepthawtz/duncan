@@ -7,18 +7,17 @@ var taskTemplate = `
   "description": "one-off duncan run ({{.Command}})",
   "schedule": "R1//PT30M",
   "retries": 0,
-  "owner": "ops@betterdoctor.com",
   "container": {
     "type": "DOCKER",
     "network": "HOST",
-    "image": "quay.io/betterdoctor/{{.App}}:{{.Tag}}"
+    "image": "{{.DockerRepoPrefix}}/{{.App}}:{{.Tag}}"
   },
   "command": "envconsul -config envconsul-{{.Env}}.hcl {{.Command}}",
   "cpus": "1.0",
   "mem": "1024",
   "fetch": [
     {
-      "uri": "https://s3.amazonaws.com/betterdoctor-operations-qhtumyvauxvxorwmeujn/Configs/docker.tar.gz",
+      "uri": "{{.DockerConfURL}}",
       "cache": false,
       "extract": true,
       "executable": false

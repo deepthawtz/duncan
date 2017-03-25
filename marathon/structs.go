@@ -11,6 +11,7 @@ import (
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/viper"
 )
 
 // Groups represents a list of Marathon groups
@@ -99,7 +100,7 @@ func (a *App) UpdateReleaseTag(tag string) {
 
 // IsApp returns true if Docker image matches app name
 func (a *App) IsApp(app string) bool {
-	re := regexp.MustCompile(fmt.Sprintf("(quay.io/betterdoctor/%s):(.*)?", app))
+	re := regexp.MustCompile(fmt.Sprintf("(%s/%s):(.*)?", viper.GetString("docker_repo_prefix"), app))
 	return re.MatchString(a.Container.Docker.Image)
 }
 
