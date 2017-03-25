@@ -45,8 +45,7 @@ func Read(url string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(b, &env)
-	if err != nil {
+	if err = json.Unmarshal(b, &env); err != nil {
 		return nil, err
 	}
 

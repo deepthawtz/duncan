@@ -317,7 +317,9 @@ func openLogPage(t *mesos.Task) error {
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("could not open link to task logs")
 	}
-	cmd.Wait()
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
 	logsOpened = true
 	return nil
 }
