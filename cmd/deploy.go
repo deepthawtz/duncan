@@ -22,7 +22,7 @@ import (
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/docker"
 	"github.com/betterdoctor/duncan/marathon"
-	"github.com/betterdoctor/duncan/notify"
+	"github.com/betterdoctor/kit/notify"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -68,10 +68,15 @@ $ duncan deploy --app APP --env ENV --tag GIT_TAG`,
 			os.Exit(-1)
 		}
 
-		notify.Slack(
+		err = notify.Slack(
+			viper.GetString("slack_webhook_url"),
 			fmt.Sprintf("%s %s (%s)", app, env, tag),
-			fmt.Sprintf("%s :shipit: docker deploy :whale: %s", notify.Emoji(env), deployment.GithubDiffLink(app, prev, tag)),
+			fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), deployment.GithubDiffLink(app, prev, tag)),
 		)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
 	},
 }
 
@@ -129,4 +134,12 @@ func marathonPathExists() bool {
 		return false
 	}
 	return true
+}
+
+func emoji(env string) string {
+	if env == "production" {
+		return ":balloon:"
+	}
+
+	return ""
 }

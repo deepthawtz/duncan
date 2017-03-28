@@ -22,8 +22,9 @@ import (
 
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
-	"github.com/betterdoctor/duncan/notify"
+	"github.com/betterdoctor/kit/notify"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // scaleCmd represents the scale command
@@ -47,7 +48,7 @@ If application cannot scale due to insufficient cluster resources an error will 
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		msg := fmt.Sprintf("%s docker containers scaled :whale:\n", notify.Emoji(env))
+		msg := "docker containers scaled :whale:\n"
 		for k, v := range se {
 			if v["curr"] > v["prev"] {
 				msg += fmt.Sprintf("    :point_up: %s scaled up from %v to %v instances", k, v["prev"], v["curr"])
@@ -60,7 +61,10 @@ If application cannot scale due to insufficient cluster resources an error will 
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		notify.Slack(fmt.Sprintf("%s %s (%s)", app, env, tag), msg)
+		if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s (%s)", app, env, tag), msg); err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
 	},
 }
 

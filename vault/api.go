@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/betterdoctor/duncan/notify"
+	"github.com/betterdoctor/duncan/config"
+	"github.com/betterdoctor/kit/notify"
 	"github.com/spf13/viper"
 )
 
@@ -65,7 +66,10 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 
 	p := strings.Split(url, "/")
 	app, deployEnv := p[len(p)-2], p[len(p)-1]
-	notify.ConfigChange("secrets", app, deployEnv, changes)
+	msg := config.Changes("secrets", changes)
+	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
+		return nil, err
+	}
 
 	return s, nil
 }
@@ -87,7 +91,10 @@ func Delete(url string, keys []string, s *Secrets) (*Secrets, error) {
 	}
 	p := strings.Split(url, "/")
 	app, deployEnv := p[len(p)-2], p[len(p)-1]
-	notify.ConfigChange("secrets", app, deployEnv, changes)
+	msg := config.Changes("secrets", changes)
+	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
+		return nil, err
+	}
 
 	return s, nil
 }

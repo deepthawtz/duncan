@@ -9,7 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/betterdoctor/duncan/notify"
+	"github.com/betterdoctor/duncan/config"
+	"github.com/betterdoctor/kit/notify"
 	"github.com/spf13/viper"
 )
 
@@ -104,7 +105,10 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 		}
 		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 	}
-	notify.ConfigChange("env", app, deployEnv, changes)
+	msg := config.Changes("env", changes)
+	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
+		return nil, err
+	}
 
 	return env, nil
 }
@@ -132,7 +136,10 @@ func Delete(app, deployEnv, url string, keys []string) error {
 		changes[k] = []string{}
 		fmt.Printf("deleted %s\n", k)
 	}
-	notify.ConfigChange("env", app, deployEnv, changes)
+	msg := config.Changes("env", changes)
+	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
+		return err
+	}
 	return nil
 }
 

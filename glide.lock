@@ -1,6 +1,12 @@
 hash: 05cc9f3c87314671592ff4c51af3a484d3c827df574c05f6d3724d29b96c2859
-updated: 2016-11-04T15:58:53.418499136-07:00
+updated: 2017-03-28T08:15:05.643942344-07:00
 imports:
+- name: github.com/betterdoctor/kit
+  version: 6c36faf763ecee9f561d05ac5bcf041ae3f7db3d
+  subpackages:
+  - notify
+- name: github.com/fatih/color
+  version: 9131ab34cf20d2f6d83fdc67168a5430d1c7dc23
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/hashicorp/hcl
@@ -20,6 +26,10 @@ imports:
   version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - name: github.com/magiconair/properties
   version: 0723e352fa358f9322c938cc2dadda874e9151a9
+- name: github.com/mattn/go-colorable
+  version: ded68f7a9561c023e790de24279db7ebf473ea80
+- name: github.com/mattn/go-isatty
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/mattn/go-runewidth
   version: 737072b4e32b7a5018b4a7125da8d12de90e8045
 - name: github.com/mitchellh/mapstructure
