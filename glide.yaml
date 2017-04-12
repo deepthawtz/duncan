@@ -4,5 +4,3 @@ import:
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/betterdoctor/kit
-  repo: git@github.com:betterdoctor/kit
-  vcs: git
