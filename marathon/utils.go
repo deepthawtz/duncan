@@ -39,10 +39,13 @@ func waitForDeployment(id string) error {
 		if err := json.Unmarshal(b, &d); err != nil {
 			return err
 		}
-		if len(d) == 0 {
-			fmt.Printf("\rDONE\n")
-			break
+		for _, x := range d {
+			if x.ID == id {
+				continue
+			}
 		}
+		fmt.Printf("\rDONE\n")
+		break
 	}
 
 	return nil
