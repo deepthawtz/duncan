@@ -40,6 +40,14 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 						if x.ID == "" {
 							continue
 						}
+						var (
+							host string
+							ok   bool
+						)
+						host, ok = x.Labels["HAPROXY_0_VHOST"]
+						if ok {
+							host = fmt.Sprintf("https://%s", host)
+						}
 						data = append(data, []string{
 							cyan(strings.Split(x.ID, "/")[2]),
 							white(x.ReleaseTag()),
@@ -47,10 +55,11 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 							white(fmt.Sprintf("%.2f", x.CPUs)),
 							white(strconv.Itoa(x.Mem)),
 							white(x.Version.Format("2006-01-02T15:04:05")),
+							cyan(host),
 						})
 					}
 					table := tablewriter.NewWriter(os.Stdout)
-					table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem MB", "Deployed At"})
+					table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem MB", "Deployed At", "Host"})
 					table.AppendBulk(data)
 					table.Render()
 				}

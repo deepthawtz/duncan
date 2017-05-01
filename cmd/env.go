@@ -15,10 +15,13 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -47,4 +50,43 @@ func printSorted(m map[string]string) {
 	for _, k := range keys {
 		fmt.Printf("%s=%s\n", k, m[k])
 	}
+}
+
+func promptModifyEnvironment(op, cmd, app, env string, args []string) bool {
+	white := color.New(color.FgWhite, color.Bold).SprintFunc()
+	red := color.New(color.FgRed, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
+	green := color.New(color.FgGreen, color.Bold).SprintFunc()
+	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
+	fmt.Printf("You are about to modify the the following envrionment:\n\n")
+	fmt.Printf(white("  app: %s\n"), yellow(app))
+	if env == "production" {
+		env = red(env)
+	} else {
+		env = green(env)
+	}
+	fmt.Printf(white("  env: %s\n"), env)
+	fmt.Printf(white("  command: %s\n"), cyan(cmd))
+	fmt.Printf(white("  operation: %s\n"), cyan(op))
+	if cmd == "secrets" && op == "set" {
+		fmt.Printf(white("  encryption: %s\n"), green("enabled"))
+	}
+	fmt.Println()
+	for _, el := range args {
+		fmt.Println(el)
+	}
+	if op == "set" && cmd == "env" {
+		fmt.Printf("\n%s ", red("WARNING:"))
+		fmt.Printf(white("environment variables set w/ env command are NOT encrypted\n"))
+		fmt.Println(white("         this command should not be used to store sensitive values like passwords or tokens"))
+	}
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf(white("\nare you sure? (yes/no): "))
+	resp, _ := reader.ReadString('\n')
+
+	resp = strings.TrimSpace(resp)
+	if resp != "yes" {
+		return false
+	}
+	return true
 }
