@@ -28,10 +28,12 @@ var envDelCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		validateKeys(args)
 
-		url := consul.EnvURL(app, env)
-		if err := consul.Delete(app, env, url, args); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
+		if promptModifyEnvironment("delete", "env", app, env, args) {
+			url := consul.EnvURL(app, env)
+			if err := consul.Delete(app, env, url, args); err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 		}
 	},
 }

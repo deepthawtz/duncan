@@ -29,15 +29,17 @@ var secretsDelCmd = &cobra.Command{
 		checkAppEnv(app, env)
 		validateKeys(args)
 
-		u := vault.SecretsURL(app, env)
-		s, err := vault.Read(u)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
-		if _, err := vault.Delete(u, args, s); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
+		if promptModifyEnvironment("delete", "secrets", app, env, args) {
+			u := vault.SecretsURL(app, env)
+			s, err := vault.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			if _, err := vault.Delete(u, args, s); err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 		}
 	},
 }

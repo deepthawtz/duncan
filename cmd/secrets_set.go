@@ -29,19 +29,21 @@ var secretsSetCmd = &cobra.Command{
 		checkAppEnv(app, env)
 		validateKeyValues(args)
 
-		u := vault.SecretsURL(app, env)
-		s, err := vault.Read(u)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
-		s, err = vault.Write(u, args, s)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
+		if promptModifyEnvironment("set", "secrets", app, env, args) {
+			u := vault.SecretsURL(app, env)
+			s, err := vault.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			s, err = vault.Write(u, args, s)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 
-		printSorted(s.KVPairs)
+			printSorted(s.KVPairs)
+		}
 	},
 }
 
