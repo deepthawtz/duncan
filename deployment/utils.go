@@ -18,17 +18,10 @@ import (
 //
 // Returns previously deployed git tag if one has been deployed
 func UpdateReleaseTags(app, env, tag string) (string, error) {
-	url := consul.CurrentDeploymentTagURL(app, env)
-	resp, err := http.Get(url)
+	prev, err := CurrentTag(app, env)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	prev := string(b)
 
 	if prev == tag {
 		return tag, nil
