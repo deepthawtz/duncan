@@ -20,7 +20,7 @@ type Groups struct {
 }
 
 // DisplayAppStatus returns the group for the given app
-func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
+func (gs *Groups) DisplayAppStatus(apps []string, env string) error {
 	if env == "" {
 		env = "stage|production"
 	}
@@ -28,7 +28,7 @@ func (gs *Groups) DisplayAppStatus(apps map[string]string, env string) error {
 	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
 	white := color.New(color.FgWhite, color.Bold).SprintFunc()
 	green := color.New(color.FgGreen, color.Bold).SprintFunc()
-	for a := range apps {
+	for _, a := range apps {
 		for _, g := range gs.Groups {
 			envs := strings.Split(env, "|")
 			for _, e := range envs {

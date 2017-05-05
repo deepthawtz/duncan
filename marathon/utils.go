@@ -14,7 +14,10 @@ import (
 )
 
 func waitForDeployment(id string) error {
-	fmt.Println("Waiting for deploy....")
+	if id == "" {
+		return fmt.Errorf("did not get a deployment id from Marathon API")
+	}
+	fmt.Printf("Waiting for deployment id: %s\n", id)
 	go func() {
 		defer fmt.Println("")
 		for {

@@ -15,11 +15,9 @@ func List(app, env string) error {
 	if err != nil {
 		return err
 	}
-	apps := viper.GetStringMapString("apps")
+	apps := viper.GetStringSlice("apps")
 	if app != "" {
-		apps = map[string]string{
-			app: apps[app],
-		}
+		apps = []string{app}
 	}
 	if err := groups.DisplayAppStatus(apps, env); err != nil {
 		return err
@@ -27,7 +25,7 @@ func List(app, env string) error {
 	return nil
 }
 
-// Groups returns a Marathon groups API response
+// listGroups returns all deployed Marathon groups
 func listGroups() (*Groups, error) {
 	url := fmt.Sprintf("%s/service/marathon/v2/groups", viper.GetString("marathon_host"))
 	resp, err := http.Get(url)

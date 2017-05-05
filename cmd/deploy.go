@@ -15,67 +15,62 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/betterdoctor/duncan/chronos"
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/docker"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	app, env, tag, marathonPath string
+	app, env, tag string
+	force         bool
 )
 
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy an application",
-	Long: `Deploy an application. An application may be a combination of
-Marathon + Chronos tasks defined in $HOME/.duncan.yml. Deployment requires
-the BetterDoctor repo where Marathon and Chronos task definitions (JSON)
-can be found. Deployment also requires a Docker image w/ the provided
-git tag exists in the Docker registry.
-
-Marathon JSON files ending with "-group.json" will be deployed
-as Marathon Groups (collection of containers) otherwise will be deployed as
-Marathon Apps.
+	Long: `Deploy an application by specified tag.
 
 Example:
 
-$ duncan deploy --app APP --env ENV --tag GIT_TAG`,
+$ duncan deploy --app APP --env ENV --tag TAG
+
+NOTE: tag must exist in docker registry
+`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		validateDeployFlags()
 
-		if err := marathon.Deploy(app, env, tag); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
+		if promptDeploy() {
+			if err := marathon.Deploy(app, env, tag); err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 
-		if err := chronos.Deploy(app, env, tag); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
-
-		prev, err := deployment.UpdateReleaseTags(app, env, tag)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
-
-		err = notify.Slack(
-			viper.GetString("slack_webhook_url"),
-			fmt.Sprintf("%s %s (%s)", app, env, tag),
-			fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), deployment.GithubDiffLink(app, prev, tag)),
-		)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
+			prev, err := deployment.UpdateReleaseTags(app, env, tag)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			fmt.Println(deployment.GithubDiffLink(app, prev, tag))
+			err = notify.Slack(
+				viper.GetString("slack_webhook_url"),
+				fmt.Sprintf("%s %s (%s)", app, env, tag),
+				fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), deployment.GithubDiffLink(app, prev, tag)),
+			)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 		}
 	},
 }
@@ -84,7 +79,8 @@ func init() {
 	RootCmd.AddCommand(deployCmd)
 	deployCmd.Flags().StringVarP(&app, "app", "a", "", "app to deploy")
 	deployCmd.Flags().StringVarP(&env, "env", "e", "", "deployment environment (stage, production)")
-	deployCmd.Flags().StringVarP(&tag, "tag", "t", "", "git tag to deploy")
+	deployCmd.Flags().StringVarP(&tag, "tag", "t", "", "tag to deploy")
+	deployCmd.Flags().BoolVarP(&force, "force", "f", false, "bypass prompt before deploying")
 }
 
 func validateDeployFlags() {
@@ -93,19 +89,8 @@ func validateDeployFlags() {
 		os.Exit(-1)
 	}
 
-	if !appExists() {
-		fmt.Printf("app %s does not exist yet\n", app)
-		os.Exit(-1)
-	}
-
 	if env != "stage" && env != "production" {
 		fmt.Printf("env %s is not a valid deployment environment\n", env)
-		os.Exit(-1)
-	}
-
-	marathonPath = viper.GetString("marathon_json_path")
-	if !marathonPathExists() {
-		fmt.Printf("marathon path %s does not exist\n", marathonPath)
 		os.Exit(-1)
 	}
 
@@ -115,31 +100,39 @@ func validateDeployFlags() {
 	}
 }
 
-func appExists() bool {
-	apps := viper.GetStringMap("apps")
-	for a := range apps {
-		if a == app {
-			return true
-		}
-	}
-	return false
-}
-
-func marathonPathExists() bool {
-	_, err := os.Stat(marathonPath)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
 func emoji(env string) string {
 	if env == "production" {
 		return ":balloon:"
 	}
 
 	return ""
+}
+
+func promptDeploy() bool {
+	if force {
+		return true
+	}
+	white := color.New(color.FgWhite, color.Bold).SprintFunc()
+	red := color.New(color.FgRed, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
+	green := color.New(color.FgGreen, color.Bold).SprintFunc()
+	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
+	fmt.Printf("You are about to deploy:\n\n")
+	fmt.Printf(white("  app: %s\n"), yellow(app))
+	if env == "production" {
+		fmt.Printf(white("  env: %s\n"), red(env))
+	} else {
+		fmt.Printf(white("  env: %s\n"), green(env))
+	}
+	fmt.Printf(white("  tag: %s\n"), cyan(tag))
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf(white("\nare you sure? (yes/no): "))
+	resp, _ := reader.ReadString('\n')
+
+	resp = strings.TrimSpace(resp)
+	if resp != "yes" {
+		fmt.Println("phew... that was close")
+		return false
+	}
+	return true
 }

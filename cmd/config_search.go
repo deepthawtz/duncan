@@ -40,12 +40,12 @@ var configSearchCmd = &cobra.Command{
 		pattern := regexp.MustCompile(fmt.Sprintf(".*%s.*", args[0]))
 		green := color.New(color.FgGreen, color.Bold).SprintFunc()
 		matches := map[string]map[string]string{}
-		apps := viper.GetStringMapString("apps")
+		apps := viper.GetStringSlice("apps")
 		var (
 			wg  sync.WaitGroup
 			mux sync.Mutex
 		)
-		for app := range apps {
+		for _, app := range apps {
 			if env == "" {
 				env = "stage|production"
 			}
