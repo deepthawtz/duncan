@@ -1,6 +1,9 @@
 package deployment
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -31,24 +34,34 @@ func UpdateReleaseTags(app, env, tag string) (string, error) {
 		"previous": prev,
 	}
 
-	token := viper.GetString("consul_token")
+	var txn []*consul.TxnItem
 	for k, v := range m {
-		url = strings.Join([]string{consul.DeploymentTagURL(app, env), k}, "/")
-		url += fmt.Sprintf("?token=%s", token)
-		client := &http.Client{}
-		req, _ := http.NewRequest("PUT", url, strings.NewReader(v))
-		resp, err := client.Do(req)
+		txn = append(txn, &consul.TxnItem{
+			KV: &consul.KVPair{
+				Key:   fmt.Sprintf("deploys/%s/%s/%s", app, env, k),
+				Value: base64.StdEncoding.EncodeToString([]byte(v)),
+				Verb:  "set",
+			},
+		})
+	}
+	client := &http.Client{}
+	body, err := json.Marshal(txn)
+	if err != nil {
+		return "", err
+	}
+	url := consul.TxnURL()
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return "", err
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			b, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return "", err
-			}
-			return "", fmt.Errorf("failed to update release tags in Consul: %s\n%s", resp.Status, string(b))
-		}
+		return "", fmt.Errorf("failed to update release tags in Consul: %s\n%s", resp.Status, string(b))
 	}
 	return prev, nil
 }

@@ -106,26 +106,6 @@ func TestCurrentDeploymentTagURL(t *testing.T) {
 	}
 }
 
-func TestDeploymentTagURL(t *testing.T) {
-	cases := []struct {
-		app string
-		env string
-	}{
-		{app: "foo", env: "stage"},
-		{app: "foo", env: "production"},
-	}
-	ch := "consul.yodawg.com"
-	viper.Set("consul_host", ch)
-
-	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, test.app, test.env)
-		u := DeploymentTagURL(test.app, test.env)
-		if exp != u {
-			t.Errorf("expected %s but got %s", exp, u)
-		}
-	}
-}
-
 // TestApp represents a test app
 type TestApp struct {
 	App, Env string
