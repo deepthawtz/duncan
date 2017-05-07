@@ -1,6 +1,7 @@
 package deployment
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -40,11 +41,11 @@ func TestGithubDiffLink(t *testing.T) {
 			if d != "no changes" {
 				t.Errorf("expected no changes got %s", d)
 			}
+		} else {
+			dl := fmt.Sprintf("https://github.com/betterdoctor/%s/compare/%s...%s", test.app, test.prev, test.tag)
+			if d != dl {
+				t.Errorf("expected %s but got %s", dl, d)
+			}
 		}
-		// TODO: override viper YAML config to do app -> repo lookup
-		// dl := fmt.Sprintf("https://github.com/betterdoctor/%s/compare/%s...%s", test.app, test.prev, test.tag)
-		// if d != dl {
-		// 	t.Errorf("expected %s but got %s", dl, d)
-		// }
 	}
 }

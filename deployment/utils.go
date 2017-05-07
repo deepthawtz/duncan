@@ -200,7 +200,9 @@ func GithubDiffLink(app, prev, tag string) string {
 	if prev == tag || prev == "" {
 		return "no changes"
 	}
-	// TODO: handle if YAML is not filled out correctly
 	repo := viper.GetStringMapString("repos")[app]
+	if repo == "" {
+		repo = app
+	}
 	return fmt.Sprintf("https://github.com/betterdoctor/%s/compare/%s...%s", repo, prev, tag)
 }
