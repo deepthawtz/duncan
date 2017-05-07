@@ -51,7 +51,7 @@ func Scale(app, env string, procs []string) (ScaleEvent, error) {
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
 				return nil, err
 			}
-			if err := waitForDeployment(d.ID); err != nil {
+			if err := deployment.Watch(d.ID); err != nil {
 				return nil, err
 			}
 		}

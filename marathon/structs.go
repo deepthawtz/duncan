@@ -127,11 +127,6 @@ type Docker struct {
 	PortMappings   []map[string]interface{} `json:"portMappings,omitempty"`
 }
 
-// Deployment represents a Marathon deployment
-type Deployment struct {
-	ID string `json:"id"`
-}
-
 // DeploymentResponse represents a Marathon deployment response
 // when updating/creating a new app/group
 type DeploymentResponse struct {

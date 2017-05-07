@@ -48,7 +48,7 @@ func Deploy(app, env, tag string) error {
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
 				return err
 			}
-			if err := waitForDeployment(d.ID); err != nil {
+			if err := deployment.Watch(d.ID); err != nil {
 				return err
 			}
 

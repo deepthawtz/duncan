@@ -8,10 +8,50 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/betterdoctor/duncan/consul"
 	"github.com/spf13/viper"
 )
+
+// Deployment represents a Marathon deployment
+type Deployment struct {
+	ID string `json:"id"`
+}
+
+// Watch watches a Marathon deployment and handles success or failure
+func Watch(id string) error {
+	if id == "" {
+		return fmt.Errorf("did not get a deployment id from Marathon API")
+	}
+	fmt.Printf("Waiting for deployment id: %s\n", id)
+
+	url := fmt.Sprintf("%s/service/marathon/v2/deployments", viper.GetString("marathon_host"))
+
+	for {
+		time.Sleep(5 * time.Second)
+		resp, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+		b, _ := ioutil.ReadAll(resp.Body)
+		var d []Deployment
+		fmt.Println(string(b))
+		if err := json.Unmarshal(b, &d); err != nil {
+			return err
+		}
+		for _, x := range d {
+			if x.ID == id {
+				continue
+			}
+		}
+		fmt.Println("DONE")
+		break
+	}
+
+	return nil
+}
 
 // UpdateReleaseTags updates the deployment git tags in Consul KV registry
 // `tags/{app}/{env}/current` points to the currently deployed tag
