@@ -59,10 +59,6 @@ func deploymentURL() string {
 	return fmt.Sprintf("%s/service/marathon/v2/groups/", viper.GetString("marathon_host"))
 }
 
-func marathonJSONPath(marathonPath, f, env string) string {
-	return path.Join(marathonPath, strings.Replace(f, "{{env}}", env, -1))
-}
-
 func marathonJSON(body []byte, app, tag string) string {
 	re := regexp.MustCompile(fmt.Sprintf("(%s/%s):.*(\",?)", viper.GetString("docker_repo_prefix"), app))
 	return re.ReplaceAllString(string(body), fmt.Sprintf("$1:%s$2", tag))

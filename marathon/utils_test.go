@@ -29,24 +29,6 @@ func TestDeploymentURL(t *testing.T) {
 	}
 }
 
-func TestMarathonJSONPath(t *testing.T) {
-	cases := []struct {
-		env string
-		in  string
-		out string
-	}{
-		{env: "stage", in: "/blah/yodawg-{{env}}.json", out: "/blah/yodawg-stage.json"},
-		{env: "production", in: "/blah/yodawg-{{env}}.json", out: "/blah/yodawg-production.json"},
-	}
-
-	for _, test := range cases {
-		mjp := marathonJSONPath("", test.in, test.env)
-		if mjp != test.out {
-			t.Errorf("expected %s but got %s", test.out, mjp)
-		}
-	}
-}
-
 func TestMarathonJSON(t *testing.T) {
 	group := `{"id": "yo-dawg-group", "apps": [{"id": "web", "container": {"docker": {"image": "quay.io/betterdoctor/yodawg:v1.2.3"}}}, {"id": "worker", "container": {"docker": {"image": "quay.io/yo/yodawg:v1.2.3"}}}]}`
 	app := `{"id": "yo-dawg", "container": { "docker": {"image": "quay.io/betterdoctor/yodawg:v1.2.3"}}}`
