@@ -100,19 +100,22 @@ func Watch(id string) error {
 		defer resp.Body.Close()
 		b, _ := ioutil.ReadAll(resp.Body)
 		var d []Deployment
-		fmt.Println(string(b))
 		if err := json.Unmarshal(b, &d); err != nil {
 			return err
+		}
+		if len(d) == 0 {
+			break
 		}
 		for _, x := range d {
 			if x.ID == id {
 				continue
+			} else {
+				fmt.Println("DONE")
+				return nil
 			}
 		}
-		fmt.Println("DONE")
-		break
 	}
-
+	fmt.Println("DONE")
 	return nil
 }
 
