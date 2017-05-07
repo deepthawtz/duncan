@@ -51,6 +51,12 @@ NOTE: tag must exist in docker registry
 		validateDeployFlags()
 
 		if promptDeploy() {
+			if err := deployment.BeginDeploy(app, env); err != nil {
+				fmt.Printf("ACL prevents deployment of: %s %s\n\n", app, env)
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+
 			if err := marathon.Deploy(app, env, tag); err != nil {
 				fmt.Println(err)
 				os.Exit(-1)
@@ -58,6 +64,10 @@ NOTE: tag must exist in docker registry
 
 			prev, err := deployment.UpdateReleaseTags(app, env, tag)
 			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			if err := deployment.FinishDeploy(app, env); err != nil {
 				fmt.Println(err)
 				os.Exit(-1)
 			}

@@ -19,6 +19,69 @@ type Deployment struct {
 	ID string `json:"id"`
 }
 
+// BeginDeploy checks if Consul ACL allows deployments for
+func BeginDeploy(app, env string) error {
+	var txn []*consul.TxnItem
+	txn = append(txn, &consul.TxnItem{
+		KV: &consul.KVPair{
+			Key:   fmt.Sprintf("deploys/%s/%s/lock", app, env),
+			Value: base64.StdEncoding.EncodeToString([]byte("yo")),
+			Verb:  "set",
+		},
+	})
+	client := &http.Client{}
+	body, err := json.Marshal(txn)
+	if err != nil {
+		return err
+	}
+	url := consul.TxnURL()
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("failed to set deployment lock: %s\n%s\n", resp.Status, string(b))
+	}
+	return nil
+}
+
+// FinishDeploy removes deployment lock after a successful deploy
+func FinishDeploy(app, env string) error {
+	var txn []*consul.TxnItem
+	txn = append(txn, &consul.TxnItem{
+		KV: &consul.KVPair{
+			Key:  fmt.Sprintf("deploys/%s/%s/lock", app, env),
+			Verb: "delete",
+		},
+	})
+	client := &http.Client{}
+	body, err := json.Marshal(txn)
+	if err != nil {
+		return err
+	}
+	url := consul.TxnURL()
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("failed to remove deployment lock in Consul: %s\n%s\n", resp.Status, string(b))
+	}
+	return nil
+}
+
 // Watch watches a Marathon deployment and handles success or failure
 func Watch(id string) error {
 	if id == "" {
