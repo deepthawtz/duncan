@@ -200,9 +200,13 @@ func GithubDiffLink(app, prev, tag string) string {
 	if prev == tag || prev == "" {
 		return "no changes"
 	}
+	org := viper.GetString("github_org")
+	if org == "" {
+		return "no github_org set: cannot generate diff link"
+	}
 	repo := viper.GetStringMapString("repos")[app]
 	if repo == "" {
 		repo = app
 	}
-	return fmt.Sprintf("https://github.com/betterdoctor/%s/compare/%s...%s", repo, prev, tag)
+	return fmt.Sprintf("https://github.com/%s/%s/compare/%s...%s", org, repo, prev, tag)
 }

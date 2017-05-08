@@ -52,6 +52,15 @@ func RunCommand(app, env, cmd string, follow bool) error {
 	if err != nil {
 		return err
 	}
+	prefix := viper.GetString("docker_repo_prefix")
+	if prefix == "" {
+		return fmt.Errorf("docker_repo_prefix not set in config")
+	}
+	// TODO: remove when we change how we handle passing docker config to tasks
+	confURL := viper.GetString("docker_conf_url")
+	if confURL == "" {
+		return fmt.Errorf("docker_conf_url not set in config")
+	}
 
 	task := &TaskVars{
 		App:              app,
@@ -59,8 +68,8 @@ func RunCommand(app, env, cmd string, follow bool) error {
 		Tag:              tag,
 		Command:          cmd,
 		TaskName:         taskName(app, env, cmd),
-		DockerRepoPrefix: viper.GetString("docker_repo_prefix"),
-		DockerConfURL:    viper.GetString("docker_conf_url"),
+		DockerRepoPrefix: prefix,
+		DockerConfURL:    confURL,
 	}
 	chronosURL := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
 	mesosURL := fmt.Sprintf("%s/mesos/tasks", viper.GetString("marathon_host"))
