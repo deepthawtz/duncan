@@ -126,15 +126,7 @@ func Watch(id string) error {
 // This structure allows for rollback if a previous tag exists
 //
 // Returns previously deployed git tag if one has been deployed
-func UpdateReleaseTags(app, env, tag string) (string, error) {
-	prev, err := CurrentTag(app, env)
-	if err != nil {
-		return "", err
-	}
-
-	if prev == tag {
-		return tag, nil
-	}
+func UpdateReleaseTags(app, env, tag, prev string) error {
 	m := map[string]string{
 		"current":  tag,
 		"previous": prev,
@@ -153,23 +145,23 @@ func UpdateReleaseTags(app, env, tag string) (string, error) {
 	client := &http.Client{}
 	body, err := json.Marshal(txn)
 	if err != nil {
-		return "", err
+		return err
 	}
 	url := consul.TxnURL()
 	req, _ := http.NewRequest("PUT", url, bytes.NewReader(body))
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return "", err
+			return err
 		}
-		return "", fmt.Errorf("failed to update release tags in Consul: %s\n%s", resp.Status, string(b))
+		return fmt.Errorf("failed to update release tags in Consul: %s\n%s", resp.Status, string(b))
 	}
-	return prev, nil
+	return nil
 }
 
 // CurrentTag returns the currently deployed git tag for an app and environment

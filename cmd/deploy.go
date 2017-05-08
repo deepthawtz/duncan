@@ -30,8 +30,8 @@ import (
 )
 
 var (
-	app, env, tag string
-	force         bool
+	app, env, tag, prev string
+	force               bool
 )
 
 // deployCmd represents the deploy command
@@ -50,6 +50,17 @@ NOTE: tag must exist in docker registry
 	Run: func(cmd *cobra.Command, args []string) {
 		validateDeployFlags()
 
+		var err error
+		prev, err = deployment.CurrentTag(app, env)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+
+		if prev == tag {
+			fmt.Printf("%s already deployed to %s %s\n", tag, app, env)
+			os.Exit(0)
+		}
 		if promptDeploy() {
 			if err := deployment.BeginDeploy(app, env); err != nil {
 				fmt.Printf("ACL prevents deployment of: %s %s\n\n", app, env)
@@ -62,8 +73,7 @@ NOTE: tag must exist in docker registry
 				os.Exit(-1)
 			}
 
-			prev, err := deployment.UpdateReleaseTags(app, env, tag)
-			if err != nil {
+			if err := deployment.UpdateReleaseTags(app, env, tag, prev); err != nil {
 				fmt.Println(err)
 				os.Exit(-1)
 			}
@@ -135,6 +145,9 @@ func promptDeploy() bool {
 		fmt.Printf(white("  env: %s\n"), green(env))
 	}
 	fmt.Printf(white("  tag: %s\n"), cyan(tag))
+	fmt.Println()
+	fmt.Printf(white("currently deployed tag: %s\n"), yellow(prev))
+
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))
 	resp, _ := reader.ReadString('\n')
