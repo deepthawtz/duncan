@@ -182,19 +182,19 @@ func envMap(kvs []KVPair) map[string]string {
 // EnvURL returns a Consul KV URL for an app/env
 func EnvURL(app, env string) string {
 	host := viper.GetString("consul_host")
-	return fmt.Sprintf("https://%s/v1/kv/env/%s/%s", host, app, env)
+	return fmt.Sprintf("%s/v1/kv/env/%s/%s", host, app, env)
 }
 
 // CurrentDeploymentTagURL returns URL to fetch currently deployed tag
 func CurrentDeploymentTagURL(app, env string) string {
 	host := viper.GetString("consul_host")
 	token := viper.GetString("consul_token")
-	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", host, app, env, token)
+	return fmt.Sprintf("%s/v1/kv/deploys/%s/%s/current?raw&token=%s", host, app, env, token)
 }
 
 // TxnURL returns a Consul transaction (txn) URL
 func TxnURL() string {
 	host := viper.GetString("consul_host")
 	token := viper.GetString("consul_token")
-	return fmt.Sprintf("https://%s/v1/txn?token=%s", host, token)
+	return fmt.Sprintf("%s/v1/txn?token=%s", host, token)
 }

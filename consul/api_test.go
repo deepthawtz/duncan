@@ -72,11 +72,11 @@ func TestEnvURL(t *testing.T) {
 		{app: "foo", env: "stage"},
 		{app: "foo", env: "production"},
 	}
-	ch := "consul.yodawg.com"
+	ch := "https://consul.yodawg.com"
 	viper.Set("consul_host", ch)
 
 	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/env/%s/%s", ch, test.app, test.env)
+		exp := fmt.Sprintf("%s/v1/kv/env/%s/%s", ch, test.app, test.env)
 		u := EnvURL(test.app, test.env)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)
@@ -92,13 +92,13 @@ func TestCurrentDeploymentTagURL(t *testing.T) {
 		{app: "foo", env: "stage"},
 		{app: "foo", env: "production"},
 	}
-	ch := "consul.yodawg.com"
+	ch := "https://consul.yodawg.com"
 	token := "abc123"
 	viper.Set("consul_host", ch)
 	viper.Set("consul_token", token)
 
 	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, test.app, test.env, token)
+		exp := fmt.Sprintf("%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, test.app, test.env, token)
 		u := CurrentDeploymentTagURL(test.app, test.env)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)

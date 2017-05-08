@@ -19,7 +19,7 @@ func TestPrefix(t *testing.T) {
 func TestSecretsURL(t *testing.T) {
 	vh := viper.GetString("vault_host")
 	u := SecretsURL("foo", "stage")
-	exp := fmt.Sprintf("https://%s/v1/secret/foo/stage", vh)
+	exp := fmt.Sprintf("%s/v1/secret/foo/stage", vh)
 	if u != exp {
 		t.Errorf("expected %s but got %s", exp, u)
 	}
