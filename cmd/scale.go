@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -23,9 +24,22 @@ import (
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+type scaleEvent struct {
+	App   string
+	Env   string
+	Procs []*proc
+}
+
+type proc struct {
+	InstanceType string
+	Previous     int
+	Current      int
+}
 
 // scaleCmd represents the scale command
 var scaleCmd = &cobra.Command{
@@ -41,29 +55,49 @@ duncan scale web=2 worker=5 --app foo --env production
 If application cannot scale due to insufficient cluster resources an error will be returned
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		validateArgs(args)
-
-		se, err := marathon.Scale(app, env, args)
+		rules, err := parseScaleRules(args)
+		if err != nil {
+			fmt.Printf("ERROR: %v\n", err)
+			fmt.Println("USAGE: duncan scale web=3 [worker=2, ...] --app foo --env production")
+			os.Exit(-1)
+		}
+		g, err := marathon.GroupDefinition(app, env)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}
-		msg := "docker containers scaled :whale:\n"
-		for k, v := range se {
-			if v["curr"] > v["prev"] {
-				msg += fmt.Sprintf("    :point_up: %s scaled up from %v to %v instances", k, v["prev"], v["curr"])
-			} else {
-				msg += fmt.Sprintf("    :point_down: %s scaled down from %v to %v instances", k, v["prev"], v["curr"])
+
+		se := &scaleEvent{App: app, Env: env}
+		for p, size := range rules {
+			for _, a := range g.Apps {
+				if a.InstanceType() == p {
+					se.Procs = append(se.Procs, &proc{
+						InstanceType: p,
+						Previous:     a.Instances,
+						Current:      size,
+					})
+				}
 			}
 		}
-		tag, err := deployment.CurrentTag(app, env)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
-		}
-		if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s (%s)", app, env, tag), msg); err != nil {
-			fmt.Println(err)
-			os.Exit(-1)
+
+		if promptScale(se) {
+			id, err := marathon.Scale(g, rules)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			if err := deployment.Watch(id); err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			var msg string
+			for _, proc := range se.Procs {
+				msg = fmt.Sprintf(":whale: :scales: `%s` scaled from `%v` => `%v` instances\n", proc.InstanceType, proc.Previous, proc.Current)
+			}
+			if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, env), msg); err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
 		}
 	},
 }
@@ -73,30 +107,61 @@ func init() {
 
 	scaleCmd.Flags().StringVarP(&app, "app", "a", "", "app to scale")
 	scaleCmd.Flags().StringVarP(&env, "env", "e", "", "environment (stage, production)")
+	scaleCmd.Flags().BoolVarP(&force, "force", "f", false, "bypass prompt before scaling")
 }
 
-func validateArgs(args []string) {
+func parseScaleRules(args []string) (map[string]int, error) {
+	rules := map[string]int{}
 	if len(args) == 0 {
-		printUsageAndExit()
+		return rules, fmt.Errorf("wrong number of arguments")
 	}
-	if env != "" && env != "stage" && env != "production" {
-		fmt.Printf("env %s is not a valid deployment environment\n", env)
-		os.Exit(-1)
-	}
-	// validate args match proc=count format
+
 	for _, p := range args {
 		s := strings.Split(p, "=")
 		if len(s) != 2 {
-			printUsageAndExit()
+			return rules, fmt.Errorf("%s not in proper format", p)
 		}
-		_, err := strconv.Atoi(s[1])
+		count, err := strconv.Atoi(s[1])
 		if err != nil {
-			printUsageAndExit()
+			return rules, fmt.Errorf("%s not in proper format", p)
 		}
+		if count < 1 {
+			return rules, fmt.Errorf("scale count must be greater than 0")
+		}
+		rules[s[0]] = count
 	}
+	return rules, nil
 }
 
-func printUsageAndExit() {
-	fmt.Println("USAGE: duncan scale web=3 [worker=2, ...] --app foo --env production")
-	os.Exit(-1)
+func promptScale(se *scaleEvent) bool {
+	if force {
+		return true
+	}
+	white := color.New(color.FgWhite, color.Bold).SprintFunc()
+	red := color.New(color.FgRed, color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
+	green := color.New(color.FgGreen, color.Bold).SprintFunc()
+	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
+	fmt.Printf("You are about to scale:\n\n")
+	fmt.Printf(white("  app: %s\n"), yellow(app))
+	if env == "production" {
+		fmt.Printf(white("  env: %s\n"), red(env))
+	} else {
+		fmt.Printf(white("  env: %s\n"), green(env))
+	}
+	for _, s := range se.Procs {
+		fmt.Printf("  %s: %s => %s instances\n", white(s.InstanceType), cyan(s.Previous), yellow(s.Current))
+	}
+	fmt.Println()
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf(white("\nare you sure? (yes/no): "))
+	resp, _ := reader.ReadString('\n')
+
+	resp = strings.TrimSpace(resp)
+	if resp != "yes" {
+		fmt.Println("phew... that was close")
+		return false
+	}
+	return true
 }

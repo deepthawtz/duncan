@@ -63,7 +63,6 @@ NOTE: tag must exist in docker registry
 		}
 		if promptDeploy() {
 			if err := deployment.BeginDeploy(app, env); err != nil {
-				fmt.Printf("ACL prevents deployment of: %s %s\n\n", app, env)
 				fmt.Println(err)
 				os.Exit(-1)
 			}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os/user"
 	"strings"
 	"time"
 
@@ -21,11 +22,13 @@ type Deployment struct {
 
 // BeginDeploy checks if Consul ACL allows deployments for
 func BeginDeploy(app, env string) error {
+	u, _ := user.Current()
+	val := fmt.Sprintf("%s-%s", u.Username, time.Now().Format("2006-01-02-15:04:05"))
 	var txn []*consul.TxnItem
 	txn = append(txn, &consul.TxnItem{
 		KV: &consul.KVPair{
 			Key:   fmt.Sprintf("deploys/%s/%s/lock", app, env),
-			Value: base64.StdEncoding.EncodeToString([]byte("yo")),
+			Value: base64.StdEncoding.EncodeToString([]byte(val)),
 			Verb:  "set",
 		},
 	})
@@ -46,7 +49,7 @@ func BeginDeploy(app, env string) error {
 		if err != nil {
 			return err
 		}
-		return fmt.Errorf("failed to set deployment lock: %s\n%s\n", resp.Status, string(b))
+		return fmt.Errorf("Your consul_token is not allowed to deploy %s %s: %s", app, env, string(b))
 	}
 	return nil
 }

@@ -120,7 +120,7 @@ func TestRead(t *testing.T) {
 
 	viper.Set("consul_token", "abc123")
 	for _, app := range apps {
-		ts := getEnvServer(app)
+		ts := createConsulENVServer(app)
 		env, _ := Read(ts.URL)
 		if app.exists && len(env) == 0 {
 			t.Errorf("expected populated ENV map but got %v", env)
@@ -131,7 +131,7 @@ func TestRead(t *testing.T) {
 	}
 }
 
-func getEnvServer(app TestApp) *httptest.Server {
+func createConsulENVServer(app TestApp) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.exists {
 			t := template.Must(template.New("env_json").Parse(envJSONTemplate))

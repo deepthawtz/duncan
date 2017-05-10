@@ -49,7 +49,7 @@ func (gs *Groups) DisplayAppStatus(apps []string, env string) error {
 							host = fmt.Sprintf("https://%s", host)
 						}
 						data = append(data, []string{
-							cyan(strings.Split(x.ID, "/")[2]),
+							cyan(x.InstanceType()),
 							white(x.ReleaseTag()),
 							yellow(strconv.Itoa(x.Instances)),
 							white(fmt.Sprintf("%.2f", x.CPUs)),
@@ -90,6 +90,15 @@ type App struct {
 	Labels       map[string]string        `json:"labels,omitempty"`
 	HealthChecks []map[string]interface{} `json:"healthChecks,omitempty"`
 	Version      time.Time                `json:"version,omitempty"`
+}
+
+func (a *App) InstanceType() string {
+	x := strings.Split(a.ID, "/")
+	if len(x) != 3 {
+		return ""
+	}
+	id := x[len(x)-1]
+	return id
 }
 
 // ReleaseTag returns the git tag for a given app
