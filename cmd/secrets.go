@@ -44,6 +44,11 @@ func checkAppEnv(app, env string) {
 		fmt.Println("must provide --app and --env flags")
 		os.Exit(-1)
 	}
+
+	if env != "stage" && env != "production" {
+		fmt.Printf("env %s is not a valid deployment environment\n", env)
+		os.Exit(-1)
+	}
 }
 
 func validateKeyValues(kvs []string) {
