@@ -15,7 +15,7 @@ func Scale(group *Group, rules map[string]int) (string, error) {
 		return "", err
 	}
 	client := &http.Client{}
-	req, _ := http.NewRequest("PUT", deploymentURL(), bytes.NewReader(mj))
+	req, _ := http.NewRequest("PUT", updateGroupURL(), bytes.NewReader(mj))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
@@ -25,7 +25,7 @@ func Scale(group *Group, rules map[string]int) (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("failed to update Marathon group: %s", resp.Status)
 	}
-	d := &DeploymentResponse{}
+	d := &deploymentResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
 		return "", err
 	}

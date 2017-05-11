@@ -30,7 +30,7 @@ func Deploy(app, env, tag string) error {
 				return err
 			}
 			client := &http.Client{}
-			req, _ := http.NewRequest("PUT", deploymentURL(), bytes.NewReader(j))
+			req, _ := http.NewRequest("PUT", updateGroupURL(), bytes.NewReader(j))
 			req.Header.Set("Content-Type", "application/json")
 			resp, err := client.Do(req)
 			if err != nil {
@@ -44,7 +44,7 @@ func Deploy(app, env, tag string) error {
 				}
 				return fmt.Errorf("failed to deploy: %s\n%s\n", resp.Status, string(b))
 			}
-			d := &DeploymentResponse{}
+			d := &deploymentResponse{}
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
 				return err
 			}

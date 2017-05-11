@@ -2,79 +2,12 @@ package marathon
 
 import (
 	"fmt"
-	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/betterdoctor/duncan/deployment"
-	"github.com/fatih/color"
-	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/viper"
 )
-
-// Groups represents a list of Marathon groups
-type Groups struct {
-	Groups []Group `json:"groups"`
-}
-
-// DisplayAppStatus returns the group for the given app
-func (gs *Groups) DisplayAppStatus(apps []string, env string) error {
-	if env == "" {
-		env = "stage|production"
-	}
-	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
-	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
-	white := color.New(color.FgWhite, color.Bold).SprintFunc()
-	green := color.New(color.FgGreen, color.Bold).SprintFunc()
-	for _, a := range apps {
-		for _, g := range gs.Groups {
-			envs := strings.Split(env, "|")
-			for _, e := range envs {
-				id := deployment.MarathonGroupID(a, e)
-				if g.ID == id {
-					fmt.Println(green(id))
-					var data = make([][]string, 10)
-					for _, x := range g.Apps {
-						if x.ID == "" {
-							continue
-						}
-						var (
-							host string
-							ok   bool
-						)
-						host, ok = x.Labels["HAPROXY_0_VHOST"]
-						if ok {
-							host = fmt.Sprintf("https://%s", host)
-						}
-						data = append(data, []string{
-							cyan(x.InstanceType()),
-							white(x.ReleaseTag()),
-							yellow(strconv.Itoa(x.Instances)),
-							white(fmt.Sprintf("%.2f", x.CPUs)),
-							white(strconv.Itoa(x.Mem)),
-							white(x.Version.Format("2006-01-02T15:04:05")),
-							cyan(host),
-						})
-					}
-					table := tablewriter.NewWriter(os.Stdout)
-					table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem MB", "Deployed At", "Host"})
-					table.AppendBulk(data)
-					table.Render()
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-// Group represents a Marathon app or group definition
-type Group struct {
-	ID   string `json:"id"`
-	Apps []*App `json:"apps,omitempty"`
-}
 
 // App represents a Marathon app
 type App struct {
@@ -92,6 +25,8 @@ type App struct {
 	Version      time.Time                `json:"version,omitempty"`
 }
 
+// InstanceType returns the Marathon app name ("instance type" in our terminology)
+// e.g., web, worker, worker-special-sauce
 func (a *App) InstanceType() string {
 	x := strings.Split(a.ID, "/")
 	if len(x) != 3 {
@@ -134,10 +69,4 @@ type Docker struct {
 	ForcePullImage bool                     `json:"forcePullImage,omitempty"`
 	Network        string                   `json:"network,omitempty"`
 	PortMappings   []map[string]interface{} `json:"portMappings,omitempty"`
-}
-
-// DeploymentResponse represents a Marathon deployment response
-// when updating/creating a new app/group
-type DeploymentResponse struct {
-	ID string `json:"deploymentId"`
 }
