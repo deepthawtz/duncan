@@ -17,7 +17,6 @@ func Deploy(app, env, tag string) error {
 		return err
 	}
 
-	// check JSON to see if group has already been deployed
 	for _, g := range groups.Groups {
 		if g.ID == deployment.MarathonGroupID(app, env) {
 			for _, a := range g.Apps {
