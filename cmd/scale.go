@@ -55,6 +55,7 @@ duncan scale web=2 worker=5 --app foo --env production
 If application cannot scale due to insufficient cluster resources an error will be returned
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		checkAppEnv(app, env)
 		rules, err := parseScaleRules(args)
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
