@@ -11,33 +11,40 @@ import (
 
 // TagResponse represents a Quay API tags response
 type TagResponse struct {
-	Tags []Tag `json:"tags"`
+	Tags []struct {
+		Name string `json:"name"`
+	} `json:"tags"`
 }
 
-// Tag represents a Docker repository tag
-type Tag struct {
-	Name string `json:"name"`
-}
-
-// TagExists checks if a docker tag exists for a given repo
-func TagExists(app, tag string) bool {
-	url := fmt.Sprintf("https://quay.io/api/v1/repository/betterdoctor/%s/tag/?specificTag=%s", app, tag)
+// VerifyTagExists checks if a docker tag exists for a given repo
+func VerifyTagExists(app, tag string) error {
+	url := tagsURL(app, tag)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, strings.NewReader(""))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", viper.GetString("quay_token")))
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to find tag: %s", resp.Status)
+	}
+
 	tr := &TagResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(tr); err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
-	if len(tr.Tags) == 0 || tr.Tags[0].Name != tag {
-		return false
+	if len(tr.Tags) != 1 || tr.Tags[0].Name != tag {
+		return fmt.Errorf("failed to find tag")
 	}
-	return true
+	return nil
+}
+
+func tagsURL(app, tag string) string {
+	host := viper.GetString("docker_registry_host")
+	if host == "" {
+		host = "https://quay.io"
+	}
+	return fmt.Sprintf("%s/api/v1/repository/betterdoctor/%s/tag/?specificTag=%s", host, app, tag)
 }

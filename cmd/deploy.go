@@ -113,8 +113,9 @@ func validateDeployFlags() {
 		os.Exit(-1)
 	}
 
-	if !docker.TagExists(app, tag) {
-		fmt.Printf("docker tag %s does not exist for %s\n", tag, app)
+	if err := docker.VerifyTagExists(app, tag); err != nil {
+		repo := viper.GetString("docker_repo_prefix")
+		fmt.Printf("could not verify %s/%s:%s exists: %s\n", repo, app, tag, err)
 		os.Exit(-1)
 	}
 }
