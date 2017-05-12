@@ -14,9 +14,9 @@
 * [func CurrentDeploymentTagURL(app, env string) string](#CurrentDeploymentTagURL)
 * [func CurrentTag(app, env string) (string, error)](#CurrentTag)
 * [func Delete(app, deployEnv, url string, keys []string) error](#Delete)
-* [func DeploymentTagURL(app, env string) string](#DeploymentTagURL)
 * [func EnvURL(app, env string) string](#EnvURL)
 * [func Read(url string) (map[string]string, error)](#Read)
+* [func TxnURL() string](#TxnURL)
 * [func Write(app, deployEnv, url string, kvs []string) (map[string]string, error)](#Write)
 * [type KVPair](#KVPair)
 * [type TxnItem](#TxnItem)
@@ -29,7 +29,7 @@
 
 
 
-## <a name="CurrentDeploymentTagURL">func</a> [CurrentDeploymentTagURL](/src/target/api.go?s=4625:4677#L175)
+## <a name="CurrentDeploymentTagURL">func</a> [CurrentDeploymentTagURL](/src/target/api.go?s=4737:4789#L179)
 ``` go
 func CurrentDeploymentTagURL(app, env string) string
 ```
@@ -37,7 +37,7 @@ CurrentDeploymentTagURL returns URL to fetch currently deployed tag
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/api.go?s=3605:3653#L137)
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/api.go?s=3721:3769#L141)
 ``` go
 func CurrentTag(app, env string) (string, error)
 ```
@@ -45,7 +45,7 @@ CurrentTag returns the last deployed tag for app + env
 
 
 
-## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2695:2755#L107)
+## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2811:2871#L111)
 ``` go
 func Delete(app, deployEnv, url string, keys []string) error
 ```
@@ -53,15 +53,7 @@ Delete removes key/values from Consul by given keys
 
 
 
-## <a name="DeploymentTagURL">func</a> [DeploymentTagURL](/src/target/api.go?s=4933:4978#L182)
-``` go
-func DeploymentTagURL(app, env string) string
-```
-DeploymentTagURL returns URL to PUT release tags to (current/previous)
-
-
-
-## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4411:4446#L169)
+## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4527:4562#L173)
 ``` go
 func EnvURL(app, env string) string
 ```
@@ -77,11 +69,23 @@ Read returns ENV for given consul KV URL
 
 
 
-## <a name="Write">func</a> [Write](/src/target/api.go?s=1217:1296#L48)
+## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=5016:5036#L186)
+``` go
+func TxnURL() string
+```
+TxnURL returns a Consul transaction (txn) URL
+
+
+
+## <a name="Write">func</a> [Write](/src/target/api.go?s=1333:1412#L52)
 ``` go
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error)
 ```
-Write sets ENV vars for a given KV URL
+Write sets ENV vars for a given KV URL and prints what changed
+
+e.g.,
+changing FOO_LEVEL from 9 => 9000
+changing BAR_ENABLED from true => false
 
 
 

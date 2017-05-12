@@ -1,15 +1,37 @@
 package marathon
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestAppRelease(t *testing.T) {
+func TestInstanceType(t *testing.T) {
+	cases := []struct {
+		id  string
+		exp string
+	}{
+		{id: "/bar-production/web", exp: "web"},
+		{id: "/coolshit", exp: ""},
+	}
+
+	for _, test := range cases {
+		a := &App{
+			ID: test.id,
+		}
+		it := a.InstanceType()
+		if it != test.exp {
+			t.Errorf("expected '%s' but got '%s'", test.exp, it)
+		}
+	}
+}
+
+func TestReleaseTag(t *testing.T) {
 	cases := []struct {
 		image string
 		tag   string
 	}{
-		{image: "quay.io/betterdoctor/foo:v1.2.3", tag: "v1.2.3"},
-		{image: "quay.io/betterdoctor/foo", tag: "no tag!!!"},
-		{image: "quay.io/betterdoctor/foo:release-1.2.3", tag: "release-1.2.3"},
+		{image: "quay.io/foo/bar:v1.2.3", tag: "v1.2.3"},
+		{image: "quay.io/foo/bar", tag: "no tag!!!"},
+		{image: "quay.io/foo/bar:release-1.2.3", tag: "release-1.2.3"},
 	}
 	for _, test := range cases {
 		a := &App{
@@ -56,7 +78,7 @@ func TestAppIsApp(t *testing.T) {
 		exp   bool
 	}{
 		{image: "redis:3.2", app: "foo", exp: false},
-		{image: "quay.io/betterdoctor/foo:3.2", app: "foo", exp: true},
+		{image: "quay.io/yo/foo:3.2", app: "foo", exp: true},
 		{image: "foo:3.2", app: "foo", exp: false},
 	}
 

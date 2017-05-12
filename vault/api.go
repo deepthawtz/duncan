@@ -149,7 +149,7 @@ func updateSecrets(url string, s *Secrets) error {
 // for a given app and env
 func SecretsURL(app, env string) string {
 	vaultHost := viper.GetString("vault_host")
-	return fmt.Sprintf("https://%s/v1/%s", vaultHost, prefix(app, env))
+	return fmt.Sprintf("%s/v1/%s", vaultHost, prefix(app, env))
 }
 
 func prefix(app, env string) string {

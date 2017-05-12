@@ -54,7 +54,11 @@ func Read(url string) (map[string]string, error) {
 	return m, nil
 }
 
-// Write sets ENV vars for a given KV URL
+// Write sets ENV vars for a given KV URL and prints what changed
+//
+// e.g.,
+// changing FOO_LEVEL from 9 => 9000
+// changing BAR_ENABLED from true => false
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) {
 	changes := map[string][]string{}
 	u := EnvURL(app, deployEnv)
@@ -177,19 +181,20 @@ func envMap(kvs []KVPair) map[string]string {
 
 // EnvURL returns a Consul KV URL for an app/env
 func EnvURL(app, env string) string {
-	ch := viper.GetString("consul_host")
-	return fmt.Sprintf("https://%s/v1/kv/env/%s/%s", ch, app, env)
+	host := viper.GetString("consul_host")
+	return fmt.Sprintf("%s/v1/kv/env/%s/%s", host, app, env)
 }
 
 // CurrentDeploymentTagURL returns URL to fetch currently deployed tag
 func CurrentDeploymentTagURL(app, env string) string {
-	ch := viper.GetString("consul_host")
+	host := viper.GetString("consul_host")
 	token := viper.GetString("consul_token")
-	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, app, env, token)
+	return fmt.Sprintf("%s/v1/kv/deploys/%s/%s/current?raw&token=%s", host, app, env, token)
 }
 
-// DeploymentTagURL returns URL to PUT release tags to (current/previous)
-func DeploymentTagURL(app, env string) string {
-	ch := viper.GetString("consul_host")
-	return fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, app, env)
+// TxnURL returns a Consul transaction (txn) URL
+func TxnURL() string {
+	host := viper.GetString("consul_host")
+	token := viper.GetString("consul_token")
+	return fmt.Sprintf("%s/v1/txn?token=%s", host, token)
 }

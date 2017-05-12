@@ -11,7 +11,6 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func Deploy(app, env, tag string) error](#Deploy)
 * [func RunCommand(app, env, cmd string, follow bool) error](#RunCommand)
 * [type Executor](#Executor)
 * [type Framework](#Framework)
@@ -26,15 +25,7 @@
 
 
 
-## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=1000:1039#L38)
-``` go
-func Deploy(app, env, tag string) error
-```
-Deploy deploys Chronos tasks for a given app, env and tag
-
-
-
-## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=2385:2441#L74)
+## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=1004:1060#L37)
 ``` go
 func RunCommand(app, env, cmd string, follow bool) error
 ```
@@ -43,7 +34,7 @@ RunCommand spins up a Chronos task to run the given command and exits
 
 
 
-## <a name="Executor">type</a> [Executor](/src/target/deploy.go?s=679:770#L25)
+## <a name="Executor">type</a> [Executor](/src/target/deploy.go?s=671:762#L24)
 ``` go
 type Executor struct {
     ID        string `json:"id"`
@@ -61,7 +52,7 @@ Executor represents a completed executor on a Mesos slave
 
 
 
-## <a name="Framework">type</a> [Framework](/src/target/deploy.go?s=467:616#L18)
+## <a name="Framework">type</a> [Framework](/src/target/deploy.go?s=459:608#L17)
 ``` go
 type Framework struct {
     ID        string      `json:"id"`
@@ -80,7 +71,7 @@ Framework represents a completed framework on a Mesos slave
 
 
 
-## <a name="SlaveTasks">type</a> [SlaveTasks](/src/target/deploy.go?s=321:402#L13)
+## <a name="SlaveTasks">type</a> [SlaveTasks](/src/target/deploy.go?s=313:394#L12)
 ``` go
 type SlaveTasks struct {
     Frameworks []*Framework `json:"completed_frameworks"`
@@ -97,7 +88,7 @@ SlaveTasks represents Mesos slave completed tasks
 
 
 
-## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=818:916#L31)
+## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=810:908#L30)
 ``` go
 type TaskVars struct {
     App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string

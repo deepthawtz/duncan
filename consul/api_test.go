@@ -72,11 +72,11 @@ func TestEnvURL(t *testing.T) {
 		{app: "foo", env: "stage"},
 		{app: "foo", env: "production"},
 	}
-	ch := "consul.yodawg.com"
+	ch := "https://consul.yodawg.com"
 	viper.Set("consul_host", ch)
 
 	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/env/%s/%s", ch, test.app, test.env)
+		exp := fmt.Sprintf("%s/v1/kv/env/%s/%s", ch, test.app, test.env)
 		u := EnvURL(test.app, test.env)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)
@@ -92,34 +92,14 @@ func TestCurrentDeploymentTagURL(t *testing.T) {
 		{app: "foo", env: "stage"},
 		{app: "foo", env: "production"},
 	}
-	ch := "consul.yodawg.com"
+	ch := "https://consul.yodawg.com"
 	token := "abc123"
 	viper.Set("consul_host", ch)
 	viper.Set("consul_token", token)
 
 	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, test.app, test.env, token)
+		exp := fmt.Sprintf("%s/v1/kv/deploys/%s/%s/current?raw&token=%s", ch, test.app, test.env, token)
 		u := CurrentDeploymentTagURL(test.app, test.env)
-		if exp != u {
-			t.Errorf("expected %s but got %s", exp, u)
-		}
-	}
-}
-
-func TestDeploymentTagURL(t *testing.T) {
-	cases := []struct {
-		app string
-		env string
-	}{
-		{app: "foo", env: "stage"},
-		{app: "foo", env: "production"},
-	}
-	ch := "consul.yodawg.com"
-	viper.Set("consul_host", ch)
-
-	for _, test := range cases {
-		exp := fmt.Sprintf("https://%s/v1/kv/deploys/%s/%s", ch, test.app, test.env)
-		u := DeploymentTagURL(test.app, test.env)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)
 		}
@@ -140,7 +120,7 @@ func TestRead(t *testing.T) {
 
 	viper.Set("consul_token", "abc123")
 	for _, app := range apps {
-		ts := getEnvServer(app)
+		ts := createConsulENVServer(app)
 		env, _ := Read(ts.URL)
 		if app.exists && len(env) == 0 {
 			t.Errorf("expected populated ENV map but got %v", env)
@@ -151,7 +131,7 @@ func TestRead(t *testing.T) {
 	}
 }
 
-func getEnvServer(app TestApp) *httptest.Server {
+func createConsulENVServer(app TestApp) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.exists {
 			t := template.Must(template.New("env_json").Parse(envJSONTemplate))

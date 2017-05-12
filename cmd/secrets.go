@@ -19,29 +19,104 @@ import (
 	"os"
 	"strings"
 
+	"github.com/betterdoctor/duncan/vault"
 	"github.com/spf13/cobra"
 )
 
 // secretsCmd represents the secrets command
-var secretsCmd = &cobra.Command{
-	Use:   "secrets",
-	Short: "Manage Vault secrets (ENV vars) for an app",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("must call secrets subcommand")
-		os.Exit(-1)
-	},
-}
+var (
+	secretsCmd = &cobra.Command{
+		Use:   "secrets",
+		Short: "Manage Vault secrets (ENV vars) for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("must call secrets subcommand")
+			os.Exit(-1)
+		},
+	}
+
+	secretsGetCmd = &cobra.Command{
+		Use:   "get",
+		Short: "Display secrets for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			checkAppEnv(app, env)
+
+			u := vault.SecretsURL(app, env)
+			s, err := vault.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+
+			printSorted(s.KVPairs)
+		},
+	}
+
+	secretsSetCmd = &cobra.Command{
+		Use:   "set KEY=VALUE [KEY2=VALUE2 ...]",
+		Short: "Set one or more secret key/value pairs for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			checkAppEnv(app, env)
+			validateKeyValues(args)
+
+			if promptModifyEnvironment("set", "secrets", app, env, args) {
+				u := vault.SecretsURL(app, env)
+				s, err := vault.Read(u)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+				s, err = vault.Write(u, args, s)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+
+				printSorted(s.KVPairs)
+			}
+		},
+	}
+
+	secretsDelCmd = &cobra.Command{
+		Use:   "del KEY [KEY ...]",
+		Short: "Delete one or more secrets for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			checkAppEnv(app, env)
+			validateKeys(args)
+
+			if promptModifyEnvironment("delete", "secrets", app, env, args) {
+				u := vault.SecretsURL(app, env)
+				s, err := vault.Read(u)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+				if _, err := vault.Delete(u, args, s); err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+			}
+		},
+	}
+)
 
 func init() {
 	RootCmd.AddCommand(secretsCmd)
 
 	secretsCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage secrets for")
 	secretsCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
+	secretsCmd.AddCommand(secretsGetCmd)
+	secretsCmd.AddCommand(secretsSetCmd)
+	secretsCmd.AddCommand(secretsDelCmd)
 }
 
 func checkAppEnv(app, env string) {
 	if app == "" || env == "" {
 		fmt.Println("must provide --app and --env flags")
+		os.Exit(-1)
+	}
+
+	if env != "stage" && env != "production" {
+		fmt.Printf("env %s is not a valid deployment environment\n", env)
 		os.Exit(-1)
 	}
 }

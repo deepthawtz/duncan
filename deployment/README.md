@@ -11,10 +11,14 @@
 
 
 ## <a name="pkg-index">Index</a>
+* [func BeginDeploy(app, env string) error](#BeginDeploy)
 * [func CurrentTag(app, env string) (string, error)](#CurrentTag)
+* [func FinishDeploy(app, env string) error](#FinishDeploy)
 * [func GithubDiffLink(app, prev, tag string) string](#GithubDiffLink)
 * [func MarathonGroupID(app, env string) string](#MarathonGroupID)
-* [func UpdateReleaseTags(app, env, tag string) (string, error)](#UpdateReleaseTags)
+* [func UpdateReleaseTags(app, env, tag, prev string) error](#UpdateReleaseTags)
+* [func Watch(id string) error](#Watch)
+* [type Deployment](#Deployment)
 
 
 #### <a name="pkg-files">Package files</a>
@@ -24,7 +28,15 @@
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=1585:1633#L54)
+## <a name="BeginDeploy">func</a> [BeginDeploy](/src/target/utils.go?s=364:403#L14)
+``` go
+func BeginDeploy(app, env string) error
+```
+BeginDeploy checks if Consul ACL allows deployments for
+
+
+
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=4067:4115#L161)
 ``` go
 func CurrentTag(app, env string) (string, error)
 ```
@@ -32,7 +44,15 @@ CurrentTag returns the currently deployed git tag for an app and environment
 
 
 
-## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=2241:2290#L77)
+## <a name="FinishDeploy">func</a> [FinishDeploy](/src/target/utils.go?s=1295:1335#L48)
+``` go
+func FinishDeploy(app, env string) error
+```
+FinishDeploy removes deployment lock after a successful deploy
+
+
+
+## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=4723:4772#L184)
 ``` go
 func GithubDiffLink(app, prev, tag string) string
 ```
@@ -40,7 +60,7 @@ GithubDiffLink returns a GitHub diff link to view deployment changes
 
 
 
-## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=2067:2111#L72)
+## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=4549:4593#L179)
 ``` go
 func MarathonGroupID(app, env string) string
 ```
@@ -48,9 +68,9 @@ MarathonGroupID returns a Marathon Group id for an app and env
 
 
 
-## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=487:547#L10)
+## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=3114:3170#L122)
 ``` go
-func UpdateReleaseTags(app, env, tag string) (string, error)
+func UpdateReleaseTags(app, env, tag, prev string) error
 ```
 UpdateReleaseTags updates the deployment git tags in Consul KV registry
 `tags/{app}/{env}/current` points to the currently deployed tag
@@ -58,6 +78,31 @@ UpdateReleaseTags updates the deployment git tags in Consul KV registry
 
 ### This structure allows for rollback if a previous tag exists
 Returns previously deployed git tag if one has been deployed
+
+
+
+## <a name="Watch">func</a> [Watch](/src/target/utils.go?s=2070:2097#L79)
+``` go
+func Watch(id string) error
+```
+Watch watches a Marathon deployment and handles success or failure
+
+
+
+
+## <a name="Deployment">type</a> [Deployment](/src/target/utils.go?s=254:303#L9)
+``` go
+type Deployment struct {
+    ID string `json:"id"`
+}
+```
+Deployment represents a Marathon deployment
+
+
+
+
+
+
 
 
 

@@ -1,47 +1,29 @@
 # populate w/ valid values and save at ~/.duncan.yml
 ---
-marathon_host: https://mesos-host.com
-marathon_json_path: /path/to/mesos/marathon
-
-chronos_host: https://mesos-host.com
-chronos_json_path: /path/to/mesos/chronos
+marathon_host: https://mesos.host
+chronos_host: https://mesos.host
+github_org: betterdoctor
 
 docker_repo_prefix:
 docker_conf_url:
 quay_token:
 slack_webhook_url:
-consul_host:
+consul_host: https://consul.host
 consul_token:
-vault_host:
+vault_host: https://vault.host
 vault_token:
 
 apps:
-  dex:
-    marathon:
-      - dex-{{env}}-group.json
-    chronos:
-      - dex-{{env}}-db-migrate.json
-  etl:
-    marathon:
-      - etl-{{env}}-group.json
-  dapi:
-    marathon:
-      - dapi-{{env}}-group.json
-  validation-service:
-    marathon:
-      - validation-service-{{env}}-group.json
-  papi:
-    marathon:
-      - papi-{{env}}-group.json
-  feedback:
-    marathon:
-      - feedback-{{env}}-group.json
-    chronos:
-      - feedback-{{env}}-db-migrate.json
-      - feedback-{{env}}-sync-salesforce.json
+  - dex
+  - etl
+  - dapi
+  - validation-service
+  - papi
+  - feedback
 
-# used to generate github diff links
-# mapping necessary because there is not a consistent naming convention
+# if app name does not match a github repo name this mapping is necessary
+# to generate github compare links to view changes being deployed
+# NOTE: if app name matches github repo name this mapping is unecessary
 repos:
   dex: betterdoctor-dex
   etl: betterdoctor-etl
