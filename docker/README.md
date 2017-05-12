@@ -11,8 +11,7 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func TagExists(app, tag string) bool](#TagExists)
-* [type Tag](#Tag)
+* [func VerifyTagExists(app, tag string) error](#VerifyTagExists)
 * [type TagResponse](#TagResponse)
 
 
@@ -23,36 +22,21 @@
 
 
 
-## <a name="TagExists">func</a> [TagExists](/src/target/utils.go?s=358:394#L13)
+## <a name="VerifyTagExists">func</a> [VerifyTagExists](/src/target/utils.go?s=310:353#L10)
 ``` go
-func TagExists(app, tag string) bool
+func VerifyTagExists(app, tag string) error
 ```
-TagExists checks if a docker tag exists for a given repo
+VerifyTagExists checks if a docker tag exists for a given repo
 
 
 
 
-## <a name="Tag">type</a> [Tag](/src/target/utils.go?s=250:296#L8)
-``` go
-type Tag struct {
-    Name string `json:"name"`
-}
-```
-Tag represents a Docker repository tag
-
-
-
-
-
-
-
-
-
-
-## <a name="TagResponse">type</a> [TagResponse](/src/target/utils.go?s=153:206#L3)
+## <a name="TagResponse">type</a> [TagResponse](/src/target/utils.go?s=153:242#L3)
 ``` go
 type TagResponse struct {
-    Tags []Tag `json:"tags"`
+    Tags []struct {
+        Name string `json:"name"`
+    } `json:"tags"`
 }
 ```
 TagResponse represents a Quay API tags response

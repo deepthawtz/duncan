@@ -21,24 +21,81 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/betterdoctor/duncan/consul"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
 // envCmd represents the env command
-var envCmd = &cobra.Command{
-	Use:   "env",
-	Short: "Manage Consul key/values (ENV vars) for an app",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("must call env subcommand")
-		os.Exit(-1)
-	},
-}
+var (
+	envCmd = &cobra.Command{
+		Use:   "env",
+		Short: "Manage Consul key/values (ENV vars) for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("must call env subcommand")
+			os.Exit(-1)
+		},
+	}
+
+	envGetCmd = &cobra.Command{
+		Use:   "get",
+		Short: "Display ENV vars for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			checkAppEnv(app, env)
+
+			u := consul.EnvURL(app, env)
+			env, err := consul.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(-1)
+			}
+			printSorted(env)
+		},
+	}
+
+	envSetCmd = &cobra.Command{
+		Use:   "set KEY=VALUE [KEY2=VALUE2 ...]",
+		Short: "Set one or more ENV var key/value pairs for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			checkAppEnv(app, env)
+			validateKeyValues(args)
+
+			if promptModifyEnvironment("set", "env", app, env, args) {
+				url := consul.TxnURL()
+				env, err := consul.Write(app, env, url, args)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+				printSorted(env)
+			}
+		},
+	}
+
+	envDelCmd = &cobra.Command{
+		Use:   "del KEY [KEY ...]",
+		Short: "Delete one or more ENV vars for an app",
+		Run: func(cmd *cobra.Command, args []string) {
+			validateKeys(args)
+
+			if promptModifyEnvironment("delete", "env", app, env, args) {
+				url := consul.EnvURL(app, env)
+				if err := consul.Delete(app, env, url, args); err != nil {
+					fmt.Println(err)
+					os.Exit(-1)
+				}
+			}
+		},
+	}
+)
 
 func init() {
 	RootCmd.AddCommand(envCmd)
 	envCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage ENV vars for")
 	envCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
+	envCmd.AddCommand(envSetCmd)
+	envCmd.AddCommand(envGetCmd)
+	envCmd.AddCommand(envDelCmd)
 }
 
 func printSorted(m map[string]string) {

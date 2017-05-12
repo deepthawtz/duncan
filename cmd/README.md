@@ -16,7 +16,7 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[config.go](/src/github.com/betterdoctor/duncan/cmd/config.go) [config_search.go](/src/github.com/betterdoctor/duncan/cmd/config_search.go) [deploy.go](/src/github.com/betterdoctor/duncan/cmd/deploy.go) [env.go](/src/github.com/betterdoctor/duncan/cmd/env.go) [env_del.go](/src/github.com/betterdoctor/duncan/cmd/env_del.go) [env_get.go](/src/github.com/betterdoctor/duncan/cmd/env_get.go) [env_set.go](/src/github.com/betterdoctor/duncan/cmd/env_set.go) [list.go](/src/github.com/betterdoctor/duncan/cmd/list.go) [logs.go](/src/github.com/betterdoctor/duncan/cmd/logs.go) [root.go](/src/github.com/betterdoctor/duncan/cmd/root.go) [run.go](/src/github.com/betterdoctor/duncan/cmd/run.go) [scale.go](/src/github.com/betterdoctor/duncan/cmd/scale.go) [secrets.go](/src/github.com/betterdoctor/duncan/cmd/secrets.go) [secrets_del.go](/src/github.com/betterdoctor/duncan/cmd/secrets_del.go) [secrets_get.go](/src/github.com/betterdoctor/duncan/cmd/secrets_get.go) [secrets_set.go](/src/github.com/betterdoctor/duncan/cmd/secrets_set.go) [version.go](/src/github.com/betterdoctor/duncan/cmd/version.go) 
+[config.go](/src/github.com/betterdoctor/duncan/cmd/config.go) [deploy.go](/src/github.com/betterdoctor/duncan/cmd/deploy.go) [env.go](/src/github.com/betterdoctor/duncan/cmd/env.go) [list.go](/src/github.com/betterdoctor/duncan/cmd/list.go) [root.go](/src/github.com/betterdoctor/duncan/cmd/root.go) [run.go](/src/github.com/betterdoctor/duncan/cmd/run.go) [scale.go](/src/github.com/betterdoctor/duncan/cmd/scale.go) [secrets.go](/src/github.com/betterdoctor/duncan/cmd/secrets.go) [version.go](/src/github.com/betterdoctor/duncan/cmd/version.go) 
 
 
 
