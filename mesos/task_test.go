@@ -90,26 +90,6 @@ func TestDuration(t *testing.T) {
 	}
 }
 
-// func TestLogDirectory(t *testing.T) {
-// 	t1 := &TestTask{
-// 		ID:    "ct:1485292701088:0:dogfood-production-echo-hi:",
-// 		State: "finished",
-// 	}
-// 	ma := mesosAgentServer(t1)
-// 	ct := allTasks["incomplete"]
-// 	fmt.Println(ma.URL)
-// 	for _, task := range ct.Tasks {
-// 		fmt.Println(task)
-// 		dir, err := task.LogDirectory(ma.URL)
-// 		if err != nil {
-// 			t.Error(err)
-// 		}
-// 		if dir == "" {
-// 			t.Error("expected mesos task sandbox")
-// 		}
-// 	}
-// }
-
 func createTasks(tt *TestTask, templ string) (*Tasks, error) {
 	j := new(bytes.Buffer)
 	template := template.Must(template.New("task_json").Parse(templ))
