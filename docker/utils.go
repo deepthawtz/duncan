@@ -35,7 +35,7 @@ func VerifyTagExists(app, tag string) error {
 	if err := json.NewDecoder(resp.Body).Decode(tr); err != nil {
 		return err
 	}
-	if len(tr.Tags) != 1 || tr.Tags[0].Name != tag {
+	if len(tr.Tags) == 0 {
 		return fmt.Errorf("failed to find tag")
 	}
 	return nil
