@@ -15,25 +15,14 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
-	"strings"
-	"text/tabwriter"
 
-	"github.com/betterdoctor/slythe/policy"
-	"github.com/fatih/color"
+	"github.com/betterdoctor/duncan/autoscaling"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
-	yellow = color.New(color.FgYellow, color.Bold).SprintFunc()
-	cyan   = color.New(color.FgCyan, color.Bold).SprintFunc()
-	white  = color.New(color.FgWhite, color.Bold).SprintFunc()
-	green  = color.New(color.FgGreen, color.Bold).SprintFunc()
-
 	// args for autoscaling policy commands
 	policyName, appType, redisURL, queues                             string
 	min, max, upBy, downBy, checkFreqSecs, upThreshold, downThreshold int
@@ -52,48 +41,14 @@ var (
 		Use:   "list",
 		Short: "List autoscaling policies",
 		Run: func(cmd *cobra.Command, args []string) {
-			policies, err := getPolicies(app, env)
+			policies, err := autoscaling.GetPolicies(app, env)
 			if err != nil {
 				fmt.Printf("failed to fetch policies: %v\n", err)
 				os.Exit(1)
 			}
 
-			fmt.Println(green("CPU Scaling Policies"))
-			for _, cp := range policies.CPUScaled {
-				w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
-				fmt.Fprintln(w, white("Policy Name \t"), cyan(cp.Name))
-				fmt.Fprintln(w, white("App \t"), green(cp.AppName))
-				fmt.Fprintln(w, white("App Type \t"), green(cp.AppType))
-				fmt.Fprintln(w, white("Env \t"), green(cp.Environment))
-				fmt.Fprintln(w, white("Min Instances \t"), white(cp.MinInstances))
-				fmt.Fprintln(w, white("Max Instances \t"), white(cp.MaxInstances))
-				fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleUpBy))
-				fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleDownBy))
-				fmt.Fprintln(w, white("Up Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.UpThreshold)))
-				fmt.Fprintln(w, white("Down Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.DownThreshold)))
-				w.Flush()
-				fmt.Println("-------------------------------------")
-			}
+			autoscaling.DisplayPolicies(policies)
 
-			fmt.Println()
-			fmt.Println(green("Worker Scaling Policies"))
-			for _, wp := range policies.QueueLengthScaled {
-				w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
-				fmt.Fprintln(w, white("Policy Name \t"), cyan(wp.Name))
-				fmt.Fprintln(w, white("App \t"), green(wp.AppName))
-				fmt.Fprintln(w, white("App Type \t"), green(wp.AppType))
-				fmt.Fprintln(w, white("Env \t"), green(wp.Environment))
-				fmt.Fprintln(w, white("Min Instances \t"), white(wp.MinInstances))
-				fmt.Fprintln(w, white("Max Instances \t"), white(wp.MaxInstances))
-				fmt.Fprintln(w, white("Scale Up By \t"), white(wp.ScaleUpBy))
-				fmt.Fprintln(w, white("Scale Down By \t"), white(wp.ScaleDownBy))
-				fmt.Fprintln(w, white("Up Threshold \t"), yellow(wp.UpThreshold))
-				fmt.Fprintln(w, white("Down Threshold \t"), yellow(wp.DownThreshold))
-				fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisURL))
-				fmt.Fprintln(w, white("Queues \t"), cyan(wp.Queues))
-				w.Flush()
-				fmt.Println("-------------------------------------")
-			}
 		},
 	}
 
@@ -214,44 +169,4 @@ func init() {
 	autoscaleWorkerCmd.AddCommand(autoscaleWorkerUpdateCmd)
 	autoscaleCPUCmd.AddCommand(autoscaleCPUCreateCmd)
 	autoscaleCPUCmd.AddCommand(autoscaleCPUUpdateCmd)
-}
-
-func getPolicies(app, env string) (*policy.Policies, error) {
-	policies := &policy.Policies{}
-	resp, err := http.Get(viper.GetString("SLYTHE_HOST") + "/")
-	if err != nil {
-		return policies, err
-	}
-	defer resp.Body.Close()
-	if err := json.NewDecoder(resp.Body).Decode(policies); err != nil {
-		return policies, err
-	}
-	if app == "" && env == "" {
-		return policies, nil
-	}
-	if env == "" {
-		env = "stage|production"
-	}
-	fp := &policy.Policies{}
-	for _, e := range strings.Split(env, "|") {
-		for _, cp := range policies.CPUScaled {
-			if app == "" && cp.Environment == e {
-				fp.CPUScaled = append(fp.CPUScaled, cp)
-			}
-			if app != "" && cp.AppName == app && cp.Environment == e {
-				fp.CPUScaled = append(fp.CPUScaled, cp)
-			}
-		}
-	}
-	for _, e := range strings.Split(env, "|") {
-		for _, cp := range policies.QueueLengthScaled {
-			if app == "" && cp.Environment == e {
-				fp.QueueLengthScaled = append(fp.QueueLengthScaled, cp)
-			}
-			if app != "" && cp.AppName == app && cp.Environment == e {
-				fp.QueueLengthScaled = append(fp.QueueLengthScaled, cp)
-			}
-		}
-	}
-	return fp, nil
 }
