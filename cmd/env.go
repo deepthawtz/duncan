@@ -32,7 +32,7 @@ var (
 		Use:   "env",
 		Short: "Manage Consul key/values (ENV vars) for an app",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("must call env subcommand")
+			fmt.Println("must provide env subcommand, see: duncan env -h")
 			os.Exit(-1)
 		},
 	}

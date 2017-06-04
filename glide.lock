@@ -1,10 +1,12 @@
-hash: 0477a2ca55607e5c4ad28aa3a1fb804c98c4c3fc11f40b7297578d2b7fc692f2
-updated: 2017-04-12T00:02:41.389085012-07:00
+hash: c4824aa5bec28867072e4f5eb9ebc996e2de83a2f4cf0465e9884b94acfd9e96
+updated: 2017-06-02T21:35:51.541432407-07:00
 imports:
 - name: github.com/betterdoctor/kit
   version: 6c36faf763ecee9f561d05ac5bcf041ae3f7db3d
   subpackages:
   - notify
+- name: github.com/betterdoctor/slythe
+  version: d80eafb271187e4ce9d9a4f7c1425f56918fd737
 - name: github.com/fatih/color
   version: 9131ab34cf20d2f6d83fdc67168a5430d1c7dc23
 - name: github.com/fsnotify/fsnotify
