@@ -146,6 +146,10 @@ Examples:
 $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-instances 200
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
+			if policyName == "" {
+				fmt.Println("update command requires --policy-name flag")
+				os.Exit(1)
+			}
 			policies, err := autoscaling.GetPolicies(app, env)
 			if err != nil {
 				fmt.Printf("failed to fetch policies: %s\n", err)
@@ -221,6 +225,10 @@ Examples:
 $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 50
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
+			if policyName == "" {
+				fmt.Println("update command requires --policy-name flag")
+				os.Exit(1)
+			}
 			policies, err := autoscaling.GetPolicies(app, env)
 			if err != nil {
 				fmt.Printf("failed to fetch policies: %s\n", err)
