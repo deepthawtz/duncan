@@ -14,6 +14,7 @@ var (
 	cyan   = color.New(color.FgCyan, color.Bold).SprintFunc()
 	white  = color.New(color.FgWhite, color.Bold).SprintFunc()
 	green  = color.New(color.FgGreen, color.Bold).SprintFunc()
+	red    = color.New(color.FgRed, color.Bold).SprintFunc()
 )
 
 // DisplayPolicies prints the policies
@@ -32,6 +33,11 @@ func DisplayPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleDownBy))
 			fmt.Fprintln(w, white("Up Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.UpThreshold)))
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.DownThreshold)))
+			if cp.Enabled {
+				fmt.Fprintln(w, white("Enabled \t"), green("true"))
+			} else {
+				fmt.Fprintln(w, white("Enabled \t"), red("false"))
+			}
 			w.Flush()
 			fmt.Println("-------------------------------------")
 		}
@@ -53,6 +59,11 @@ func DisplayPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(wp.DownThreshold))
 			fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisURL))
 			fmt.Fprintln(w, white("Queues \t"), cyan(wp.Queues))
+			if wp.Enabled {
+				fmt.Fprintln(w, white("Enabled \t"), green("true"))
+			} else {
+				fmt.Fprintln(w, white("Enabled \t"), red("false"))
+			}
 			w.Flush()
 			fmt.Println("-------------------------------------")
 		}
