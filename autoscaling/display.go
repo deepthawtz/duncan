@@ -17,10 +17,10 @@ var (
 	red    = color.New(color.FgRed, color.Bold).SprintFunc()
 )
 
-// DisplayPolicies prints the policies
-func DisplayPolicies(policies *policy.Policies) {
+// DisplayCPUPolicies prints the CPU policies
+func DisplayCPUPolicies(policies *policy.Policies) {
 	if len(policies.CPUScaled) > 0 {
-		fmt.Printf(green("\nCPU Scaling Policies\n\n"))
+		fmt.Printf(green("CPU Scaling Policies\n\n"))
 		for _, cp := range policies.CPUScaled {
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 			fmt.Fprintln(w, white("Policy Name \t"), cyan(cp.Name))
@@ -42,9 +42,12 @@ func DisplayPolicies(policies *policy.Policies) {
 			fmt.Println("-------------------------------------")
 		}
 	}
+}
 
+// DisplayWorkerPolicies prints the Worker policies
+func DisplayWorkerPolicies(policies *policy.Policies) {
 	if len(policies.QueueLengthScaled) > 0 {
-		fmt.Printf(green("\nWorker Scaling Policies\n\n"))
+		fmt.Printf(green("Worker Scaling Policies\n\n"))
 		for _, wp := range policies.QueueLengthScaled {
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 			fmt.Fprintln(w, white("Policy Name \t"), cyan(wp.Name))

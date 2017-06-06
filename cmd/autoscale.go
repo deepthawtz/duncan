@@ -40,6 +40,9 @@ var (
 	min, max, upBy, downBy, checkFreqSecs, upThreshold, downThreshold int
 	enabled                                                           bool
 
+	// filters for list command
+	filterCPU, filterWorker bool
+
 	autoscaleCmd = &cobra.Command{
 		Use:   "autoscale",
 		Short: "Commands to manage autoscaling policies",
@@ -60,7 +63,19 @@ var (
 				os.Exit(1)
 			}
 
-			autoscaling.DisplayPolicies(policies)
+			if !filterWorker && !filterCPU {
+				autoscaling.DisplayCPUPolicies(policies)
+				autoscaling.DisplayWorkerPolicies(policies)
+				return
+			}
+
+			if filterCPU {
+				autoscaling.DisplayCPUPolicies(policies)
+			}
+
+			if filterWorker {
+				autoscaling.DisplayWorkerPolicies(policies)
+			}
 		},
 	}
 
@@ -438,6 +453,8 @@ func init() {
 	autoscaleCmd.AddCommand(autoscaleListCmd)
 	autoscaleListCmd.Flags().StringVarP(&app, "app", "a", "", "app to list autoscaling policies for")
 	autoscaleListCmd.Flags().StringVarP(&env, "env", "e", "", "env to list autoscaling policies for")
+	autoscaleListCmd.Flags().BoolVarP(&filterCPU, "cpu", "", false, "filter CPU scaling policies")
+	autoscaleListCmd.Flags().BoolVarP(&filterWorker, "worker", "", false, "filter Worker scaling policies")
 	autoscaleCmd.AddCommand(autoscaleWorkerCmd)
 	autoscaleCmd.AddCommand(autoscaleCPUCmd)
 	autoscaleWorkerCmd.AddCommand(autoscaleWorkerCreateCmd)
