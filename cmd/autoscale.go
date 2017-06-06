@@ -22,6 +22,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/betterdoctor/duncan/autoscaling"
+	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/slythe/policy"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -95,6 +96,15 @@ $ duncan autoscale worker create --app myapp --env production --policy-name MyAp
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			validateCreatePolicyFlags("worker")
+			allowed, err := deployment.AllowedToManage(app, env)
+			if err != nil {
+				fmt.Printf("failed to create worker autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			if !allowed {
+				fmt.Printf("ACL prevents you from creating autoscaling policy for: %s-%s\n", app, env)
+				os.Exit(1)
+			}
 			if promptCreateScalingPolicy() {
 				gp := newGenericPolicy()
 				wp := &policy.Worker{
@@ -124,6 +134,15 @@ $ duncan autoscale cpu create --app myapp --env production --policy-name MyAppPr
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			validateCreatePolicyFlags("cpu")
+			allowed, err := deployment.AllowedToManage(app, env)
+			if err != nil {
+				fmt.Printf("failed to create worker autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			if !allowed {
+				fmt.Printf("ACL prevents you from creating autoscaling policy for: %s-%s\n", app, env)
+				os.Exit(1)
+			}
 			if promptCreateScalingPolicy() {
 				gp := newGenericPolicy()
 				cp := &policy.CPU{
@@ -165,6 +184,16 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 			}
 			if wp.Name == "" {
 				fmt.Printf("could not find policy %s to update\n", green(policyName))
+				os.Exit(1)
+			}
+
+			allowed, err := deployment.AllowedToManage(wp.AppName, wp.Environment)
+			if err != nil {
+				fmt.Printf("failed to update worker autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			if !allowed {
+				fmt.Printf("ACL prevents you from creating autoscaling policy for: %s-%s\n", wp.AppName, wp.Environment)
 				os.Exit(1)
 			}
 			for k, v := range workerStringFlags() {
@@ -247,7 +276,7 @@ $ duncan autoscale worker disable --policy-name MyAppProductionWorker
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := setWorkerPolicyEnabled(false); err != nil {
-				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				fmt.Printf("failed to disable autoscaling policy: %v\n", err)
 				os.Exit(1)
 			}
 			fmt.Printf("autoscaling policy %s disabled\n", green(policyName))
@@ -282,6 +311,15 @@ $ duncan autoscale cpu update --policy-name MyAppProductionWeb --enabled false
 			}
 			if cp.Name == "" {
 				fmt.Printf("could not find policy %s to update\n", green(policyName))
+				os.Exit(1)
+			}
+			allowed, err := deployment.AllowedToManage(cp.AppName, cp.Environment)
+			if err != nil {
+				fmt.Printf("failed to update CPU autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			if !allowed {
+				fmt.Printf("ACL prevents you from creating autoscaling policy for: %s-%s\n", cp.AppName, cp.Environment)
 				os.Exit(1)
 			}
 			for k, v := range cpuStringFlags() {
@@ -358,7 +396,7 @@ $ duncan autoscale cpu disable --policy-name MyAppProductionWeb
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := setCPUPolicyEnabled(false); err != nil {
-				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				fmt.Printf("failed to disable autoscaling policy: %v\n", err)
 				os.Exit(1)
 			}
 			fmt.Printf("autoscaling policy %s disabled\n", green(policyName))
@@ -582,7 +620,7 @@ func setWorkerPolicyEnabled(enabled bool) error {
 	}
 	policies, err := autoscaling.GetPolicies(app, env)
 	if err != nil {
-		return fmt.Errorf("failed to fetch policies: %s\n", err)
+		return err
 	}
 	wp := &policy.Worker{}
 	for _, w := range policies.QueueLengthScaled {
@@ -591,7 +629,21 @@ func setWorkerPolicyEnabled(enabled bool) error {
 		}
 	}
 	if wp.Name == "" {
-		return fmt.Errorf("could not find policy %s to enable\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+	}
+	allowed, err := deployment.AllowedToManage(wp.AppName, wp.Environment)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", wp.AppName, wp.Environment)
+	}
+
+	if wp.Enabled && enabled {
+		return fmt.Errorf("%s already enabled\n", green(wp.Name))
+	}
+	if !wp.Enabled && !enabled {
+		return fmt.Errorf("%s already disabled\n", green(wp.Name))
 	}
 
 	wp.Enabled = enabled
@@ -601,7 +653,7 @@ func setWorkerPolicyEnabled(enabled bool) error {
 	}
 
 	if err := autoscaling.UpdateWorkerPolicy(wp); err != nil {
-		return fmt.Errorf("failed to enable autoscaling policy: %v\n", err)
+		return err
 	}
 	return nil
 }
@@ -612,7 +664,7 @@ func setCPUPolicyEnabled(enabled bool) error {
 	}
 	policies, err := autoscaling.GetPolicies(app, env)
 	if err != nil {
-		return fmt.Errorf("failed to fetch policies: %s\n", err)
+		return err
 	}
 	cp := &policy.CPU{}
 	for _, c := range policies.CPUScaled {
@@ -621,7 +673,21 @@ func setCPUPolicyEnabled(enabled bool) error {
 		}
 	}
 	if cp.Name == "" {
-		return fmt.Errorf("could not find policy %s to enable\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+	}
+	allowed, err := deployment.AllowedToManage(cp.AppName, cp.Environment)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", cp.AppName, cp.Environment)
+	}
+
+	if cp.Enabled && enabled {
+		return fmt.Errorf("%s already enabled\n", green(cp.Name))
+	}
+	if !cp.Enabled && !enabled {
+		return fmt.Errorf("%s already disabled\n", green(cp.Name))
 	}
 
 	cp.Enabled = enabled
@@ -631,7 +697,7 @@ func setCPUPolicyEnabled(enabled bool) error {
 	}
 
 	if err := autoscaling.UpdateCPUPolicy(cp); err != nil {
-		return fmt.Errorf("failed to enable autoscaling policy: %v\n", err)
+		return err
 	}
 	return nil
 }
