@@ -26,7 +26,7 @@
 
 
 
-## <a name="CreateCPUPolicy">func</a> [CreateCPUPolicy](/src/target/manage.go?s=2593:2635#L89)
+## <a name="CreateCPUPolicy">func</a> [CreateCPUPolicy](/src/target/manage.go?s=2722:2764#L92)
 ``` go
 func CreateCPUPolicy(cp *policy.CPU) error
 ```
@@ -34,7 +34,7 @@ CreateCPUPolicy creates an autoscaling worker policy
 
 
 
-## <a name="CreateWorkerPolicy">func</a> [CreateWorkerPolicy](/src/target/manage.go?s=1421:1469#L47)
+## <a name="CreateWorkerPolicy">func</a> [CreateWorkerPolicy](/src/target/manage.go?s=1550:1598#L50)
 ``` go
 func CreateWorkerPolicy(wp *policy.Worker) error
 ```
@@ -42,7 +42,7 @@ CreateWorkerPolicy creates an autoscaling worker policy
 
 
 
-## <a name="DisplayPolicies">func</a> [DisplayPolicies](/src/target/display.go?s=420:467#L10)
+## <a name="DisplayPolicies">func</a> [DisplayPolicies](/src/target/display.go?s=478:525#L11)
 ``` go
 func DisplayPolicies(policies *policy.Policies)
 ```
@@ -59,7 +59,7 @@ if app or env are not empty string
 
 
 
-## <a name="UpdateCPUPolicy">func</a> [UpdateCPUPolicy](/src/target/manage.go?s=3169:3211#L110)
+## <a name="UpdateCPUPolicy">func</a> [UpdateCPUPolicy](/src/target/manage.go?s=3298:3340#L113)
 ``` go
 func UpdateCPUPolicy(cp *policy.CPU) error
 ```
@@ -67,7 +67,7 @@ UpdateCPUPolicy creates an autoscaling worker policy
 
 
 
-## <a name="UpdateWorkerPolicy">func</a> [UpdateWorkerPolicy](/src/target/manage.go?s=2009:2057#L68)
+## <a name="UpdateWorkerPolicy">func</a> [UpdateWorkerPolicy](/src/target/manage.go?s=2138:2186#L71)
 ``` go
 func UpdateWorkerPolicy(wp *policy.Worker) error
 ```
