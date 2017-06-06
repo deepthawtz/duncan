@@ -47,12 +47,12 @@ $ duncan run -a foo -e stage -- ls -lh
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			fmt.Println("must supply COMMAND to run")
-			os.Exit(-1)
+			os.Exit(1)
 		}
 		command := strings.Join(args, " ")
 		if err := chronos.RunCommand(app, env, command, follow); err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 	},
 }

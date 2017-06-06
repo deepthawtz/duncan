@@ -54,7 +54,7 @@ NOTE: tag must exist in docker registry
 		prev, err = deployment.CurrentTag(app, env)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 
 		if prev == tag {
@@ -64,21 +64,21 @@ NOTE: tag must exist in docker registry
 		if promptDeploy() {
 			if err := deployment.BeginDeploy(app, env); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 
 			if err := marathon.Deploy(app, env, tag); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 
 			if err := deployment.UpdateReleaseTags(app, env, tag, prev); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			if err := deployment.FinishDeploy(app, env); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			fmt.Println(deployment.GithubDiffLink(app, prev, tag))
 			err = notify.Slack(
@@ -88,7 +88,7 @@ NOTE: tag must exist in docker registry
 			)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 		}
 	},
@@ -105,18 +105,18 @@ func init() {
 func validateDeployFlags() {
 	if app == "" || env == "" || tag == "" {
 		fmt.Println("must supply all flags for deploy command")
-		os.Exit(-1)
+		os.Exit(1)
 	}
 
 	if env != "stage" && env != "production" {
 		fmt.Printf("env %s is not a valid deployment environment\n", env)
-		os.Exit(-1)
+		os.Exit(1)
 	}
 
 	if err := docker.VerifyTagExists(app, tag); err != nil {
 		repo := viper.GetString("docker_repo_prefix")
 		fmt.Printf("could not verify %s/%s:%s exists: %s\n", repo, app, tag, err)
-		os.Exit(-1)
+		os.Exit(1)
 	}
 }
 

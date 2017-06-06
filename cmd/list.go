@@ -29,11 +29,11 @@ var listCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if env != "" && env != "stage" && env != "production" {
 			fmt.Printf("env %s is not a valid deployment environment\n", env)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 		if err := marathon.List(app, env); err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 	},
 }

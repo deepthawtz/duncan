@@ -60,12 +60,12 @@ If application cannot scale due to insufficient cluster resources an error will 
 		if err != nil {
 			fmt.Printf("ERROR: %v\n", err)
 			fmt.Println("USAGE: duncan scale web=3 [worker=2, ...] --app foo --env production")
-			os.Exit(-1)
+			os.Exit(1)
 		}
 		g, err := marathon.GroupDefinition(app, env)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			os.Exit(1)
 		}
 
 		se := &scaleEvent{App: app, Env: env}
@@ -85,11 +85,11 @@ If application cannot scale due to insufficient cluster resources an error will 
 			id, err := marathon.Scale(g, rules)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			if err := deployment.Watch(id); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			var msg string
 			for _, proc := range se.Procs {
@@ -97,7 +97,7 @@ If application cannot scale due to insufficient cluster resources an error will 
 			}
 			if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, env), msg); err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 		}
 	},
