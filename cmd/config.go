@@ -34,7 +34,7 @@ var (
 		Short: "Search ENV/secrets across all applications",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println("must call config subcommand")
-			os.Exit(-1)
+			os.Exit(1)
 		},
 	}
 
@@ -44,7 +44,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 1 {
 				fmt.Println("must provide PATTERN to search keys by")
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			pattern := regexp.MustCompile(fmt.Sprintf(".*%s.*", args[0]))
 			green := color.New(color.FgGreen, color.Bold).SprintFunc()

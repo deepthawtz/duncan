@@ -96,6 +96,23 @@ func GroupDefinition(app, env string) (*Group, error) {
 	return group, nil
 }
 
+// AssertAppExistsInGroup checks if an app type exists in a Marathon group
+// and returns an error if it does not
+func AssertAppExistsInGroup(app, env, typ string) error {
+	g, err := GroupDefinition(app, env)
+	if err != nil {
+		return err
+	}
+
+	for _, a := range g.Apps {
+		if a.ID == typ {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("could not find %s-%s/%s in Marathon", app, env, typ)
+}
+
 // List shows the list of applications duncan knows about
 func List(app, env string) error {
 	groups, err := listGroups()

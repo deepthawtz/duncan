@@ -30,7 +30,7 @@ var (
 		Short: "Manage Vault secrets (ENV vars) for an app",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println("must call secrets subcommand")
-			os.Exit(-1)
+			os.Exit(1)
 		},
 	}
 
@@ -44,7 +44,7 @@ var (
 			s, err := vault.Read(u)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 
 			printSorted(s.KVPairs)
@@ -63,12 +63,12 @@ var (
 				s, err := vault.Read(u)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 				s, err = vault.Write(u, args, s)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 
 				printSorted(s.KVPairs)
@@ -88,11 +88,11 @@ var (
 				s, err := vault.Read(u)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 				if _, err := vault.Delete(u, args, s); err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 			}
 		},
@@ -112,19 +112,19 @@ func init() {
 func checkAppEnv(app, env string) {
 	if app == "" || env == "" {
 		fmt.Println("must provide --app and --env flags")
-		os.Exit(-1)
+		os.Exit(1)
 	}
 
 	if env != "stage" && env != "production" {
 		fmt.Printf("env %s is not a valid deployment environment\n", env)
-		os.Exit(-1)
+		os.Exit(1)
 	}
 }
 
 func validateKeyValues(kvs []string) {
 	if len(kvs) == 0 {
 		fmt.Println("must provide key/value pairs in KEY=VALUE format")
-		os.Exit(-1)
+		os.Exit(1)
 	}
 
 	for _, k := range kvs {
@@ -132,7 +132,7 @@ func validateKeyValues(kvs []string) {
 		// len should be at least 2 (edgecase w/ values that contain '=' character)
 		if len(p) < 2 {
 			fmt.Println("must provide key/value pairs in KEY=VALUE format")
-			os.Exit(-1)
+			os.Exit(1)
 		}
 	}
 }
@@ -140,13 +140,13 @@ func validateKeyValues(kvs []string) {
 func validateKeys(keys []string) {
 	if len(keys) == 0 {
 		fmt.Println("must provide one or more keys")
-		os.Exit(-1)
+		os.Exit(1)
 	}
 	for _, k := range keys {
 		p := strings.Split(k, "=")
 		if len(p) > 1 {
 			fmt.Println("KEY only must be provided, not KEY=VALUE")
-			os.Exit(-1)
+			os.Exit(1)
 		}
 	}
 }

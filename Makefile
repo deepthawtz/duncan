@@ -1,5 +1,5 @@
 package = github.com/betterdoctor/duncan
-TAG := $(shell git tag | sort -r | head -n 1)
+TAG := $(shell git tag --sort=v:refname | tail -n 1)
 
 .PHONY: install release test
 

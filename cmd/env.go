@@ -32,8 +32,8 @@ var (
 		Use:   "env",
 		Short: "Manage Consul key/values (ENV vars) for an app",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("must call env subcommand")
-			os.Exit(-1)
+			fmt.Println("must provide env subcommand, see: duncan env -h")
+			os.Exit(1)
 		},
 	}
 
@@ -47,7 +47,7 @@ var (
 			env, err := consul.Read(u)
 			if err != nil {
 				fmt.Println(err)
-				os.Exit(-1)
+				os.Exit(1)
 			}
 			printSorted(env)
 		},
@@ -65,7 +65,7 @@ var (
 				env, err := consul.Write(app, env, url, args)
 				if err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 				printSorted(env)
 			}
@@ -82,7 +82,7 @@ var (
 				url := consul.EnvURL(app, env)
 				if err := consul.Delete(app, env, url, args); err != nil {
 					fmt.Println(err)
-					os.Exit(-1)
+					os.Exit(1)
 				}
 			}
 		},
