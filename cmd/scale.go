@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/betterdoctor/duncan/autoscaling"
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
@@ -62,6 +63,13 @@ If application cannot scale due to insufficient cluster resources an error will 
 			fmt.Println("USAGE: duncan scale web=3 [worker=2, ...] --app foo --env production")
 			os.Exit(1)
 		}
+
+		policies, err := autoscaling.GetPolicies(app, env)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		g, err := marathon.GroupDefinition(app, env)
 		if err != nil {
 			fmt.Println(err)
@@ -71,7 +79,22 @@ If application cannot scale due to insufficient cluster resources an error will 
 		se := &scaleEvent{App: app, Env: env}
 		for p, size := range rules {
 			for _, a := range g.Apps {
-				if a.InstanceType() == p {
+				it := a.InstanceType()
+				if it == p {
+					for _, wp := range policies.QueueLengthScaled {
+						if wp.Enabled && wp.AppName == app && wp.Environment == env && wp.AppType == it {
+							fmt.Printf("autoscaling policy %s already enabled for %s-%s/%s\n", green(wp.Name), app, env, it)
+							fmt.Printf("see: duncan autoscale list --app %s --env %s\n", app, env)
+							os.Exit(1)
+						}
+					}
+					for _, cp := range policies.CPUScaled {
+						if cp.Enabled && cp.AppName == app && cp.Environment == env && cp.AppType == a.InstanceType() {
+							fmt.Printf("autoscaling policy %s already enabled for %s-%s/%s\n", green(cp.Name), app, env, it)
+							fmt.Printf("see: duncan autoscale list --app %s --env %s\n", app, env)
+							os.Exit(1)
+						}
+					}
 					se.Procs = append(se.Procs, &proc{
 						InstanceType: p,
 						Previous:     a.Instances,
@@ -153,7 +176,12 @@ func promptScale(se *scaleEvent) bool {
 	for _, s := range se.Procs {
 		fmt.Printf("  %s: %s => %s instances\n", white(s.InstanceType), cyan(s.Previous), yellow(s.Current))
 	}
-	fmt.Println()
+	fmt.Printf(`
+NOTE: Manually scaling is often necessary for troubleshooting but consider instead using
+an autoscaling policy once the conditions that trigger scaling and mininum/maximum
+number of instances needed are well understood. The autoscaler is great at doing repetitive
+tasks and won't forget to scale down when instances are no longer needed online.
+`)
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))

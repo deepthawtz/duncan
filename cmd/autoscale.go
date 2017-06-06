@@ -161,6 +161,7 @@ $ duncan autoscale cpu create --app myapp --env production --policy-name MyAppPr
 		Use:   "update",
 		Short: "update worker autoscaling policy",
 		Long: `Update Worker autoscaling policy.
+Update one or more attributes of an autoscaling policy
 
 Examples:
 
@@ -287,11 +288,11 @@ $ duncan autoscale worker disable --policy-name MyAppProductionWorker
 		Use:   "update",
 		Short: "update CPU autoscaling policy",
 		Long: `Update CPU autoscaling policy.
+Update one or more attributes of an autoscaling policy
 
 Examples:
 
 $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 50
-$ duncan autoscale cpu update --policy-name MyAppProductionWeb --enabled false
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if policyName == "" {
