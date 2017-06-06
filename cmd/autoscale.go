@@ -23,6 +23,7 @@ import (
 
 	"github.com/betterdoctor/duncan/autoscaling"
 	"github.com/betterdoctor/duncan/deployment"
+	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/slythe/policy"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -111,6 +112,11 @@ $ duncan autoscale worker create --app myapp --env production --policy-name MyAp
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			validateCreatePolicyFlags("worker")
+			if err := marathon.AssertAppExistsInGroup(app, env, appType); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
 			allowed, err := deployment.AllowedToManage(app, env)
 			if err != nil {
 				fmt.Printf("failed to create worker autoscaling policy: %v\n", err)
@@ -149,6 +155,11 @@ $ duncan autoscale cpu create --app myapp --env production --policy-name MyAppPr
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			validateCreatePolicyFlags("cpu")
+			if err := marathon.AssertAppExistsInGroup(app, env, appType); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
 			allowed, err := deployment.AllowedToManage(app, env)
 			if err != nil {
 				fmt.Printf("failed to create worker autoscaling policy: %v\n", err)
