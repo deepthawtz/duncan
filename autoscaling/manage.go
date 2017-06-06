@@ -20,6 +20,9 @@ func GetPolicies(app, env string) (*policy.Policies, error) {
 		return policies, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return policies, fmt.Errorf("failed to fetch autoscaling policies: %s", resp.Status)
+	}
 	if err := json.NewDecoder(resp.Body).Decode(policies); err != nil {
 		return policies, err
 	}

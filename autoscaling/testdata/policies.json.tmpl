@@ -1,0 +1,42 @@
+{
+  "QueueLengthScaled": [
+    {{ range $idx, $a := .QueueLengthScaled }}
+      {{ if $idx }},{{ end }}
+      {
+        "Name": "{{ $a.Name }}",
+        "AppName": "{{ $a.AppName }}",
+        "AppType": "{{ $a.AppType }}",
+        "Environment": "{{ $a.Environment }}",
+        "MinInstances": {{ $a.MinInstances }},
+        "MaxInstances": {{ $a.MaxInstances }},
+        "UpThreshold": {{ $a.UpThreshold }},
+        "DownThreshold": {{ $a.DownThreshold }},
+        "ScaleUpBy": {{ $a.ScaleUpBy }},
+        "ScaleDownBy": {{ $a.ScaleDownBy }},
+        "CheckFrequencySecs": {{ $a.CheckFrequencySecs }},
+        "Enabled": {{ $a.Enabled }},
+        "RedisURL": "{{ $a.RedisURL }}",
+        "Queues": "{{ $a.Queues }}"
+      }
+    {{ end }}
+  ],
+  "CPUScaled": [
+    {{ range $idx, $a := .CPUScaled }}
+      {{ if $idx }},{{ end }}
+      {
+        "Name": "{{ $a.Name }}",
+        "AppName": "{{ $a.AppName }}",
+        "AppType": "{{ $a.AppType }}",
+        "Environment": "{{ $a.Environment }}",
+        "MinInstances": {{ $a.MinInstances }},
+        "MaxInstances": {{ $a.MaxInstances }},
+        "UpThreshold": {{ $a.UpThreshold }},
+        "DownThreshold": {{ $a.DownThreshold }},
+        "ScaleUpBy": {{ $a.ScaleUpBy }},
+        "ScaleDownBy": {{ $a.ScaleDownBy }},
+        "CheckFrequencySecs": {{ $a.CheckFrequencySecs }},
+        "Enabled": {{ $a.Enabled }}
+      }
+    {{ end }}
+  ]
+}
