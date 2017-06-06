@@ -2,6 +2,8 @@
 ---
 marathon_host: https://mesos.host
 chronos_host: https://mesos.host
+# for autoscaling commands
+slythe_host: https://slythe.host
 # used to generate github compare links to view diff being deployed
 github_org: betterdoctor
 
