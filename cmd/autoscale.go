@@ -32,10 +32,12 @@ var (
 	cyan   = color.New(color.FgCyan, color.Bold).SprintFunc()
 	white  = color.New(color.FgWhite, color.Bold).SprintFunc()
 	green  = color.New(color.FgGreen, color.Bold).SprintFunc()
+	red    = color.New(color.FgRed, color.Bold).SprintFunc()
 
 	// args for autoscaling policy commands
 	policyName, appType, redisURL, queues                             string
 	min, max, upBy, downBy, checkFreqSecs, upThreshold, downThreshold int
+	enabled                                                           bool
 
 	autoscaleCmd = &cobra.Command{
 		Use:   "autoscale",
@@ -215,6 +217,43 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 		},
 	}
 
+	autoscaleWorkerEnableCmd = &cobra.Command{
+		Use:   "enable",
+		Short: "enable worker autoscaling policy",
+		Long: `Enable Worker autoscaling policy that has been disabled.
+
+Examples:
+
+$ duncan autoscale worker enable --policy-name MyAppProductionWorker
+		`,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := setWorkerPolicyEnabled(true); err != nil {
+				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("autoscaling policy %s enabled\n", green(policyName))
+		},
+	}
+
+	autoscaleWorkerDisableCmd = &cobra.Command{
+		Use:   "disable",
+		Short: "disable worker autoscaling policy",
+		Long: `Disable Worker autoscaling policy.
+Sometimes it is useful to disable an autoscaling policy, e.g., while troubleshooting.
+
+Examples:
+
+$ duncan autoscale worker disable --policy-name MyAppProductionWorker
+		`,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := setWorkerPolicyEnabled(false); err != nil {
+				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("autoscaling policy %s disabled\n", green(policyName))
+		},
+	}
+
 	autoscaleCPUUpdateCmd = &cobra.Command{
 		Use:   "update",
 		Short: "update CPU autoscaling policy",
@@ -223,6 +262,7 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 Examples:
 
 $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 50
+$ duncan autoscale cpu update --policy-name MyAppProductionWeb --enabled false
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if policyName == "" {
@@ -287,6 +327,43 @@ $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 5
 			fmt.Printf("autoscaling policy %s updated\n", green(cp.Name))
 		},
 	}
+
+	autoscaleCPUEnableCmd = &cobra.Command{
+		Use:   "enable",
+		Short: "enable CPU autoscaling policy",
+		Long: `Enable CPU autoscaling policy that has been disabled.
+
+Examples:
+
+$ duncan autoscale cpu enable --policy-name MyAppProductionWeb
+		`,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := setCPUPolicyEnabled(true); err != nil {
+				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("autoscaling policy %s enabled\n", green(policyName))
+		},
+	}
+
+	autoscaleCPUDisableCmd = &cobra.Command{
+		Use:   "disable",
+		Short: "disable CPU autoscaling policy",
+		Long: `Disable CPU autoscaling policy.
+Sometimes it is useful to disable an autoscaling policy, e.g., while troubleshooting.
+
+Examples:
+
+$ duncan autoscale cpu disable --policy-name MyAppProductionWeb
+		`,
+		Run: func(cmd *cobra.Command, args []string) {
+			if err := setCPUPolicyEnabled(false); err != nil {
+				fmt.Printf("failed to enable autoscaling policy: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("autoscaling policy %s disabled\n", green(policyName))
+		},
+	}
 )
 
 func init() {
@@ -301,6 +378,7 @@ func init() {
 	autoscaleCPUCmd.PersistentFlags().IntVarP(&upThreshold, "up-threshold", "", 0, "aggregate CPU percent to scale up on")
 	autoscaleCPUCmd.PersistentFlags().IntVarP(&downThreshold, "down-threshold", "", 0, "aggregate CPU percent to scale down on")
 	autoscaleCPUCmd.PersistentFlags().IntVarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
+	autoscaleCPUUpdateCmd.Flags().BoolVarP(&enabled, "enabled", "", true, "whether policy is enabled or not")
 
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&policyName, "policy-name", "", "", "name for autoscaling policy")
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage autoscaling policy for")
@@ -315,6 +393,7 @@ func init() {
 	autoscaleWorkerCmd.PersistentFlags().IntVarP(&upThreshold, "up-threshold", "", 0, "redis queue size to scale up on")
 	autoscaleWorkerCmd.PersistentFlags().IntVarP(&downThreshold, "down-threshold", "", 0, "redis queue size to scale down on")
 	autoscaleWorkerCmd.PersistentFlags().IntVarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
+	autoscaleWorkerUpdateCmd.Flags().BoolVarP(&enabled, "enabled", "", true, "whether policy is enabled or not")
 
 	RootCmd.AddCommand(autoscaleCmd)
 	autoscaleCmd.AddCommand(autoscaleListCmd)
@@ -324,8 +403,12 @@ func init() {
 	autoscaleCmd.AddCommand(autoscaleCPUCmd)
 	autoscaleWorkerCmd.AddCommand(autoscaleWorkerCreateCmd)
 	autoscaleWorkerCmd.AddCommand(autoscaleWorkerUpdateCmd)
+	autoscaleWorkerCmd.AddCommand(autoscaleWorkerEnableCmd)
+	autoscaleWorkerCmd.AddCommand(autoscaleWorkerDisableCmd)
 	autoscaleCPUCmd.AddCommand(autoscaleCPUCreateCmd)
 	autoscaleCPUCmd.AddCommand(autoscaleCPUUpdateCmd)
+	autoscaleCPUCmd.AddCommand(autoscaleCPUEnableCmd)
+	autoscaleCPUCmd.AddCommand(autoscaleCPUDisableCmd)
 }
 
 func cpuStringFlags() map[string]string {
@@ -428,6 +511,11 @@ func promptUpdateWorkerScalingPolicy(wp *policy.Worker) bool {
 	fmt.Fprintln(w, white("Up Threshold \t"), yellow(wp.UpThreshold))
 	fmt.Fprintln(w, white("Down Threshold \t"), yellow(wp.DownThreshold))
 	fmt.Fprintln(w, white("Check Frequency Secs \t"), yellow(wp.CheckFrequencySecs))
+	if wp.Enabled {
+		fmt.Fprintln(w, white("Enabled \t"), green("true"))
+	} else {
+		fmt.Fprintln(w, white("Enabled \t"), red("false"))
+	}
 	w.Flush()
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))
@@ -454,6 +542,11 @@ func promptUpdateCPUScalingPolicy(cp *policy.CPU) bool {
 	fmt.Fprintln(w, white("Up Threshold \t"), yellow(cp.UpThreshold))
 	fmt.Fprintln(w, white("Down Threshold \t"), yellow(cp.DownThreshold))
 	fmt.Fprintln(w, white("Check Frequency Secs \t"), yellow(cp.CheckFrequencySecs))
+	if cp.Enabled {
+		fmt.Fprintln(w, white("Enabled \t"), green("true"))
+	} else {
+		fmt.Fprintln(w, white("Enabled \t"), red("false"))
+	}
 	w.Flush()
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))
@@ -481,4 +574,64 @@ func newGenericPolicy() policy.GenericPolicy {
 		CheckFrequencySecs: checkFreqSecs,
 		Enabled:            true,
 	}
+}
+
+func setWorkerPolicyEnabled(enabled bool) error {
+	if policyName == "" {
+		return fmt.Errorf("enable command requires --policy-name flag")
+	}
+	policies, err := autoscaling.GetPolicies(app, env)
+	if err != nil {
+		return fmt.Errorf("failed to fetch policies: %s\n", err)
+	}
+	wp := &policy.Worker{}
+	for _, w := range policies.QueueLengthScaled {
+		if w.Name == policyName {
+			wp = w
+		}
+	}
+	if wp.Name == "" {
+		return fmt.Errorf("could not find policy %s to enable\n", green(policyName))
+	}
+
+	wp.Enabled = enabled
+
+	if !promptUpdateWorkerScalingPolicy(wp) {
+		return fmt.Errorf("phew")
+	}
+
+	if err := autoscaling.UpdateWorkerPolicy(wp); err != nil {
+		return fmt.Errorf("failed to enable autoscaling policy: %v\n", err)
+	}
+	return nil
+}
+
+func setCPUPolicyEnabled(enabled bool) error {
+	if policyName == "" {
+		return fmt.Errorf("enable command requires --policy-name flag")
+	}
+	policies, err := autoscaling.GetPolicies(app, env)
+	if err != nil {
+		return fmt.Errorf("failed to fetch policies: %s\n", err)
+	}
+	cp := &policy.CPU{}
+	for _, c := range policies.CPUScaled {
+		if c.Name == policyName {
+			cp = c
+		}
+	}
+	if cp.Name == "" {
+		return fmt.Errorf("could not find policy %s to enable\n", green(policyName))
+	}
+
+	cp.Enabled = enabled
+
+	if !promptUpdateCPUScalingPolicy(cp) {
+		return fmt.Errorf("phew")
+	}
+
+	if err := autoscaling.UpdateCPUPolicy(cp); err != nil {
+		return fmt.Errorf("failed to enable autoscaling policy: %v\n", err)
+	}
+	return nil
 }
