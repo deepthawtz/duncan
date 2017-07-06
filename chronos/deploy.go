@@ -162,21 +162,24 @@ func cleanupTask(name string) error {
 
 func handleTask(url, name string, count int) error {
 	fmt.Println("scheduling task")
+	state := map[string]bool{}
 	for {
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 		tasks, err := scheduledTasks(url, name)
 		if err != nil {
 			return err
 		}
 		if len(tasks.Tasks) == count {
-			fmt.Printf(".")
 			continue
 		}
 		if len(tasks.Tasks) == count+1 {
 			sort.Sort(tasks)
 			task := tasks.Tasks[len(tasks.Tasks)-1]
 
-			fmt.Printf("task state: %s\n", task.State)
+			if _, ok := state[task.State]; !ok {
+				state[task.State] = true
+				fmt.Printf("task state: %s\n", task.State)
+			}
 			switch task.State {
 			case mesos.TaskRunning:
 				if err := openLogPage(task); err != nil {
@@ -193,7 +196,7 @@ func handleTask(url, name string, count int) error {
 				if err := openLogPage(task); err != nil {
 					return err
 				}
-				fmt.Printf("task finished: %.02f seconds\n", dur)
+				fmt.Printf("\ntask finished: %.02f seconds\n", dur)
 				if err := printLogs(task); err != nil {
 					return err
 				}
@@ -217,7 +220,7 @@ func handleTask(url, name string, count int) error {
 				if err := cleanupTask(name); err != nil {
 					return err
 				}
-				return fmt.Errorf("task failed: %.02f seconds\n", dur)
+				return fmt.Errorf("\ntask failed: %.02f seconds\n", dur)
 			case mesos.TaskKilled:
 				dur, err := task.Duration()
 				if err != nil {
@@ -227,9 +230,9 @@ func handleTask(url, name string, count int) error {
 					return err
 				}
 
-				return fmt.Errorf("task killed: %.02f seconds\n", dur)
+				return fmt.Errorf("\ntask killed: %.02f seconds\n", dur)
 			default:
-				return fmt.Errorf("task state unhandled: %s", task.State)
+				return fmt.Errorf("\ntask state unhandled: %s", task.State)
 			}
 		}
 	}
