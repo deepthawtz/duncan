@@ -30,7 +30,7 @@ func DisplayCPUPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Min Instances \t"), white(cp.MinInstances))
 			fmt.Fprintln(w, white("Max Instances \t"), white(cp.MaxInstances))
 			fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleUpBy))
-			fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleDownBy))
+			fmt.Fprintln(w, white("Scale Down By \t"), white(cp.ScaleDownBy))
 			fmt.Fprintln(w, white("Up Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.UpThreshold)))
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.DownThreshold)))
 			fmt.Fprintln(w, white("Check Frequency Secs \t"), white(fmt.Sprintf("%d", cp.CheckFrequencySecs)))
