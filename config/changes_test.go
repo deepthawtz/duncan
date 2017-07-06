@@ -18,22 +18,22 @@ func TestChanges(t *testing.T) {
 		"BAZ": []string{},
 	}
 	cases := []struct {
-		typ     string
+		cmd     string
 		changes map[string][]string
 		output  string
 	}{
-		{typ: "env", changes: map[string][]string{}, output: ""},
-		{typ: "secrets", changes: map[string][]string{}, output: ""},
-		{typ: "env", changes: updated, output: fmt.Sprintf("env updated by %s:\n`FOO` updated from `yabba` => `dooo`\n", u.Username)},
-		{typ: "secrets", changes: updated, output: fmt.Sprintf("secrets updated by %s:\n`FOO` updated\n", u.Username)},
-		{typ: "env", changes: added, output: fmt.Sprintf("env updated by %s:\n`BAR` set to `new-thing`\n", u.Username)},
-		{typ: "secrets", changes: added, output: fmt.Sprintf("secrets updated by %s:\n`BAR` added\n", u.Username)},
-		{typ: "env", changes: deleted, output: fmt.Sprintf("env updated by %s:\n`BAZ` deleted\n", u.Username)},
-		{typ: "secrets", changes: deleted, output: fmt.Sprintf("secrets updated by %s:\n`BAZ` deleted\n", u.Username)},
+		{cmd: "env", changes: map[string][]string{}, output: ""},
+		{cmd: "secrets", changes: map[string][]string{}, output: ""},
+		{cmd: "env", changes: updated, output: fmt.Sprintf("env updated by %s:\n`FOO` updated from `yabba` => `dooo`\n", u.Username)},
+		{cmd: "secrets", changes: updated, output: fmt.Sprintf("secrets updated by %s:\n`FOO` updated\n", u.Username)},
+		{cmd: "env", changes: added, output: fmt.Sprintf("env updated by %s:\n`BAR` set to `new-thing`\n", u.Username)},
+		{cmd: "secrets", changes: added, output: fmt.Sprintf("secrets updated by %s:\n`BAR` added\n", u.Username)},
+		{cmd: "env", changes: deleted, output: fmt.Sprintf("env updated by %s:\n`BAZ` deleted\n", u.Username)},
+		{cmd: "secrets", changes: deleted, output: fmt.Sprintf("secrets updated by %s:\n`BAZ` deleted\n", u.Username)},
 	}
 
 	for _, test := range cases {
-		msg := Changes(test.typ, test.changes)
+		msg := Changes(test.cmd, test.changes)
 		if msg != test.output {
 			t.Errorf("expected %s but got %s", test.output, msg)
 		}
