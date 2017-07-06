@@ -105,7 +105,8 @@ func AssertAppExistsInGroup(app, env, typ string) error {
 	}
 
 	for _, a := range g.Apps {
-		if a.ID == typ {
+		t := strings.Split(a.ID, "/")
+		if t[len(t)-1] == typ {
 			return nil
 		}
 	}
