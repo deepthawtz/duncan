@@ -33,6 +33,7 @@ func DisplayCPUPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Scale Up By \t"), white(cp.ScaleDownBy))
 			fmt.Fprintln(w, white("Up Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.UpThreshold)))
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(fmt.Sprintf("%d%%", cp.DownThreshold)))
+			fmt.Fprintln(w, white("Check Frequency Secs \t"), white(fmt.Sprintf("%d", cp.CheckFrequencySecs)))
 			if cp.Enabled {
 				fmt.Fprintln(w, white("Enabled \t"), green("true"))
 			} else {
@@ -62,6 +63,7 @@ func DisplayWorkerPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(wp.DownThreshold))
 			fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisURL))
 			fmt.Fprintln(w, white("Queues \t"), cyan(wp.Queues))
+			fmt.Fprintln(w, white("Check Frequency Secs \t"), white(fmt.Sprintf("%d", wp.CheckFrequencySecs)))
 			if wp.Enabled {
 				fmt.Fprintln(w, white("Enabled \t"), green("true"))
 			} else {
