@@ -39,12 +39,14 @@ type Executor struct {
 // TaskVars represents a one-off Chronos task
 type TaskVars struct {
 	App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string
+	Mem                                                               int
+	CPU                                                               float64
 }
 
 var logsOpened bool
 
 // RunCommand spins up a Chronos task to run the given command and exits
-func RunCommand(app, env, cmd string, follow bool) error {
+func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error {
 	if !follow {
 		logsOpened = true
 	}
@@ -66,6 +68,8 @@ func RunCommand(app, env, cmd string, follow bool) error {
 		App:              app,
 		Env:              env,
 		Tag:              tag,
+		Mem:              mem,
+		CPU:              cpu,
 		Command:          cmd,
 		TaskName:         taskName(app, env, cmd),
 		DockerRepoPrefix: prefix,
@@ -73,7 +77,7 @@ func RunCommand(app, env, cmd string, follow bool) error {
 	}
 	chronosURL := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
 	mesosURL := fmt.Sprintf("%s/mesos/tasks", viper.GetString("marathon_host"))
-	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task); err != nil {
+	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task, handleTask); err != nil {
 		return err
 	}
 
@@ -109,7 +113,7 @@ func renderChronosTaskJSON(task *TaskVars) (string, error) {
 	return j.String(), nil
 }
 
-func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars) error {
+func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars, handler func(string, string, int) error) error {
 	tasks, err := scheduledTasks(mesosURL, task.TaskName)
 	if err != nil {
 		return err
@@ -131,7 +135,7 @@ func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars) err
 		return fmt.Errorf("failed to launch command: %s", body)
 	}
 	fmt.Printf("executing '%s' in instance of %s:%s (%s)\n", task.Command, task.App, task.Tag, task.Env)
-	if err = handleTask(mesosURL, task.TaskName, len(tasks.Tasks)); err != nil {
+	if err = handler(mesosURL, task.TaskName, len(tasks.Tasks)); err != nil {
 		return err
 	}
 

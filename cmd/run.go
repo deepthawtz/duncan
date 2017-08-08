@@ -23,7 +23,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var follow bool
+var (
+	follow bool
+	mem    int
+	cpu    float64
+)
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
@@ -39,18 +43,28 @@ duncan run -a APP -e ENV COMMAND
 Example:
 
 $ duncan run -a foo -e production rake stuff:junk
+# to override default 1GB memory
+$ duncan run -a foo -e production --mem 2 rake stuff:junk
 
 If the command contains flags you will need to escape them
 $ duncan run -a foo -e stage -- ls -lh
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		if app == "" {
+			fmt.Println("must supply --app")
+			os.Exit(1)
+		}
+		if env == "" {
+			fmt.Println("must supply --env")
+			os.Exit(1)
+		}
 		if len(args) == 0 {
 			fmt.Println("must supply COMMAND to run")
 			os.Exit(1)
 		}
 		command := strings.Join(args, " ")
-		if err := chronos.RunCommand(app, env, command, follow); err != nil {
+		if err := chronos.RunCommand(app, env, command, cpu, mem, follow); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -61,5 +75,7 @@ func init() {
 	RootCmd.AddCommand(runCmd)
 	runCmd.Flags().StringVarP(&app, "app", "a", "", "app to deploy")
 	runCmd.Flags().StringVarP(&env, "env", "e", "", "deployment environment (stage, production)")
+	runCmd.Flags().IntVarP(&mem, "mem", "", 1, "task memory in GB NOTE: must have available resources in cluster")
+	runCmd.Flags().Float64VarP(&cpu, "cpu", "", 1.0, "task CPU NOTE: must have available resources in cluster")
 	runCmd.Flags().BoolVarP(&follow, "follow", "f", false, "open link to task sandbox to follow streaming logs")
 }

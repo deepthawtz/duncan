@@ -13,8 +13,8 @@ var taskTemplate = `
     "image": "{{.DockerRepoPrefix}}/{{.App}}:{{.Tag}}"
   },
   "command": "envconsul -config envconsul-{{.Env}}.hcl {{.Command}}",
-  "cpus": "1.0",
-  "mem": "1024",
+  "cpus": "{{.CPU}}",
+  "mem": "{{.Mem}}",
   "fetch": [
     {
       "uri": "{{.DockerConfURL}}",

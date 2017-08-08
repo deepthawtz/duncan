@@ -30,35 +30,67 @@ func TestTaskName(t *testing.T) {
 }
 
 func TestScheduledTasks(t *testing.T) {
-	tv := &TaskVars{TaskName: "dogfood-production-yo"}
-	ms := mesosServer(tv)
-	ts, err := scheduledTasks(ms.URL, tv.TaskName)
-	if err != nil {
-		t.Errorf("expected nil but got: %s", err)
+	cases := []struct {
+		ok  bool
+		exp bool
+	}{
+		{ok: true, exp: true},
+		{ok: false, exp: false},
 	}
-	l := len(ts.Tasks)
-	if l != 2 {
-		t.Errorf("expected 2 tasks but got: %d", l)
+
+	for _, test := range cases {
+		tv := &TaskVars{TaskName: "dogfood-production-yo"}
+		ms := mesosServer(tv, test.ok)
+		ts, err := scheduledTasks(ms.URL, tv.TaskName)
+		if err != nil && test.ok {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+		if test.ok {
+			l := len(ts.Tasks)
+			if l != 2 {
+				t.Errorf("expected 2 tasks but got: %d", l)
+			}
+		}
 	}
 }
 
-// func TestLaunchChronosOneOffCommand(t *testing.T) {
-// 	tv := &TaskVars{
-// 		App:      "dogfood",
-// 		Env:      "stage",
-// 		Tag:      "1.2.3",
-// 		Command:  "echo yodawg",
-// 		TaskName: "dogfood-stage-echo-yodawg",
-// 	}
-// 	cs := chronosServer(true)
-// 	ms := mesosServer(tv)
-// 	fmt.Println(ms.URL)
-// 	fmt.Println(cs.URL)
-// 	err := launchChronosOneOffCommand(cs.URL, ms.URL, tv)
-// 	if err != nil {
-// 		t.Errorf("expected nil but got: %s", err)
-// 	}
-// }
+func TestLaunchChronosOneOffCommand(t *testing.T) {
+	cases := []struct {
+		chronosOK bool
+		mesosOK   bool
+		exp       bool
+	}{
+		{chronosOK: true, mesosOK: true, exp: true},
+		{chronosOK: false, mesosOK: true, exp: false},
+		{chronosOK: true, mesosOK: false, exp: false},
+	}
+
+	for _, test := range cases {
+		tv := &TaskVars{
+			App:      "dogfood",
+			Env:      "stage",
+			Tag:      "1.2.3",
+			Mem:      3,
+			Command:  "echo yodawg",
+			TaskName: "dogfood-stage-echo-yodawg",
+		}
+		cs := chronosServer(test.chronosOK)
+		ms := mesosServer(tv, test.mesosOK)
+		h := func(string, string, int) error {
+			return nil
+		}
+		err := launchChronosOneOffCommand(cs.URL, ms.URL, tv, h)
+		if err != nil && test.exp {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.exp {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
 
 func chronosServer(success bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -71,8 +103,13 @@ func chronosServer(success bool) *httptest.Server {
 	}))
 }
 
-func mesosServer(task *TaskVars) *httptest.Server {
+func mesosServer(task *TaskVars, success bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !success {
+			w.WriteHeader(http.StatusInternalServerError)
+
+			return
+		}
 		filename := filepath.Join("testdata", "mesos_tasks.json.tmpl")
 		as, err := ioutil.ReadFile(filename)
 		if err != nil {
