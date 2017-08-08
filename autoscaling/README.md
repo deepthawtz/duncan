@@ -13,7 +13,8 @@
 ## <a name="pkg-index">Index</a>
 * [func CreateCPUPolicy(cp *policy.CPU) error](#CreateCPUPolicy)
 * [func CreateWorkerPolicy(wp *policy.Worker) error](#CreateWorkerPolicy)
-* [func DisplayPolicies(policies *policy.Policies)](#DisplayPolicies)
+* [func DisplayCPUPolicies(policies *policy.Policies)](#DisplayCPUPolicies)
+* [func DisplayWorkerPolicies(policies *policy.Policies)](#DisplayWorkerPolicies)
 * [func GetPolicies(app, env string) (*policy.Policies, error)](#GetPolicies)
 * [func UpdateCPUPolicy(cp *policy.CPU) error](#UpdateCPUPolicy)
 * [func UpdateWorkerPolicy(wp *policy.Worker) error](#UpdateWorkerPolicy)
@@ -42,11 +43,19 @@ CreateWorkerPolicy creates an autoscaling worker policy
 
 
 
-## <a name="DisplayPolicies">func</a> [DisplayPolicies](/src/target/display.go?s=478:525#L11)
+## <a name="DisplayCPUPolicies">func</a> [DisplayCPUPolicies](/src/target/display.go?s=485:535#L11)
 ``` go
-func DisplayPolicies(policies *policy.Policies)
+func DisplayCPUPolicies(policies *policy.Policies)
 ```
-DisplayPolicies prints the policies
+DisplayCPUPolicies prints the CPU policies
+
+
+
+## <a name="DisplayWorkerPolicies">func</a> [DisplayWorkerPolicies](/src/target/display.go?s=1824:1877#L39)
+``` go
+func DisplayWorkerPolicies(policies *policy.Policies)
+```
+DisplayWorkerPolicies prints the Worker policies
 
 
 

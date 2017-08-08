@@ -11,6 +11,7 @@
 
 
 ## <a name="pkg-index">Index</a>
+* [func AssertAppExistsInGroup(app, env, typ string) error](#AssertAppExistsInGroup)
 * [func Deploy(app, env, tag string) error](#Deploy)
 * [func List(app, env string) error](#List)
 * [func Scale(group *Group, rules map[string]int) (string, error)](#Scale)
@@ -34,6 +35,15 @@
 
 
 
+## <a name="AssertAppExistsInGroup">func</a> [AssertAppExistsInGroup](/src/target/groups.go?s=2571:2626#L91)
+``` go
+func AssertAppExistsInGroup(app, env, typ string) error
+```
+AssertAppExistsInGroup checks if an app type exists in a Marathon group
+and returns an error if it does not
+
+
+
 ## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=186:225#L4)
 ``` go
 func Deploy(app, env, tag string) error
@@ -42,7 +52,7 @@ Deploy deploys a given marathon app, env and tag
 
 
 
-## <a name="List">func</a> [List](/src/target/groups.go?s=2515:2547#L90)
+## <a name="List">func</a> [List](/src/target/groups.go?s=2932:2964#L108)
 ``` go
 func List(app, env string) error
 ```

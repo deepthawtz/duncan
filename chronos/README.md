@@ -11,7 +11,7 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func RunCommand(app, env, cmd string, follow bool) error](#RunCommand)
+* [func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error](#RunCommand)
 * [type Executor](#Executor)
 * [type Framework](#Framework)
 * [type SlaveTasks](#SlaveTasks)
@@ -25,9 +25,9 @@
 
 
 
-## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=1004:1060#L37)
+## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=1150:1228#L39)
 ``` go
-func RunCommand(app, env, cmd string, follow bool) error
+func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error
 ```
 RunCommand spins up a Chronos task to run the given command and exits
 
@@ -88,10 +88,12 @@ SlaveTasks represents Mesos slave completed tasks
 
 
 
-## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=810:908#L30)
+## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=810:1054#L30)
 ``` go
 type TaskVars struct {
     App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string
+    Mem                                                               int
+    CPU                                                               float64
 }
 ```
 TaskVars represents a one-off Chronos task

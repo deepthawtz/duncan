@@ -11,6 +11,7 @@
 
 
 ## <a name="pkg-index">Index</a>
+* [func AllowedToManage(app, env string) (bool, error)](#AllowedToManage)
 * [func BeginDeploy(app, env string) error](#BeginDeploy)
 * [func CurrentTag(app, env string) (string, error)](#CurrentTag)
 * [func FinishDeploy(app, env string) error](#FinishDeploy)
@@ -19,16 +20,26 @@
 * [func UpdateReleaseTags(app, env, tag, prev string) error](#UpdateReleaseTags)
 * [func Watch(id string) error](#Watch)
 * [type Deployment](#Deployment)
+* [type Event](#Event)
 
 
 #### <a name="pkg-files">Package files</a>
-[utils.go](/src/github.com/betterdoctor/duncan/deployment/utils.go) 
+[events.go](/src/github.com/betterdoctor/duncan/deployment/events.go) [utils.go](/src/github.com/betterdoctor/duncan/deployment/utils.go) 
 
 
 
 
 
-## <a name="BeginDeploy">func</a> [BeginDeploy](/src/target/utils.go?s=364:403#L14)
+## <a name="AllowedToManage">func</a> [AllowedToManage](/src/target/utils.go?s=378:429#L15)
+``` go
+func AllowedToManage(app, env string) (bool, error)
+```
+AllowedToManage checks if user is able to manage/deploy
+an app/env
+
+
+
+## <a name="BeginDeploy">func</a> [BeginDeploy](/src/target/utils.go?s=1271:1310#L52)
 ``` go
 func BeginDeploy(app, env string) error
 ```
@@ -36,7 +47,7 @@ BeginDeploy checks if Consul ACL allows deployments for
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=4067:4115#L161)
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=4974:5022#L199)
 ``` go
 func CurrentTag(app, env string) (string, error)
 ```
@@ -44,7 +55,7 @@ CurrentTag returns the currently deployed git tag for an app and environment
 
 
 
-## <a name="FinishDeploy">func</a> [FinishDeploy](/src/target/utils.go?s=1295:1335#L48)
+## <a name="FinishDeploy">func</a> [FinishDeploy](/src/target/utils.go?s=2202:2242#L86)
 ``` go
 func FinishDeploy(app, env string) error
 ```
@@ -52,7 +63,7 @@ FinishDeploy removes deployment lock after a successful deploy
 
 
 
-## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=4723:4772#L184)
+## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=5630:5679#L222)
 ``` go
 func GithubDiffLink(app, prev, tag string) string
 ```
@@ -60,7 +71,7 @@ GithubDiffLink returns a GitHub diff link to view deployment changes
 
 
 
-## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=4549:4593#L179)
+## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=5456:5500#L217)
 ``` go
 func MarathonGroupID(app, env string) string
 ```
@@ -68,7 +79,7 @@ MarathonGroupID returns a Marathon Group id for an app and env
 
 
 
-## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=3114:3170#L122)
+## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=4021:4077#L160)
 ``` go
 func UpdateReleaseTags(app, env, tag, prev string) error
 ```
@@ -81,7 +92,7 @@ Returns previously deployed git tag if one has been deployed
 
 
 
-## <a name="Watch">func</a> [Watch](/src/target/utils.go?s=2070:2097#L79)
+## <a name="Watch">func</a> [Watch](/src/target/utils.go?s=2977:3004#L117)
 ``` go
 func Watch(id string) error
 ```
@@ -97,6 +108,32 @@ type Deployment struct {
 }
 ```
 Deployment represents a Marathon deployment
+
+
+
+
+
+
+
+
+
+
+## <a name="Event">type</a> [Event](/src/target/events.go?s=220:309#L1)
+``` go
+type Event struct {
+    App      string
+    Env      string
+    Deployer string
+    Type     string
+}
+```
+Event represents an individual deployment event
+
+For example:
+- deployment of new version
+- manual scale up/down
+- update to env/secrets
+- update to application autoscaling policy
 
 
 
