@@ -5,7 +5,8 @@ var taskTemplate = `
 {
   "name": "{{.TaskName}}",
   "description": "one-off duncan run ({{.Command}})",
-  "schedule": "R1//PT30M",
+  "schedule": "{{.Schedule}}",
+  "scheduleTimeZone": "PST",
   "retries": 0,
   "container": {
     "type": "DOCKER",

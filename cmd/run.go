@@ -24,9 +24,10 @@ import (
 )
 
 var (
-	follow bool
-	mem    int
-	cpu    float64
+	schedule string
+	follow   bool
+	mem      int
+	cpu      float64
 )
 
 // runCmd represents the run command
@@ -43,12 +44,15 @@ duncan run -a APP -e ENV COMMAND
 Example:
 
 $ duncan run -a foo -e production rake stuff:junk
+
 # to override default 1GB memory
 $ duncan run -a foo -e production --mem 2 rake stuff:junk
 
 If the command contains flags you will need to escape them
 $ duncan run -a foo -e stage -- ls -lh
 
+To run a scheduled job (PST)
+$ duncan run -a foo -e stage --schedule R1/2017-08-15T00:00:00Z/PT30M some_task
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if app == "" {
@@ -64,7 +68,7 @@ $ duncan run -a foo -e stage -- ls -lh
 			os.Exit(1)
 		}
 		command := strings.Join(args, " ")
-		if err := chronos.RunCommand(app, env, command, cpu, mem, follow); err != nil {
+		if err := chronos.RunCommand(app, env, command, schedule, cpu, mem, follow); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -77,5 +81,6 @@ func init() {
 	runCmd.Flags().StringVarP(&env, "env", "e", "", "deployment environment (stage, production)")
 	runCmd.Flags().IntVarP(&mem, "mem", "", 1, "task memory in GB NOTE: must have available resources in cluster")
 	runCmd.Flags().Float64VarP(&cpu, "cpu", "", 1.0, "task CPU NOTE: must have available resources in cluster")
+	runCmd.Flags().StringVarP(&schedule, "schedule", "", "", "chronos job schedule (e.g., R1/2017-08-15T00:00:00Z/PT30M)")
 	runCmd.Flags().BoolVarP(&follow, "follow", "f", false, "open link to task sandbox to follow streaming logs")
 }

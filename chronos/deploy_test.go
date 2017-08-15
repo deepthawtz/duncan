@@ -92,6 +92,29 @@ func TestLaunchChronosOneOffCommand(t *testing.T) {
 	}
 }
 
+func TestValidateSchedule(t *testing.T) {
+	cases := []struct {
+		schedule string
+		ok       bool
+	}{
+		{"R1//PT30M", true},
+		{"derp", false},
+		{"yo/yo/yo", false},
+		{"RR/yo/yo", false},
+		{"R1/2014-10-10T18:32:00Z/PT30M", true},
+	}
+
+	for _, test := range cases {
+		err := validateSchedule(test.schedule)
+		if err != nil && test.ok {
+			t.Errorf("expected no error got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
+
 func chronosServer(success bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if success {

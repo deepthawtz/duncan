@@ -18,6 +18,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const defaultSchedule = "R1//PT30M"
+
 // SlaveTasks represents Mesos slave completed tasks
 type SlaveTasks struct {
 	Frameworks []*Framework `json:"completed_frameworks"`
@@ -38,15 +40,22 @@ type Executor struct {
 
 // TaskVars represents a one-off Chronos task
 type TaskVars struct {
-	App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string
-	Mem                                                               int
-	CPU                                                               float64
+	App              string
+	Env              string
+	Tag              string
+	Command          string
+	Schedule         string
+	TaskName         string
+	DockerRepoPrefix string
+	DockerConfURL    string
+	Mem              int
+	CPU              float64
 }
 
 var logsOpened bool
 
 // RunCommand spins up a Chronos task to run the given command and exits
-func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error {
+func RunCommand(app, env, cmd, schedule string, cpu float64, mem int, follow bool) error {
 	if !follow {
 		logsOpened = true
 	}
@@ -64,6 +73,18 @@ func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error {
 		return fmt.Errorf("docker_conf_url not set in config")
 	}
 
+	handler := func(x, y string, z int) error {
+		return nil
+	}
+	if schedule == "" {
+		schedule = defaultSchedule
+		handler = handleTask
+	}
+
+	if err := validateSchedule(schedule); err != nil {
+		return err
+	}
+
 	task := &TaskVars{
 		App:              app,
 		Env:              env,
@@ -71,13 +92,23 @@ func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error {
 		Mem:              mem,
 		CPU:              cpu,
 		Command:          cmd,
+		Schedule:         schedule,
 		TaskName:         taskName(app, env, cmd),
 		DockerRepoPrefix: prefix,
 		DockerConfURL:    confURL,
 	}
+
 	chronosURL := fmt.Sprintf("%s/service/chronos/v1/scheduler/iso8601", viper.GetString("chronos_host"))
 	mesosURL := fmt.Sprintf("%s/mesos/tasks", viper.GetString("marathon_host"))
-	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task, handleTask); err != nil {
+
+	if task.Schedule == defaultSchedule {
+		fmt.Printf("scheduling '%s' to run immediately in instance of %s:%s (%s)\n", task.Command, task.App, task.Tag, task.Env)
+	} else {
+		fmt.Printf("scheduling '%s' to run %s in instance of %s:%s (%s)\n", task.Command, task.Schedule, task.App, task.Tag, task.Env)
+		fmt.Printf("task name: %s\n", task.TaskName)
+		fmt.Printf("logs will be available at %s once task has started running\n", mesosURL)
+	}
+	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task, handler); err != nil {
 		return err
 	}
 
@@ -134,7 +165,6 @@ func launchChronosOneOffCommand(chronosURL, mesosURL string, task *TaskVars, han
 		body, _ := ioutil.ReadAll(resp.Body)
 		return fmt.Errorf("failed to launch command: %s", body)
 	}
-	fmt.Printf("executing '%s' in instance of %s:%s (%s)\n", task.Command, task.App, task.Tag, task.Env)
 	if err = handler(mesosURL, task.TaskName, len(tasks.Tasks)); err != nil {
 		return err
 	}
@@ -338,4 +368,23 @@ func scheduledTasks(url, name string) (*mesos.Tasks, error) {
 	}
 
 	return rt, nil
+}
+
+func validateSchedule(s string) error {
+	msg := fmt.Sprintf(`
+	invalid schedule: %s
+	see Chonos docs https://mesos.github.io/chronos/docs/api.html#adding-a-scheduled-job
+	`, s)
+
+	p := strings.Split(s, "/")
+
+	if len(p) != 3 {
+		return fmt.Errorf(msg)
+	}
+
+	if p[0] != "R" && p[0] != "R1" {
+		return fmt.Errorf(msg)
+	}
+
+	return nil
 }
