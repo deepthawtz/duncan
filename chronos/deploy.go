@@ -89,7 +89,7 @@ func RunCommand(app, env, cmd, schedule string, cpu float64, mem int, follow boo
 		App:              app,
 		Env:              env,
 		Tag:              tag,
-		Mem:              mem,
+		Mem:              mem * 1024,
 		CPU:              cpu,
 		Command:          cmd,
 		Schedule:         schedule,
@@ -141,6 +141,7 @@ func renderChronosTaskJSON(task *TaskVars) (string, error) {
 	if err := t.Execute(j, task); err != nil {
 		return "", fmt.Errorf("error executing template: %v", err)
 	}
+	fmt.Println(j.String())
 	return j.String(), nil
 }
 
