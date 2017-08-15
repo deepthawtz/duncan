@@ -106,7 +106,7 @@ func RunCommand(app, env, cmd, schedule string, cpu float64, mem int, follow boo
 	} else {
 		fmt.Printf("scheduling '%s' to run %s in instance of %s:%s (%s)\n", task.Command, task.Schedule, task.App, task.Tag, task.Env)
 		fmt.Printf("task name: %s\n", task.TaskName)
-		fmt.Printf("logs will be available at %s once task has started running\n", mesosURL)
+		fmt.Printf("logs will be available at %s once task has started running\n", fmt.Sprintf("%s/mesos", viper.GetString("marathon_host")))
 	}
 	if err := launchChronosOneOffCommand(chronosURL, mesosURL, task, handler); err != nil {
 		return err
