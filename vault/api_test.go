@@ -52,42 +52,52 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	gss := getSecretsServer(true)
-	defer gss.Close()
-	sss := setSecretsServer()
-	defer sss.Close()
-	s, err := Read(gss.URL)
-	if err != nil {
-		t.Errorf("expected nil but got %s", err)
-	}
-	se, err := Write(sss.URL, []string{"SECRET_ONE=xxxxxxxxxxxx", "YABBA=doo"}, s)
-	if err != nil {
-		t.Errorf("expected success but failed: %s", err)
-	}
-	if err == nil && len(se.KVPairs) != 3 {
-		t.Errorf("expected 3 secrets but got %v", se.KVPairs)
-	}
-	s, err = Write(sss.URL, []string{"FOO=bar", "YABBA=doo"}, s)
-	if err != nil {
-		t.Errorf("expected success but failed: %s", err)
-	}
-	if err == nil && len(s.KVPairs) != 4 {
-		t.Errorf("expected 4 secrets but got %v", s.KVPairs)
+	cases := []struct {
+		kvs   []string
+		getOK bool
+		setOK bool
+		exp   int
+	}{
+		{kvs: []string{"SECRET_ONE=xxxxxxxxxxxx", "YABBA=doo"}, getOK: true, setOK: true, exp: 3},
+		{kvs: []string{"FOO=bar", "YABBA=doo"}, getOK: true, setOK: true, exp: 4},
+		{kvs: []string{"FOO=bar", "YABBA=doo"}, getOK: true, setOK: false, exp: 2},
+		{kvs: []string{"VAR_WITH_EQUAL_SIGNS_IN_IT=bnv23=@#$"}, getOK: true, setOK: true, exp: 3},
+		{kvs: []string{"YO=123"}, getOK: false, setOK: true, exp: 1},
 	}
 
-	s, err = Write(sss.URL, []string{"VAR_WITH_EQUAL_SIGNS_IN_IT=bnv23=@#$"}, s)
-	if err != nil {
-		t.Errorf("expected success but failed: %s", err)
-	}
-	if err == nil && len(s.KVPairs) != 5 {
-		t.Errorf("expected 4 secrets but got %v", s.KVPairs)
+	for _, test := range cases {
+		gss := getSecretsServer(test.getOK)
+		defer gss.Close()
+		sss := setSecretsServer(test.setOK)
+		defer sss.Close()
+		s, err := Read(gss.URL)
+		if err != nil {
+			t.Errorf("expected nil but got %s", err)
+		}
+		before := &Secrets{
+			KVPairs: map[string]string{},
+		}
+		for k, v := range s.KVPairs {
+			before.KVPairs[k] = v
+		}
+		se, err := Write(sss.URL, test.kvs, s)
+		if test.setOK && err != nil {
+			t.Errorf("expected success but failed: %s for %v", err, test.kvs)
+		}
+		if !test.setOK && err == nil {
+			t.Errorf("expected error got nil for: %v", test.kvs)
+		}
+		if test.setOK && len(se.KVPairs) != test.exp {
+			fmt.Println(test)
+			t.Errorf("expected %d secrets but got %d for: %v", test.exp, len(se.KVPairs), se.KVPairs)
+		}
 	}
 }
 
 func TestDelete(t *testing.T) {
 	gss := getSecretsServer(true)
 	defer gss.Close()
-	sss := setSecretsServer()
+	sss := setSecretsServer(true)
 	defer sss.Close()
 	s, err := Read(gss.URL)
 	if err != nil {
@@ -102,15 +112,19 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func setSecretsServer() *httptest.Server {
+func setSecretsServer(ok bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNoContent)
+		if ok {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 	}))
 }
 
 func failServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Status", "500 Internal Server Error")
+		w.WriteHeader(http.StatusInternalServerError)
 	}))
 }
 
