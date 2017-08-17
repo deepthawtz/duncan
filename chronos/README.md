@@ -11,7 +11,7 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error](#RunCommand)
+* [func RunCommand(app, env, cmd, schedule string, cpu float64, mem int, follow bool) error](#RunCommand)
 * [type Executor](#Executor)
 * [type Framework](#Framework)
 * [type SlaveTasks](#SlaveTasks)
@@ -25,16 +25,16 @@
 
 
 
-## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=1150:1228#L39)
+## <a name="RunCommand">func</a> [RunCommand](/src/target/deploy.go?s=1215:1303#L48)
 ``` go
-func RunCommand(app, env, cmd string, cpu float64, mem int, follow bool) error
+func RunCommand(app, env, cmd, schedule string, cpu float64, mem int, follow bool) error
 ```
 RunCommand spins up a Chronos task to run the given command and exits
 
 
 
 
-## <a name="Executor">type</a> [Executor](/src/target/deploy.go?s=671:762#L24)
+## <a name="Executor">type</a> [Executor](/src/target/deploy.go?s=708:799#L26)
 ``` go
 type Executor struct {
     ID        string `json:"id"`
@@ -52,7 +52,7 @@ Executor represents a completed executor on a Mesos slave
 
 
 
-## <a name="Framework">type</a> [Framework](/src/target/deploy.go?s=459:608#L17)
+## <a name="Framework">type</a> [Framework](/src/target/deploy.go?s=496:645#L19)
 ``` go
 type Framework struct {
     ID        string      `json:"id"`
@@ -71,7 +71,7 @@ Framework represents a completed framework on a Mesos slave
 
 
 
-## <a name="SlaveTasks">type</a> [SlaveTasks](/src/target/deploy.go?s=313:394#L12)
+## <a name="SlaveTasks">type</a> [SlaveTasks](/src/target/deploy.go?s=350:431#L14)
 ``` go
 type SlaveTasks struct {
     Frameworks []*Framework `json:"completed_frameworks"`
@@ -88,12 +88,19 @@ SlaveTasks represents Mesos slave completed tasks
 
 
 
-## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=810:1054#L30)
+## <a name="TaskVars">type</a> [TaskVars](/src/target/deploy.go?s=847:1119#L32)
 ``` go
 type TaskVars struct {
-    App, Env, Tag, Command, TaskName, DockerRepoPrefix, DockerConfURL string
-    Mem                                                               int
-    CPU                                                               float64
+    App              string
+    Env              string
+    Tag              string
+    Command          string
+    Schedule         string
+    TaskName         string
+    DockerRepoPrefix string
+    DockerConfURL    string
+    Mem              int
+    CPU              float64
 }
 ```
 TaskVars represents a one-off Chronos task
