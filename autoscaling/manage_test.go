@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/betterdoctor/slythe/policy"
 	"github.com/spf13/viper"
 )
 
@@ -53,7 +54,7 @@ type CPUScaled struct {
 
 func TestGetPolicies(t *testing.T) {
 	tp := &testPolicies{}
-	ts := slytheServer(tp, "policies.json.tmpl", true)
+	ts := createSlytheListServer(tp, "policies.json.tmpl", true)
 	viper.Set("SLYTHE_HOST", ts.URL)
 	_, err := GetPolicies("", "")
 	if err != nil {
@@ -90,7 +91,7 @@ func TestGetPolicies(t *testing.T) {
 		CheckFrequencySecs: 20,
 		Enabled:            true,
 	})
-	ts = slytheServer(tp, "policies.json.tmpl", true)
+	ts = createSlytheListServer(tp, "policies.json.tmpl", true)
 	viper.Set("SLYTHE_HOST", ts.URL)
 	p, err := GetPolicies("idontexist", "")
 	if err != nil {
@@ -115,7 +116,94 @@ func TestGetPolicies(t *testing.T) {
 	}
 }
 
-func slytheServer(tp *testPolicies, tmpl string, ok bool) *httptest.Server {
+func TestCreateWorkerPolicy(t *testing.T) {
+	cases := []struct {
+		ok bool
+	}{
+		{ok: true},
+		{ok: false},
+	}
+
+	for _, test := range cases {
+		ts := createSlytheCreateUpdateServer(test.ok)
+		viper.Set("SLYTHE_HOST", ts.URL)
+		wp := &policy.Worker{}
+		err := CreateWorkerPolicy(wp)
+		if err != nil && test.ok {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
+
+func TestUpdateWorkerPolicy(t *testing.T) {
+	cases := []struct {
+		ok bool
+	}{
+		{ok: true},
+		{ok: false},
+	}
+
+	for _, test := range cases {
+		ts := createSlytheCreateUpdateServer(test.ok)
+		viper.Set("SLYTHE_HOST", ts.URL)
+		wp := &policy.Worker{}
+		err := UpdateWorkerPolicy(wp)
+		if err != nil && test.ok {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
+
+func TestCreateCPUPolicy(t *testing.T) {
+	cases := []struct {
+		ok bool
+	}{
+		{ok: true},
+		{ok: false},
+	}
+
+	for _, test := range cases {
+		ts := createSlytheCreateUpdateServer(test.ok)
+		viper.Set("SLYTHE_HOST", ts.URL)
+		cp := &policy.CPU{}
+		err := CreateCPUPolicy(cp)
+		if err != nil && test.ok {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
+
+func TestUpdateCPUPolicy(t *testing.T) {
+	cases := []struct {
+		ok bool
+	}{
+		{ok: true},
+		{ok: false},
+	}
+
+	for _, test := range cases {
+		ts := createSlytheCreateUpdateServer(test.ok)
+		viper.Set("SLYTHE_HOST", ts.URL)
+		cp := &policy.CPU{}
+		err := UpdateCPUPolicy(cp)
+		if err != nil && test.ok {
+			t.Errorf("expected nil but got: %s", err)
+		}
+		if err == nil && !test.ok {
+			t.Errorf("expected error but got nil")
+		}
+	}
+}
+func createSlytheListServer(tp *testPolicies, tmpl string, ok bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
@@ -134,5 +222,15 @@ func slytheServer(tp *testPolicies, tmpl string, ok bool) *httptest.Server {
 			panic(err)
 		}
 		io.WriteString(w, j.String())
+	}))
+}
+
+func createSlytheCreateUpdateServer(ok bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}))
 }
