@@ -24,9 +24,11 @@ import (
 	"github.com/betterdoctor/duncan/autoscaling"
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
+	"github.com/betterdoctor/kit/notify"
 	"github.com/betterdoctor/slythe/policy"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -137,6 +139,11 @@ $ duncan autoscale worker create --app myapp --env production --policy-name MyAp
 					fmt.Printf("failed to create autoscaling policy: %v\n", err)
 					os.Exit(1)
 				}
+				notify.Slack(
+					viper.GetString("slack_webhook_url"),
+					fmt.Sprintf("%s %s", wp.AppName, wp.Environment),
+					fmt.Sprintf(":whale: :scales: worker autoscaling policy created: `%s`", wp.Name),
+				)
 				fmt.Printf("autoscaling policy %s created\n", green(wp.Name))
 			}
 		},
@@ -178,6 +185,11 @@ $ duncan autoscale cpu create --app myapp --env production --policy-name MyAppPr
 					fmt.Printf("failed to create autoscaling policy: %v\n", err)
 					os.Exit(1)
 				}
+				notify.Slack(
+					viper.GetString("slack_webhook_url"),
+					fmt.Sprintf("%s %s", cp.AppName, cp.Environment),
+					fmt.Sprintf(":whale: :scales: CPU autoscaling policy created: `%s`", cp.Name),
+				)
 				fmt.Printf("autoscaling policy %s created\n", green(cp.Name))
 			}
 		},
@@ -268,8 +280,13 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 					fmt.Printf("failed to update autoscaling policy: %v\n", err)
 					os.Exit(1)
 				}
+				notify.Slack(
+					viper.GetString("slack_webhook_url"),
+					fmt.Sprintf("%s %s", wp.AppName, wp.Environment),
+					fmt.Sprintf(":whale: :scales: worker autoscaling policy updated: `%s`", wp.Name),
+				)
+				fmt.Printf("autoscaling policy %s updated\n", green(wp.Name))
 			}
-			fmt.Printf("autoscaling policy %s updated\n", green(wp.Name))
 		},
 	}
 
@@ -388,8 +405,13 @@ $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 5
 					fmt.Printf("failed to update autoscaling policy: %v\n", err)
 					os.Exit(1)
 				}
+				notify.Slack(
+					viper.GetString("slack_webhook_url"),
+					fmt.Sprintf("%s %s", cp.AppName, cp.Environment),
+					fmt.Sprintf(":whale: :scales: CPU autoscaling policy updated: `%s`", cp.Name),
+				)
+				fmt.Printf("autoscaling policy %s updated\n", green(cp.Name))
 			}
-			fmt.Printf("autoscaling policy %s updated\n", green(cp.Name))
 		},
 	}
 
@@ -684,6 +706,17 @@ func setWorkerPolicyEnabled(enabled bool) error {
 	if err := autoscaling.UpdateWorkerPolicy(wp); err != nil {
 		return err
 	}
+
+	verb := "disabled"
+	if enabled {
+		verb = "enabled"
+	}
+
+	notify.Slack(
+		viper.GetString("slack_webhook_url"),
+		fmt.Sprintf("%s %s", wp.AppName, wp.Environment),
+		fmt.Sprintf(":whale: :scales: worker autoscaling policy %s: `%s`", verb, wp.Name),
+	)
 	return nil
 }
 
@@ -728,5 +761,16 @@ func setCPUPolicyEnabled(enabled bool) error {
 	if err := autoscaling.UpdateCPUPolicy(cp); err != nil {
 		return err
 	}
+
+	verb := "disabled"
+	if enabled {
+		verb = "enabled"
+	}
+
+	notify.Slack(
+		viper.GetString("slack_webhook_url"),
+		fmt.Sprintf("%s %s", cp.AppName, cp.Environment),
+		fmt.Sprintf(":whale: :scales: CPU autoscaling policy %s: `%s`", verb, cp.Name),
+	)
 	return nil
 }
