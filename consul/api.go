@@ -71,7 +71,7 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 	for _, kvp := range kvs {
 		a := strings.Split(kvp, "=")
 		key := a[0]
-		val := strings.Join(a[1:], "")
+		val := strings.Join(a[1:], "=")
 		for k, v := range env {
 			if k == key && v != val {
 				changes[k] = []string{v, val}

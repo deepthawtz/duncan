@@ -35,7 +35,7 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 		s.KVPairs = make(map[string]string)
 		for _, kvp := range kvs {
 			p := strings.Split(kvp, "=")
-			s.KVPairs[p[0]] = strings.Join(p[1:], "")
+			s.KVPairs[p[0]] = strings.Join(p[1:], "=")
 		}
 		if err := updateSecrets(url, s); err != nil {
 			return nil, err
@@ -47,7 +47,7 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 	for _, kvp := range kvs {
 		p := strings.Split(kvp, "=")
 		key := p[0]
-		val := strings.Join(p[1:], "")
+		val := strings.Join(p[1:], "=")
 		for k, v := range s.KVPairs {
 			if k == key && v != val {
 				changes[k] = []string{v, val}
