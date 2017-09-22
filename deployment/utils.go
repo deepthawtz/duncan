@@ -160,13 +160,9 @@ func Watch(id string) error {
 	return nil
 }
 
-// UpdateReleaseTags updates the deployment git tags in Consul KV registry
-// `tags/{app}/{env}/current` points to the currently deployed tag
-// `tags/{app}/{env}/previous` points to the previously deployed tag
-//
-// This structure allows for rollback if a previous tag exists
-//
-// Returns previously deployed git tag if one has been deployed
+// UpdateReleaseTags updates the deployment tags in Consul KV registry
+// `deploys/{app}/{env}/current` points to the currently deployed tag
+// `deploys/{app}/{env}/previous` points to the previously deployed tag
 func UpdateReleaseTags(app, env, tag, prev string) error {
 	m := map[string]string{
 		"current":  tag,

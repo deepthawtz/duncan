@@ -30,8 +30,8 @@ import (
 )
 
 var (
-	app, env, tag, prev string
-	force               bool
+	app, env, tag, repo, prev string
+	force                     bool
 )
 
 // deployCmd represents the deploy command
@@ -42,7 +42,7 @@ var deployCmd = &cobra.Command{
 
 Example:
 
-$ duncan deploy --app APP --env ENV --tag TAG
+$ duncan deploy --app APP --env ENV --tag TAG [--repo DOCKER_REPO]
 
 NOTE: tag must exist in docker registry
 `,
@@ -80,11 +80,12 @@ NOTE: tag must exist in docker registry
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			fmt.Println(deployment.GithubDiffLink(app, prev, tag))
+			diff := deployment.GithubDiffLink(repo, prev, tag)
+			fmt.Println(diff)
 			err = notify.Slack(
 				viper.GetString("slack_webhook_url"),
 				fmt.Sprintf("%s %s (%s)", app, env, tag),
-				fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), deployment.GithubDiffLink(app, prev, tag)),
+				fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), diff),
 			)
 			if err != nil {
 				fmt.Println(err)
@@ -99,6 +100,7 @@ func init() {
 	deployCmd.Flags().StringVarP(&app, "app", "a", "", "app to deploy")
 	deployCmd.Flags().StringVarP(&env, "env", "e", "", "deployment environment (stage, production)")
 	deployCmd.Flags().StringVarP(&tag, "tag", "t", "", "tag to deploy")
+	deployCmd.Flags().StringVarP(&repo, "repo", "r", "", "(optional) if docker repo/image name differs from app name")
 	deployCmd.Flags().BoolVarP(&force, "force", "f", false, "bypass prompt before deploying")
 }
 
@@ -113,9 +115,15 @@ func validateDeployFlags() {
 		os.Exit(1)
 	}
 
-	if err := docker.VerifyTagExists(app, tag); err != nil {
-		repo := viper.GetString("docker_repo_prefix")
-		fmt.Printf("could not verify %s/%s:%s exists: %s\n", repo, app, tag, err)
+	// if no --repo flag use app name as repo name
+	// this is important to use
+	if repo == "" {
+		repo = app
+	}
+
+	if err := docker.VerifyTagExists(repo, tag); err != nil {
+		prefix := viper.GetString("docker_repo_prefix")
+		fmt.Printf("could not verify %s/%s:%s exists: %s\n", prefix, repo, tag, err)
 		os.Exit(1)
 	}
 }
