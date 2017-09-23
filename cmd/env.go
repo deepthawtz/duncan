@@ -41,8 +41,6 @@ var (
 		Use:   "get",
 		Short: "Display ENV vars for an app",
 		Run: func(cmd *cobra.Command, args []string) {
-			checkAppEnv(app, env)
-
 			u := consul.EnvURL(app, env)
 			env, err := consul.Read(u)
 			if err != nil {
@@ -57,7 +55,6 @@ var (
 		Use:   "set KEY=VALUE [KEY2=VALUE2 ...]",
 		Short: "Set one or more ENV var key/value pairs for an app",
 		Run: func(cmd *cobra.Command, args []string) {
-			checkAppEnv(app, env)
 			validateKeyValues(args)
 
 			if promptModifyEnvironment("set", "env", app, env, args) {
