@@ -63,6 +63,7 @@ func TestWrite(t *testing.T) {
 		{kvs: []string{"FOO=bar", "YABBA=doo"}, getOK: true, setOK: false, exp: 2},
 		{kvs: []string{"VAR_WITH_EQUAL_SIGNS_IN_IT=bnv23=@#$"}, getOK: true, setOK: true, exp: 3},
 		{kvs: []string{"YO=123"}, getOK: false, setOK: true, exp: 1},
+		{kvs: []string{"SECRET_TWO=my-precious"}, getOK: true, setOK: true, exp: 2},
 	}
 
 	for _, test := range cases {

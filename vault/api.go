@@ -60,6 +60,11 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 		s.KVPairs[key] = val
 	}
 
+	if len(changes) == 0 {
+		fmt.Println("no secrets were changed")
+		return s, nil
+	}
+
 	if err := updateSecrets(url, s); err != nil {
 		return nil, err
 	}
