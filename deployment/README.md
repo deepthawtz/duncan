@@ -20,11 +20,10 @@
 * [func UpdateReleaseTags(app, env, tag, prev string) error](#UpdateReleaseTags)
 * [func Watch(id string) error](#Watch)
 * [type Deployment](#Deployment)
-* [type Event](#Event)
 
 
 #### <a name="pkg-files">Package files</a>
-[events.go](/src/github.com/betterdoctor/duncan/deployment/events.go) [utils.go](/src/github.com/betterdoctor/duncan/deployment/utils.go) 
+[utils.go](/src/github.com/betterdoctor/duncan/deployment/utils.go) 
 
 
 
@@ -47,7 +46,7 @@ BeginDeploy checks if Consul ACL allows deployments for
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=4974:5022#L199)
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/utils.go?s=4843:4891#L195)
 ``` go
 func CurrentTag(app, env string) (string, error)
 ```
@@ -63,7 +62,7 @@ FinishDeploy removes deployment lock after a successful deploy
 
 
 
-## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=5630:5679#L222)
+## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=5499:5548#L218)
 ``` go
 func GithubDiffLink(app, prev, tag string) string
 ```
@@ -71,7 +70,7 @@ GithubDiffLink returns a GitHub diff link to view deployment changes
 
 
 
-## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=5456:5500#L217)
+## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=5325:5369#L213)
 ``` go
 func MarathonGroupID(app, env string) string
 ```
@@ -79,16 +78,13 @@ MarathonGroupID returns a Marathon Group id for an app and env
 
 
 
-## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=4021:4077#L160)
+## <a name="UpdateReleaseTags">func</a> [UpdateReleaseTags](/src/target/utils.go?s=3890:3946#L156)
 ``` go
 func UpdateReleaseTags(app, env, tag, prev string) error
 ```
-UpdateReleaseTags updates the deployment git tags in Consul KV registry
-`tags/{app}/{env}/current` points to the currently deployed tag
-`tags/{app}/{env}/previous` points to the previously deployed tag
-
-### This structure allows for rollback if a previous tag exists
-Returns previously deployed git tag if one has been deployed
+UpdateReleaseTags updates the deployment tags in Consul KV registry
+`deploys/{app}/{env}/current` points to the currently deployed tag
+`deploys/{app}/{env}/previous` points to the previously deployed tag
 
 
 
@@ -108,32 +104,6 @@ type Deployment struct {
 }
 ```
 Deployment represents a Marathon deployment
-
-
-
-
-
-
-
-
-
-
-## <a name="Event">type</a> [Event](/src/target/events.go?s=220:309#L1)
-``` go
-type Event struct {
-    App      string
-    Env      string
-    Deployer string
-    Type     string
-}
-```
-Event represents an individual deployment event
-
-For example:
-- deployment of new version
-- manual scale up/down
-- update to env/secrets
-- update to application autoscaling policy
 
 
 

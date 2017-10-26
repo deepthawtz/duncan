@@ -29,6 +29,11 @@ var RootCmd = &cobra.Command{
 ```
 RootCmd represents the base command when called without any subcommands
 
+``` go
+var Version string
+```
+Version is a build time variable set via -ldflags
+
 
 
 ## <a name="Execute">func</a> [Execute](/src/target/root.go?s=1064:1078#L25)

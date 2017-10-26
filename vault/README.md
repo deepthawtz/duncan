@@ -25,7 +25,7 @@
 
 
 
-## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=3801:3840#L140)
+## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=3888:3927#L145)
 ``` go
 func SecretsURL(app, env string) string
 ```
@@ -49,7 +49,7 @@ Secrets represents Vault key/value pairs for a prefix
 
 
 
-### <a name="Delete">func</a> [Delete](/src/target/api.go?s=1847:1915#L68)
+### <a name="Delete">func</a> [Delete](/src/target/api.go?s=1934:2002#L73)
 ``` go
 func Delete(url string, keys []string, s *Secrets) (*Secrets, error)
 ```

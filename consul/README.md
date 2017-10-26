@@ -29,7 +29,7 @@
 
 
 
-## <a name="CurrentDeploymentTagURL">func</a> [CurrentDeploymentTagURL](/src/target/api.go?s=4737:4789#L179)
+## <a name="CurrentDeploymentTagURL">func</a> [CurrentDeploymentTagURL](/src/target/api.go?s=4738:4790#L179)
 ``` go
 func CurrentDeploymentTagURL(app, env string) string
 ```
@@ -37,7 +37,7 @@ CurrentDeploymentTagURL returns URL to fetch currently deployed tag
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/api.go?s=3721:3769#L141)
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/api.go?s=3722:3770#L141)
 ``` go
 func CurrentTag(app, env string) (string, error)
 ```
@@ -45,7 +45,7 @@ CurrentTag returns the last deployed tag for app + env
 
 
 
-## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2811:2871#L111)
+## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2812:2872#L111)
 ``` go
 func Delete(app, deployEnv, url string, keys []string) error
 ```
@@ -53,7 +53,7 @@ Delete removes key/values from Consul by given keys
 
 
 
-## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4527:4562#L173)
+## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4528:4563#L173)
 ``` go
 func EnvURL(app, env string) string
 ```
@@ -69,7 +69,7 @@ Read returns ENV for given consul KV URL
 
 
 
-## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=5016:5036#L186)
+## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=5017:5037#L186)
 ``` go
 func TxnURL() string
 ```
