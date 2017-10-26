@@ -11,16 +11,7 @@ builds:
   goarch:
   - amd64
   main: .
-  ldflags: -s -w -X cmd.version={{.Version}}
+  ldflags: -s -w -X github.com/betterdoctor/duncan/cmd.Version={{.Tag}}
   binary: duncan
-archive:
-  format: tar.gz
-  name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
-  files:
-  - LICENSE*
-  - README*
-  - CHANGELOG*
-snapshot:
-  name_template: SNAPSHOT-{{ .Commit }}
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'

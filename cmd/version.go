@@ -20,14 +20,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version string
+// Version is a build time variable set via -ldflags
+var Version string
 
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version of duncan",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("duncan version: %s\n", version)
+		fmt.Printf("duncan version: %s\n", Version)
 	},
 }
 
