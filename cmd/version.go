@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2017 Dylan Clendenin <dylan@betterdoctor.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version string
+
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version of duncan",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("duncan version: {{VERSION}}")
+		fmt.Printf("duncan version: %s\n", version)
 	},
 }
 

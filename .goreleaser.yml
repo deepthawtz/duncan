@@ -1,0 +1,26 @@
+project_name: duncan
+release:
+  github:
+    owner: betterdoctor
+    name: duncan
+  name_template: '{{.Tag}}'
+builds:
+- goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  main: .
+  ldflags: -s -w -X cmd.version={{.Version}}
+  binary: duncan
+archive:
+  format: tar.gz
+  name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  files:
+  - LICENSE*
+  - README*
+  - CHANGELOG*
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
