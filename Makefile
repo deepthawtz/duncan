@@ -12,7 +12,7 @@ install:
 	cp dist/duncan_*_darwin_amd64/duncan /usr/local/bin/duncan
 	chmod +x /usr/local/bin/duncan
 
-test: deps
+test:
 	go test -v -cover `go list ./... | grep -v vendor` | sed ''/PASS/s//`printf "\033[32mPASS\033[0m"`/'' | sed ''/FAIL/s//`printf "\033[31mFAIL\033[0m"`/''
 
 docs:
