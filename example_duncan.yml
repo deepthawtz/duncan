@@ -1,15 +1,12 @@
 # populate w/ valid values and save at ~/.duncan.yml
 ---
 marathon_host: https://mesos.host
-chronos_host: https://mesos.host
 # for autoscaling commands
 slythe_host: https://slythe.host
 # used to generate github compare links to view diff being deployed
 github_org: betterdoctor
 
 docker_repo_prefix: quay.io/myorg
-# URI to pull docker credentials from (used by `duncan run` to create one-off tasks)
-docker_conf_url:
 quay_token:
 slack_webhook_url:
 consul_host: https://consul.host
@@ -17,6 +14,8 @@ consul_token:
 vault_host: https://vault.host
 vault_token:
 
+# NOTE: not complete list different teams may only care about certain services
+# in which case it makes sense to add/remove to this list accordingly
 apps:
   - dex
   - etl
@@ -25,7 +24,7 @@ apps:
   - papi
   - feedback
 
-# if app name does not match a github repo name this mapping is necessary
+# NOTE: if app name does not match a github repo name this mapping is necessary
 # to generate github compare links to view changes being deployed
 # NOTE: if app name matches github repo name this mapping is unecessary
 repos:
