@@ -94,6 +94,7 @@ func init() {
 	RootCmd.AddCommand(envCmd)
 	envCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage ENV vars for")
 	envCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
+	envSetCmd.Flags().BoolVarP(&force, "force", "f", false, "bypass prompt before setting env")
 	envCmd.AddCommand(envSetCmd)
 	envCmd.AddCommand(envGetCmd)
 	envCmd.AddCommand(envDelCmd)
@@ -111,6 +112,9 @@ func printSorted(m map[string]string) {
 }
 
 func promptModifyEnvironment(op, cmd, app, env string, args []string) bool {
+	if force {
+		return true
+	}
 	white := color.New(color.FgWhite, color.Bold).SprintFunc()
 	red := color.New(color.FgRed, color.Bold).SprintFunc()
 	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()

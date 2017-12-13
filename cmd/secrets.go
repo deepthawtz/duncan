@@ -104,6 +104,7 @@ func init() {
 
 	secretsCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage secrets for")
 	secretsCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment (stage, production)")
+	secretsSetCmd.Flags().BoolVarP(&force, "force", "f", false, "bypass prompt before setting env")
 	secretsCmd.AddCommand(secretsGetCmd)
 	secretsCmd.AddCommand(secretsSetCmd)
 	secretsCmd.AddCommand(secretsDelCmd)
