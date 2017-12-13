@@ -110,6 +110,9 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
 	}
 	msg := config.Changes("env", changes)
+	if msg == "" {
+		return env, nil
+	}
 	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
 		return nil, err
 	}
@@ -141,6 +144,9 @@ func Delete(app, deployEnv, url string, keys []string) error {
 		fmt.Printf("deleted %s\n", k)
 	}
 	msg := config.Changes("env", changes)
+	if msg == "" {
+		return nil
+	}
 	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
 		return err
 	}

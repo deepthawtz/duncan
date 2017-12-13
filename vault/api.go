@@ -72,6 +72,9 @@ func Write(url string, kvs []string, s *Secrets) (*Secrets, error) {
 	p := strings.Split(url, "/")
 	app, deployEnv := p[len(p)-2], p[len(p)-1]
 	msg := config.Changes("secrets", changes)
+	if msg == "" {
+		return s, nil
+	}
 	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
 		return nil, err
 	}
@@ -97,6 +100,9 @@ func Delete(url string, keys []string, s *Secrets) (*Secrets, error) {
 	p := strings.Split(url, "/")
 	app, deployEnv := p[len(p)-2], p[len(p)-1]
 	msg := config.Changes("secrets", changes)
+	if msg == "" {
+		return s, nil
+	}
 	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
 		return nil, err
 	}
