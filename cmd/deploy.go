@@ -50,44 +50,24 @@ NOTE: tag must exist in docker registry
 	Run: func(cmd *cobra.Command, args []string) {
 		validateDeployFlags()
 
-		var err error
-		prev, err = deployment.CurrentTag(app, env)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		if prev == tag {
-			fmt.Printf("%s already deployed to %s %s\n", tag, app, env)
-			os.Exit(0)
-		}
 		if promptDeploy() {
-			if err := deployment.BeginDeploy(app, env); err != nil {
+			var err error
+			prev, err := marathon.Deploy(app, env, tag)
+			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 
-			if err := marathon.Deploy(app, env, tag); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+			diff := "redeployed"
+			if tag != prev {
+				diff = deployment.GithubDiffLink(repo, prev, tag)
 			}
-
-			if err := deployment.UpdateReleaseTags(app, env, tag, prev); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if err := deployment.FinishDeploy(app, env); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			diff := deployment.GithubDiffLink(repo, prev, tag)
 			fmt.Println(diff)
-			err = notify.Slack(
+			if err := notify.Slack(
 				viper.GetString("slack_webhook_url"),
 				fmt.Sprintf("%s %s (%s)", app, env, tag),
 				fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), diff),
-			)
-			if err != nil {
+			); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
@@ -153,8 +133,6 @@ func promptDeploy() bool {
 		fmt.Printf(white("  env: %s\n"), green(env))
 	}
 	fmt.Printf(white("  tag: %s\n"), cyan(tag))
-	fmt.Println()
-	fmt.Printf(white("currently deployed tag: %s\n"), yellow(prev))
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))

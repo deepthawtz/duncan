@@ -12,7 +12,7 @@
 
 ## <a name="pkg-index">Index</a>
 * [func AssertAppExistsInGroup(app, env, typ string) error](#AssertAppExistsInGroup)
-* [func Deploy(app, env, tag string) error](#Deploy)
+* [func Deploy(app, env, tag string) (string, error)](#Deploy)
 * [func List(app, env string) error](#List)
 * [func Scale(group *Group, rules map[string]int) (string, error)](#Scale)
 * [type App](#App)
@@ -44,9 +44,9 @@ and returns an error if it does not
 
 
 
-## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=186:225#L4)
+## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=186:235#L4)
 ``` go
-func Deploy(app, env, tag string) error
+func Deploy(app, env, tag string) (string, error)
 ```
 Deploy deploys a given marathon app, env and tag
 
