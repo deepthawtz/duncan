@@ -153,25 +153,6 @@ func Delete(app, deployEnv, url string, keys []string) error {
 	return nil
 }
 
-// CurrentTag returns the last deployed tag for app + env
-func CurrentTag(app, env string) (string, error) {
-	resp, err := http.Get(CurrentDeploymentTagURL(app, env))
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == http.StatusForbidden {
-		return "", fmt.Errorf("ACL does not allow you to run comand for %s %s", app, env)
-	}
-	if resp.StatusCode == http.StatusNotFound {
-		return "", fmt.Errorf("No app found %s %s", app, env)
-	}
-
-	tag, err := ioutil.ReadAll(resp.Body)
-	return string(tag), err
-}
-
 func envMap(kvs []KVPair) map[string]string {
 	m := make(map[string]string)
 	for _, env := range kvs {
@@ -189,13 +170,6 @@ func envMap(kvs []KVPair) map[string]string {
 func EnvURL(app, env string) string {
 	host := viper.GetString("consul_host")
 	return fmt.Sprintf("%s/v1/kv/env/%s/%s", host, app, env)
-}
-
-// CurrentDeploymentTagURL returns URL to fetch currently deployed tag
-func CurrentDeploymentTagURL(app, env string) string {
-	host := viper.GetString("consul_host")
-	token := viper.GetString("consul_token")
-	return fmt.Sprintf("%s/v1/kv/deploys/%s/%s/current?raw&token=%s", host, app, env, token)
 }
 
 // TxnURL returns a Consul transaction (txn) URL
