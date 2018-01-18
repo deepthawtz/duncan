@@ -52,7 +52,7 @@ NOTE: tag must exist in docker registry
 
 		if promptDeploy() {
 			var err error
-			prev, err := marathon.Deploy(app, env, tag)
+			prev, err := marathon.Deploy(app, env, tag, repo)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)

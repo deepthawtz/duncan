@@ -11,7 +11,7 @@ import (
 )
 
 // Deploy deploys a given marathon app, env and tag
-func Deploy(app, env, tag string) (string, error) {
+func Deploy(app, env, tag, repo string) (string, error) {
 	var prev string
 	groups, err := listGroups()
 	if err != nil {
@@ -21,7 +21,7 @@ func Deploy(app, env, tag string) (string, error) {
 	for _, g := range groups.Groups {
 		if g.ID == deployment.MarathonGroupID(app, env) {
 			for _, a := range g.Apps {
-				if a.IsApp(app) {
+				if a.IsApp(repo) {
 					prev = a.ReleaseTag()
 					a.UpdateReleaseTag(tag)
 				}
@@ -43,7 +43,7 @@ func Deploy(app, env, tag string) (string, error) {
 				if err != nil {
 					return prev, err
 				}
-				return prev, fmt.Errorf("failed to deploy: %s\n%s\n", resp.Status, string(b))
+				return prev, fmt.Errorf("failed to deploy: %s\n%s", resp.Status, string(b))
 			}
 			d := &deploymentResponse{}
 			if err := json.NewDecoder(resp.Body).Decode(d); err != nil {
