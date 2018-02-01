@@ -680,21 +680,21 @@ func setWorkerPolicyEnabled(enabled bool) error {
 		}
 	}
 	if wp.Name == "" {
-		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s", green(policyName))
 	}
 	allowed, err := deployment.AllowedToManage(wp.AppName, wp.Environment)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", wp.AppName, wp.Environment)
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s", wp.AppName, wp.Environment)
 	}
 
 	if wp.Enabled && enabled {
-		return fmt.Errorf("%s already enabled\n", green(wp.Name))
+		return fmt.Errorf("%s already enabled", green(wp.Name))
 	}
 	if !wp.Enabled && !enabled {
-		return fmt.Errorf("%s already disabled\n", green(wp.Name))
+		return fmt.Errorf("%s already disabled", green(wp.Name))
 	}
 
 	wp.Enabled = enabled
@@ -735,21 +735,21 @@ func setCPUPolicyEnabled(enabled bool) error {
 		}
 	}
 	if cp.Name == "" {
-		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s", green(policyName))
 	}
 	allowed, err := deployment.AllowedToManage(cp.AppName, cp.Environment)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", cp.AppName, cp.Environment)
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s", cp.AppName, cp.Environment)
 	}
 
 	if cp.Enabled && enabled {
-		return fmt.Errorf("%s already enabled\n", green(cp.Name))
+		return fmt.Errorf("%s already enabled", green(cp.Name))
 	}
 	if !cp.Enabled && !enabled {
-		return fmt.Errorf("%s already disabled\n", green(cp.Name))
+		return fmt.Errorf("%s already disabled", green(cp.Name))
 	}
 
 	cp.Enabled = enabled
