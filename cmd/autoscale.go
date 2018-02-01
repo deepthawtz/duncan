@@ -25,7 +25,7 @@ import (
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
-	"github.com/betterdoctor/slythe/policy"
+	pb "github.com/betterdoctor/slythe/rpc"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -40,7 +40,7 @@ var (
 
 	// args for autoscaling policy commands
 	policyName, appType, redisURL, queues                             string
-	min, max, upBy, downBy, checkFreqSecs, upThreshold, downThreshold int
+	min, max, upBy, downBy, checkFreqSecs, upThreshold, downThreshold int32
 	enabled                                                           bool
 
 	// filters for list command
@@ -129,12 +129,7 @@ $ duncan autoscale worker create --app myapp --env production --policy-name MyAp
 				os.Exit(1)
 			}
 			if promptCreateScalingPolicy() {
-				gp := newGenericPolicy()
-				wp := &policy.Worker{
-					GenericPolicy: gp,
-					RedisURL:      redisURL,
-					Queues:        queues,
-				}
+				wp := newWorkerPolicy()
 				if err := autoscaling.CreateWorkerPolicy(wp); err != nil {
 					fmt.Printf("failed to create autoscaling policy: %v\n", err)
 					os.Exit(1)
@@ -177,10 +172,7 @@ $ duncan autoscale cpu create --app myapp --env production --policy-name MyAppPr
 				os.Exit(1)
 			}
 			if promptCreateScalingPolicy() {
-				gp := newGenericPolicy()
-				cp := &policy.CPU{
-					GenericPolicy: gp,
-				}
+				cp := newCPUPolicy()
 				if err := autoscaling.CreateCPUPolicy(cp); err != nil {
 					fmt.Printf("failed to create autoscaling policy: %v\n", err)
 					os.Exit(1)
@@ -215,8 +207,8 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 				fmt.Printf("failed to fetch policies: %s\n", err)
 				os.Exit(1)
 			}
-			wp := &policy.Worker{}
-			for _, w := range policies.QueueLengthScaled {
+			wp := &pb.WorkerPolicy{}
+			for _, w := range policies.WorkerPolicies {
 				if w.Name == policyName {
 					wp = w
 				}
@@ -246,7 +238,7 @@ $ duncan autoscale worker update --policy-name MyAppProductionWorker --max-insta
 					wp.AppType = v
 				}
 				if k == "--redis-url" && v != "" {
-					wp.RedisURL = v
+					wp.RedisUrl = v
 				}
 				if k == "--queues" && v != "" {
 					wp.Queues = v
@@ -347,8 +339,8 @@ $ duncan autoscale cpu update --policy-name MyAppProductionWeb --max-instances 5
 				fmt.Printf("failed to fetch policies: %s\n", err)
 				os.Exit(1)
 			}
-			cp := &policy.CPU{}
-			for _, c := range policies.CPUScaled {
+			cp := &pb.CPUPolicy{}
+			for _, c := range policies.CpuPolicies {
 				if c.Name == policyName {
 					cp = c
 				}
@@ -458,13 +450,13 @@ func init() {
 	autoscaleCPUCmd.PersistentFlags().StringVarP(&app, "app", "a", "", "app to manage autoscaling policy for")
 	autoscaleCPUCmd.PersistentFlags().StringVarP(&env, "env", "e", "", "app environment to manage autoscaling policy for")
 	autoscaleCPUCmd.PersistentFlags().StringVarP(&appType, "app-type", "", "", "app type for autoscaling policy")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&min, "min-instances", "", 0, "minimum number of instances for autoscaling policy")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&max, "max-instances", "", 0, "maximum number of instances for autoscaling policy")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&upBy, "scale-up-by", "", 0, "number of instances to scale up by when up threshold exceeded")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&downBy, "scale-down-by", "", 0, "number of instances to scale down by when below down threshold value")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&upThreshold, "up-threshold", "", 0, "aggregate CPU percent to scale up on")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&downThreshold, "down-threshold", "", 0, "aggregate CPU percent to scale down on")
-	autoscaleCPUCmd.PersistentFlags().IntVarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&min, "min-instances", "", 0, "minimum number of instances for autoscaling policy")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&max, "max-instances", "", 0, "maximum number of instances for autoscaling policy")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&upBy, "scale-up-by", "", 0, "number of instances to scale up by when up threshold exceeded")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&downBy, "scale-down-by", "", 0, "number of instances to scale down by when below down threshold value")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&upThreshold, "up-threshold", "", 0, "aggregate CPU percent to scale up on")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&downThreshold, "down-threshold", "", 0, "aggregate CPU percent to scale down on")
+	autoscaleCPUCmd.PersistentFlags().Int32VarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
 	autoscaleCPUUpdateCmd.Flags().BoolVarP(&enabled, "enabled", "", true, "whether policy is enabled or not")
 
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&policyName, "policy-name", "", "", "name for autoscaling policy")
@@ -473,13 +465,13 @@ func init() {
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&appType, "app-type", "", "", "app type for autoscaling policy")
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&redisURL, "redis-url", "", "", "redis URL for autoscaling policy")
 	autoscaleWorkerCmd.PersistentFlags().StringVarP(&queues, "queues", "", "", "redis queues for worker autoscaling policy")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&min, "min-instances", "", 0, "minimum number of instances for autoscaling policy")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&max, "max-instances", "", 0, "maximum number of instances for autoscaling policy")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&upBy, "scale-up-by", "", 0, "number of instances to scale up by when up threshold exceeded")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&downBy, "scale-down-by", "", 0, "number of instances to scale down by when below down threshold value")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&upThreshold, "up-threshold", "", 0, "redis queue size to scale up on")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&downThreshold, "down-threshold", "", 0, "redis queue size to scale down on")
-	autoscaleWorkerCmd.PersistentFlags().IntVarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&min, "min-instances", "", 0, "minimum number of instances for autoscaling policy")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&max, "max-instances", "", 0, "maximum number of instances for autoscaling policy")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&upBy, "scale-up-by", "", 0, "number of instances to scale up by when up threshold exceeded")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&downBy, "scale-down-by", "", 0, "number of instances to scale down by when below down threshold value")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&upThreshold, "up-threshold", "", 0, "redis queue size to scale up on")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&downThreshold, "down-threshold", "", 0, "redis queue size to scale down on")
+	autoscaleWorkerCmd.PersistentFlags().Int32VarP(&checkFreqSecs, "check-frequency-secs", "", 30, "frequency the autoscaling policy will be repeatedly checked (minimum: 10 seconds)")
 	autoscaleWorkerUpdateCmd.Flags().BoolVarP(&enabled, "enabled", "", true, "whether policy is enabled or not")
 
 	RootCmd.AddCommand(autoscaleCmd)
@@ -516,8 +508,8 @@ func workerStringFlags() map[string]string {
 	return m
 }
 
-func policyIntFlags() map[string]int {
-	return map[string]int{
+func policyIntFlags() map[string]int32 {
+	return map[string]int32{
 		"--min-instances":        min,
 		"--max-instances":        max,
 		"--scale-up-by":          upBy,
@@ -584,14 +576,14 @@ func promptCreateScalingPolicy() bool {
 	return true
 }
 
-func promptUpdateWorkerScalingPolicy(wp *policy.Worker) bool {
+func promptUpdateWorkerScalingPolicy(wp *pb.WorkerPolicy) bool {
 	fmt.Println("You are about to update the following autoscaling policy")
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 	fmt.Fprintln(w, white("Policy Name \t"), cyan(wp.Name))
 	fmt.Fprintln(w, white("App \t"), green(wp.AppName))
 	fmt.Fprintln(w, white("App Type \t"), green(wp.AppType))
 	fmt.Fprintln(w, white("Env \t"), green(wp.Environment))
-	fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisURL))
+	fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisUrl))
 	fmt.Fprintln(w, white("Queues \t"), cyan(wp.Queues))
 	fmt.Fprintln(w, white("Min Instances \t"), white(wp.MinInstances))
 	fmt.Fprintln(w, white("Max Instances \t"), white(wp.MaxInstances))
@@ -617,7 +609,7 @@ func promptUpdateWorkerScalingPolicy(wp *policy.Worker) bool {
 	return true
 }
 
-func promptUpdateCPUScalingPolicy(cp *policy.CPU) bool {
+func promptUpdateCPUScalingPolicy(cp *pb.CPUPolicy) bool {
 	fmt.Println("You are about to update the following autoscaling policy")
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 	fmt.Fprintln(w, white("Policy Name \t"), cyan(cp.Name))
@@ -648,8 +640,27 @@ func promptUpdateCPUScalingPolicy(cp *policy.CPU) bool {
 	return true
 }
 
-func newGenericPolicy() policy.GenericPolicy {
-	return policy.GenericPolicy{
+func newWorkerPolicy() *pb.WorkerPolicy {
+	return &pb.WorkerPolicy{
+		Name:               policyName,
+		AppName:            app,
+		AppType:            appType,
+		Environment:        env,
+		MinInstances:       min,
+		MaxInstances:       max,
+		RedisUrl:           redisURL,
+		Queues:             queues,
+		UpThreshold:        upThreshold,
+		DownThreshold:      downThreshold,
+		ScaleUpBy:          upBy,
+		ScaleDownBy:        downBy,
+		CheckFrequencySecs: checkFreqSecs,
+		Enabled:            true,
+	}
+}
+
+func newCPUPolicy() *pb.CPUPolicy {
+	return &pb.CPUPolicy{
 		Name:               policyName,
 		AppName:            app,
 		AppType:            appType,
@@ -673,28 +684,28 @@ func setWorkerPolicyEnabled(enabled bool) error {
 	if err != nil {
 		return err
 	}
-	wp := &policy.Worker{}
-	for _, w := range policies.QueueLengthScaled {
+	wp := &pb.WorkerPolicy{}
+	for _, w := range policies.WorkerPolicies {
 		if w.Name == policyName {
 			wp = w
 		}
 	}
 	if wp.Name == "" {
-		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s", green(policyName))
 	}
 	allowed, err := deployment.AllowedToManage(wp.AppName, wp.Environment)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", wp.AppName, wp.Environment)
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s", wp.AppName, wp.Environment)
 	}
 
 	if wp.Enabled && enabled {
-		return fmt.Errorf("%s already enabled\n", green(wp.Name))
+		return fmt.Errorf("%s already enabled", green(wp.Name))
 	}
 	if !wp.Enabled && !enabled {
-		return fmt.Errorf("%s already disabled\n", green(wp.Name))
+		return fmt.Errorf("%s already disabled", green(wp.Name))
 	}
 
 	wp.Enabled = enabled
@@ -728,28 +739,28 @@ func setCPUPolicyEnabled(enabled bool) error {
 	if err != nil {
 		return err
 	}
-	cp := &policy.CPU{}
-	for _, c := range policies.CPUScaled {
+	cp := &pb.CPUPolicy{}
+	for _, c := range policies.CpuPolicies {
 		if c.Name == policyName {
 			cp = c
 		}
 	}
 	if cp.Name == "" {
-		return fmt.Errorf("could not find policy: %s\n", green(policyName))
+		return fmt.Errorf("could not find policy: %s", green(policyName))
 	}
 	allowed, err := deployment.AllowedToManage(cp.AppName, cp.Environment)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s\n", cp.AppName, cp.Environment)
+		return fmt.Errorf("ACL prevents you from updating autoscaling policy for: %s-%s", cp.AppName, cp.Environment)
 	}
 
 	if cp.Enabled && enabled {
-		return fmt.Errorf("%s already enabled\n", green(cp.Name))
+		return fmt.Errorf("%s already enabled", green(cp.Name))
 	}
 	if !cp.Enabled && !enabled {
-		return fmt.Errorf("%s already disabled\n", green(cp.Name))
+		return fmt.Errorf("%s already disabled", green(cp.Name))
 	}
 
 	cp.Enabled = enabled

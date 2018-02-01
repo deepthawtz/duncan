@@ -1,141 +1,49 @@
 package autoscaling
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strings"
 
-	"github.com/betterdoctor/slythe/policy"
+	pb "github.com/betterdoctor/slythe/rpc"
 	"github.com/spf13/viper"
 )
 
 // GetPolicies returns all autoscaling policies optionally filtering
 // if app or env are not empty string
-func GetPolicies(app, env string) (*policy.Policies, error) {
-	policies := &policy.Policies{}
-	resp, err := http.Get(viper.GetString("SLYTHE_HOST") + "/")
+func GetPolicies(app, env string) (*pb.Policies, error) {
+	client := pb.NewAutoscalerProtobufClient(viper.GetString("SLYTHE_HOST"), &http.Client{})
+	policies, err := client.ListPolicies(context.Background(), &pb.Filter{App: app, Env: env})
 	if err != nil {
-		return policies, err
+		return &pb.Policies{}, fmt.Errorf("failed to fetch policies: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return policies, fmt.Errorf("failed to fetch autoscaling policies: %s", resp.Status)
-	}
-	if err := json.NewDecoder(resp.Body).Decode(policies); err != nil {
-		return policies, err
-	}
-	if app == "" && env == "" {
-		return policies, nil
-	}
-	if env == "" {
-		env = "stage|production"
-	}
-	fp := &policy.Policies{}
-	for _, e := range strings.Split(env, "|") {
-		for _, cp := range policies.CPUScaled {
-			if app == "" && cp.Environment == e {
-				fp.CPUScaled = append(fp.CPUScaled, cp)
-			}
-			if app != "" && cp.AppName == app && cp.Environment == e {
-				fp.CPUScaled = append(fp.CPUScaled, cp)
-			}
-		}
-	}
-	for _, e := range strings.Split(env, "|") {
-		for _, cp := range policies.QueueLengthScaled {
-			if app == "" && cp.Environment == e {
-				fp.QueueLengthScaled = append(fp.QueueLengthScaled, cp)
-			}
-			if app != "" && cp.AppName == app && cp.Environment == e {
-				fp.QueueLengthScaled = append(fp.QueueLengthScaled, cp)
-			}
-		}
-	}
-	return fp, nil
+	return policies, nil
 }
 
 // CreateWorkerPolicy creates an autoscaling worker policy
-func CreateWorkerPolicy(wp *policy.Worker) error {
-	j, err := json.Marshal(wp)
-	if err != nil {
-		return err
-	}
-	url := viper.GetString("SLYTHE_HOST") + "/policies/worker"
-	req, _ := http.NewRequest("POST", url, strings.NewReader(string(j)))
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("failed to POST autoscaling policy: %s\n%s", resp.Status, b)
-	}
-	return nil
+func CreateWorkerPolicy(wp *pb.WorkerPolicy) error {
+	client := pb.NewAutoscalerProtobufClient(viper.GetString("SLYTHE_HOST"), &http.Client{})
+	_, err := client.CreateWorkerAutoscalingPolicy(context.Background(), wp)
+	return err
 }
 
 // UpdateWorkerPolicy updates an autoscaling worker policy
-func UpdateWorkerPolicy(wp *policy.Worker) error {
-	j, err := json.Marshal(wp)
-	if err != nil {
-		return err
-	}
-	url := viper.GetString("SLYTHE_HOST") + "/policies/worker"
-	req, _ := http.NewRequest("PUT", url, strings.NewReader(string(j)))
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("failed to POST autoscaling policy: %s\n%s", resp.Status, b)
-	}
-	return nil
+func UpdateWorkerPolicy(wp *pb.WorkerPolicy) error {
+	client := pb.NewAutoscalerProtobufClient(viper.GetString("SLYTHE_HOST"), &http.Client{})
+	_, err := client.UpdateWorkerAutoscalingPolicy(context.Background(), wp)
+	return err
 }
 
 // CreateCPUPolicy creates an autoscaling worker policy
-func CreateCPUPolicy(cp *policy.CPU) error {
-	j, err := json.Marshal(cp)
-	if err != nil {
-		return err
-	}
-	url := viper.GetString("SLYTHE_HOST") + "/policies/cpu"
-	req, _ := http.NewRequest("POST", url, strings.NewReader(string(j)))
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("failed to POST autoscaling policy: %s\n%s", resp.Status, b)
-	}
-	return nil
+func CreateCPUPolicy(cp *pb.CPUPolicy) error {
+	client := pb.NewAutoscalerProtobufClient(viper.GetString("SLYTHE_HOST"), &http.Client{})
+	_, err := client.CreateCPUAutoscalingPolicy(context.Background(), cp)
+	return err
 }
 
 // UpdateCPUPolicy creates an autoscaling worker policy
-func UpdateCPUPolicy(cp *policy.CPU) error {
-	j, err := json.Marshal(cp)
-	if err != nil {
-		return err
-	}
-	url := viper.GetString("SLYTHE_HOST") + "/policies/cpu"
-	req, _ := http.NewRequest("PUT", url, strings.NewReader(string(j)))
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("failed to POST autoscaling policy: %s\n%s", resp.Status, b)
-	}
-	return nil
+func UpdateCPUPolicy(cp *pb.CPUPolicy) error {
+	client := pb.NewAutoscalerProtobufClient(viper.GetString("SLYTHE_HOST"), &http.Client{})
+	_, err := client.UpdateCPUAutoscalingPolicy(context.Background(), cp)
+	return err
 }
