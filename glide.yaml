@@ -7,4 +7,4 @@ import:
 - package: github.com/betterdoctor/slythe
   repo: git@github.com:betterdoctor/slythe.git
   vcs: git
-  version: ~1.8.1
+  version: ~1.10.0

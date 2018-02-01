@@ -81,14 +81,14 @@ If application cannot scale due to insufficient cluster resources an error will 
 			for _, a := range g.Apps {
 				it := a.InstanceType()
 				if it == p {
-					for _, wp := range policies.QueueLengthScaled {
+					for _, wp := range policies.WorkerPolicies {
 						if wp.Enabled && wp.AppName == app && wp.Environment == env && wp.AppType == it {
 							fmt.Printf("autoscaling policy %s already enabled for %s-%s/%s\n", green(wp.Name), app, env, it)
 							fmt.Printf("see: duncan autoscale list --app %s --env %s\n", app, env)
 							os.Exit(1)
 						}
 					}
-					for _, cp := range policies.CPUScaled {
+					for _, cp := range policies.CpuPolicies {
 						if cp.Enabled && cp.AppName == app && cp.Environment == env && cp.AppType == a.InstanceType() {
 							fmt.Printf("autoscaling policy %s already enabled for %s-%s/%s\n", green(cp.Name), app, env, it)
 							fmt.Printf("see: duncan autoscale list --app %s --env %s\n", app, env)

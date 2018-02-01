@@ -5,7 +5,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/betterdoctor/slythe/policy"
+	pb "github.com/betterdoctor/slythe/rpc"
 	"github.com/fatih/color"
 )
 
@@ -18,10 +18,10 @@ var (
 )
 
 // DisplayCPUPolicies prints the CPU policies
-func DisplayCPUPolicies(policies *policy.Policies) {
-	if len(policies.CPUScaled) > 0 {
+func DisplayCPUPolicies(policies *pb.Policies) {
+	if len(policies.CpuPolicies) > 0 {
 		fmt.Printf(green("CPU Scaling Policies\n\n"))
-		for _, cp := range policies.CPUScaled {
+		for _, cp := range policies.CpuPolicies {
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 			fmt.Fprintln(w, white("Policy Name \t"), cyan(cp.Name))
 			fmt.Fprintln(w, white("App \t"), green(cp.AppName))
@@ -46,10 +46,10 @@ func DisplayCPUPolicies(policies *policy.Policies) {
 }
 
 // DisplayWorkerPolicies prints the Worker policies
-func DisplayWorkerPolicies(policies *policy.Policies) {
-	if len(policies.QueueLengthScaled) > 0 {
+func DisplayWorkerPolicies(policies *pb.Policies) {
+	if len(policies.WorkerPolicies) > 0 {
 		fmt.Printf(green("Worker Scaling Policies\n\n"))
-		for _, wp := range policies.QueueLengthScaled {
+		for _, wp := range policies.WorkerPolicies {
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight|tabwriter.Debug)
 			fmt.Fprintln(w, white("Policy Name \t"), cyan(wp.Name))
 			fmt.Fprintln(w, white("App \t"), green(wp.AppName))
@@ -61,7 +61,7 @@ func DisplayWorkerPolicies(policies *policy.Policies) {
 			fmt.Fprintln(w, white("Scale Down By \t"), white(wp.ScaleDownBy))
 			fmt.Fprintln(w, white("Up Threshold \t"), yellow(wp.UpThreshold))
 			fmt.Fprintln(w, white("Down Threshold \t"), yellow(wp.DownThreshold))
-			fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisURL))
+			fmt.Fprintln(w, white("Redis URL \t"), green(wp.RedisUrl))
 			fmt.Fprintln(w, white("Queues \t"), cyan(wp.Queues))
 			fmt.Fprintln(w, white("Check Frequency Secs \t"), white(fmt.Sprintf("%d", wp.CheckFrequencySecs)))
 			if wp.Enabled {
