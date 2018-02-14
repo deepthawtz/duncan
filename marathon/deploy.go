@@ -57,5 +57,5 @@ func Deploy(app, env, tag, repo string) (string, error) {
 		}
 	}
 
-	return prev, nil
+	return prev, fmt.Errorf("No Marathon group running for %s-%s", app, env)
 }
