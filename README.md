@@ -21,7 +21,7 @@ Available Commands:
     version     Print the version of duncan
 ```
 
-### Getting Started
+#### Getting Started
 
 #### Installation
 
