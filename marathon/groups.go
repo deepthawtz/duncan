@@ -124,10 +124,7 @@ func List(app, env string) error {
 	if app != "" {
 		apps = []string{app}
 	}
-	if err := groups.DisplayAppStatus(apps, env); err != nil {
-		return err
-	}
-	return nil
+	return groups.DisplayAppStatus(apps, env)
 }
 
 // listGroups returns all deployed Marathon groups
@@ -141,8 +138,7 @@ func listGroups() (*Groups, error) {
 	defer resp.Body.Close()
 	b, _ := ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(b, &groups); err != nil {
-		fmt.Println(b)
-		return nil, err
+		return nil, fmt.Errorf("%s is not responding with valid JSON, perhaps a bad MARATHON_HOST", url)
 	}
 
 	return groups, nil
