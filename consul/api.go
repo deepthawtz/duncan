@@ -37,7 +37,7 @@ func Read(url string) (map[string]string, error) {
 	defer resp.Body.Close()
 	var env []KVPair
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("failed to find ENV at: %s", url)
+		return nil, fmt.Errorf("Read access to Consul KV %s denied. Either the key does not exist or your token does not have permission to access it", url)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch ENV: %s", resp.Status)
@@ -103,11 +103,7 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
+		return nil, fmt.Errorf("Write access to Consul KV %s denied. Either the key does not exist or your token does not have permission to access it", url)
 	}
 	msg := config.Changes("env", changes)
 	if msg == "" {
@@ -134,11 +130,7 @@ func Delete(app, deployEnv, url string, keys []string) error {
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
-			b, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return err
-			}
-			return fmt.Errorf("failed to set Consul KV: %s\n%s", resp.Status, string(b))
+			return fmt.Errorf("Write access to Consul KV %s denied. Either the key does not exist or your token does not have permission to access it", url)
 		}
 		changes[k] = []string{}
 		fmt.Printf("deleted %s\n", k)
@@ -147,10 +139,7 @@ func Delete(app, deployEnv, url string, keys []string) error {
 	if msg == "" {
 		return nil
 	}
-	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
-		return err
-	}
-	return nil
+	return notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg)
 }
 
 func envMap(kvs []KVPair) map[string]string {

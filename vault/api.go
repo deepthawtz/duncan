@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -119,12 +118,11 @@ func readSecrets(url string) (*Secrets, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to reach vault: %s\n%s", resp.Status, string(b))
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("Read access to Vault secrets %s denied. Either the key does not exist or your token does not have permission to access it", url)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch secrets: %s (%s)", url, resp.Status)
 	}
 	s := &Secrets{}
 	if err := json.NewDecoder(resp.Body).Decode(s); err != nil {
@@ -147,11 +145,7 @@ func updateSecrets(url string, s *Secrets) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
-		b, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return fmt.Errorf("failed to set vault secrets: %s\n%s", resp.Status, string(b))
+		return fmt.Errorf("Write access to Vault secrets %s denied. Either the key does not exist or your token does not have permission to access it", url)
 	}
 	return nil
 }
