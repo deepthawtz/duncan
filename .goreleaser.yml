@@ -13,6 +13,8 @@ builds:
   main: .
   ldflags: -s -w -X github.com/betterdoctor/duncan/cmd.Version={{.Tag}}
   binary: duncan
+dockers:
+  - image: quay.io/betterdoctor/duncan
 archive:
   name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
   wrap_in_directory: false
