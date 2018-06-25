@@ -50,10 +50,14 @@ NOTE: tag must exist in docker registry
 	Run: func(cmd *cobra.Command, args []string) {
 		validateDeployFlags()
 
+		var err error
+		prev, err = marathon.CurrentTag(app, env, repo)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 		if promptDeploy() {
-			var err error
-			prev, err := marathon.Deploy(app, env, tag, repo)
-			if err != nil {
+			if err := marathon.Deploy(app, env, tag, repo); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
@@ -132,7 +136,7 @@ func promptDeploy() bool {
 	} else {
 		fmt.Printf(white("  env: %s\n"), green(env))
 	}
-	fmt.Printf(white("  tag: %s\n"), cyan(tag))
+	fmt.Printf(white("  tag: %s => %s\n"), white(prev), cyan(tag))
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf(white("\nare you sure? (yes/no): "))

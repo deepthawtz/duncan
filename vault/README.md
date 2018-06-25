@@ -25,7 +25,7 @@
 
 
 
-## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=3958:3997#L151)
+## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=4018:4057#L145)
 ``` go
 func SecretsURL(app, env string) string
 ```
@@ -35,7 +35,7 @@ for a given app and env
 
 
 
-## <a name="Secrets">type</a> [Secrets](/src/target/api.go?s=259:323#L7)
+## <a name="Secrets">type</a> [Secrets](/src/target/api.go?s=246:310#L6)
 ``` go
 type Secrets struct {
     KVPairs map[string]string `json:"data"`
@@ -49,14 +49,14 @@ Secrets represents Vault key/value pairs for a prefix
 
 
 
-### <a name="Delete">func</a> [Delete](/src/target/api.go?s=1969:2037#L76)
+### <a name="Delete">func</a> [Delete](/src/target/api.go?s=1956:2024#L75)
 ``` go
 func Delete(url string, keys []string, s *Secrets) (*Secrets, error)
 ```
 Delete removes a key/value pair from the prefix
 
 
-### <a name="Read">func</a> [Read](/src/target/api.go?s=472:511#L13)
+### <a name="Read">func</a> [Read](/src/target/api.go?s=459:498#L12)
 ``` go
 func Read(url string) (*Secrets, error)
 ```
@@ -64,7 +64,7 @@ Read displays all key/value pairs at the given prefix if no key is given
 If a key is passed will just display the key/value pair for the key
 
 
-### <a name="Write">func</a> [Write](/src/target/api.go?s=661:727#L22)
+### <a name="Write">func</a> [Write](/src/target/api.go?s=648:714#L21)
 ``` go
 func Write(url string, kvs []string, s *Secrets) (*Secrets, error)
 ```
