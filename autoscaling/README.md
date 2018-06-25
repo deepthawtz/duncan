@@ -11,13 +11,13 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func CreateCPUPolicy(cp *policy.CPU) error](#CreateCPUPolicy)
-* [func CreateWorkerPolicy(wp *policy.Worker) error](#CreateWorkerPolicy)
-* [func DisplayCPUPolicies(policies *policy.Policies)](#DisplayCPUPolicies)
-* [func DisplayWorkerPolicies(policies *policy.Policies)](#DisplayWorkerPolicies)
-* [func GetPolicies(app, env string) (*policy.Policies, error)](#GetPolicies)
-* [func UpdateCPUPolicy(cp *policy.CPU) error](#UpdateCPUPolicy)
-* [func UpdateWorkerPolicy(wp *policy.Worker) error](#UpdateWorkerPolicy)
+* [func CreateCPUPolicy(cp *pb.CPUPolicy) error](#CreateCPUPolicy)
+* [func CreateWorkerPolicy(wp *pb.WorkerPolicy) error](#CreateWorkerPolicy)
+* [func DisplayCPUPolicies(policies *pb.Policies)](#DisplayCPUPolicies)
+* [func DisplayWorkerPolicies(policies *pb.Policies)](#DisplayWorkerPolicies)
+* [func GetPolicies(app, env string) (*pb.Policies, error)](#GetPolicies)
+* [func UpdateCPUPolicy(cp *pb.CPUPolicy) error](#UpdateCPUPolicy)
+* [func UpdateWorkerPolicy(wp *pb.WorkerPolicy) error](#UpdateWorkerPolicy)
 
 
 #### <a name="pkg-files">Package files</a>
@@ -27,58 +27,58 @@
 
 
 
-## <a name="CreateCPUPolicy">func</a> [CreateCPUPolicy](/src/target/manage.go?s=2722:2764#L92)
+## <a name="CreateCPUPolicy">func</a> [CreateCPUPolicy](/src/target/manage.go?s=1234:1278#L28)
 ``` go
-func CreateCPUPolicy(cp *policy.CPU) error
+func CreateCPUPolicy(cp *pb.CPUPolicy) error
 ```
 CreateCPUPolicy creates an autoscaling worker policy
 
 
 
-## <a name="CreateWorkerPolicy">func</a> [CreateWorkerPolicy](/src/target/manage.go?s=1550:1598#L50)
+## <a name="CreateWorkerPolicy">func</a> [CreateWorkerPolicy](/src/target/manage.go?s=655:705#L14)
 ``` go
-func CreateWorkerPolicy(wp *policy.Worker) error
+func CreateWorkerPolicy(wp *pb.WorkerPolicy) error
 ```
 CreateWorkerPolicy creates an autoscaling worker policy
 
 
 
-## <a name="DisplayCPUPolicies">func</a> [DisplayCPUPolicies](/src/target/display.go?s=485:535#L11)
+## <a name="DisplayCPUPolicies">func</a> [DisplayCPUPolicies](/src/target/display.go?s=485:531#L11)
 ``` go
-func DisplayCPUPolicies(policies *policy.Policies)
+func DisplayCPUPolicies(policies *pb.Policies)
 ```
 DisplayCPUPolicies prints the CPU policies
 
 
 
-## <a name="DisplayWorkerPolicies">func</a> [DisplayWorkerPolicies](/src/target/display.go?s=1824:1877#L39)
+## <a name="DisplayWorkerPolicies">func</a> [DisplayWorkerPolicies](/src/target/display.go?s=1824:1873#L39)
 ``` go
-func DisplayWorkerPolicies(policies *policy.Policies)
+func DisplayWorkerPolicies(policies *pb.Policies)
 ```
 DisplayWorkerPolicies prints the Worker policies
 
 
 
-## <a name="GetPolicies">func</a> [GetPolicies](/src/target/manage.go?s=268:327#L6)
+## <a name="GetPolicies">func</a> [GetPolicies](/src/target/manage.go?s=238:293#L4)
 ``` go
-func GetPolicies(app, env string) (*policy.Policies, error)
+func GetPolicies(app, env string) (*pb.Policies, error)
 ```
 GetPolicies returns all autoscaling policies optionally filtering
 if app or env are not empty string
 
 
 
-## <a name="UpdateCPUPolicy">func</a> [UpdateCPUPolicy](/src/target/manage.go?s=3298:3340#L113)
+## <a name="UpdateCPUPolicy">func</a> [UpdateCPUPolicy](/src/target/manage.go?s=1513:1557#L35)
 ``` go
-func UpdateCPUPolicy(cp *policy.CPU) error
+func UpdateCPUPolicy(cp *pb.CPUPolicy) error
 ```
 UpdateCPUPolicy creates an autoscaling worker policy
 
 
 
-## <a name="UpdateWorkerPolicy">func</a> [UpdateWorkerPolicy](/src/target/manage.go?s=2138:2186#L71)
+## <a name="UpdateWorkerPolicy">func</a> [UpdateWorkerPolicy](/src/target/manage.go?s=946:996#L21)
 ``` go
-func UpdateWorkerPolicy(wp *policy.Worker) error
+func UpdateWorkerPolicy(wp *pb.WorkerPolicy) error
 ```
 UpdateWorkerPolicy updates an autoscaling worker policy
 

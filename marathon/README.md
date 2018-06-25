@@ -12,7 +12,8 @@
 
 ## <a name="pkg-index">Index</a>
 * [func AssertAppExistsInGroup(app, env, typ string) error](#AssertAppExistsInGroup)
-* [func Deploy(app, env, tag string) (string, error)](#Deploy)
+* [func CurrentTag(app, env, repo string) (string, error)](#CurrentTag)
+* [func Deploy(app, env, tag, repo string) error](#Deploy)
 * [func List(app, env string) error](#List)
 * [func Scale(group *Group, rules map[string]int) (string, error)](#Scale)
 * [type App](#App)
@@ -44,9 +45,17 @@ and returns an error if it does not
 
 
 
-## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=186:235#L4)
+## <a name="CurrentTag">func</a> [CurrentTag](/src/target/deploy.go?s=190:244#L4)
 ``` go
-func Deploy(app, env, tag string) (string, error)
+func CurrentTag(app, env, repo string) (string, error)
+```
+CurrentTag return the currently deployed release tag
+
+
+
+## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=621:666#L26)
+``` go
+func Deploy(app, env, tag, repo string) error
 ```
 Deploy deploys a given marathon app, env and tag
 
