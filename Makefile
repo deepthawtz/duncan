@@ -9,7 +9,7 @@ deps:
 	glide install
 
 install:
-	cp dist/duncan_*_darwin_amd64/duncan /usr/local/bin/duncan
+	cp dist/darwin_amd64/duncan /usr/local/bin/duncan
 	chmod +x /usr/local/bin/duncan
 
 test:
