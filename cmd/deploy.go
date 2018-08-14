@@ -22,6 +22,7 @@ import (
 
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/docker"
+	"github.com/betterdoctor/duncan/k8s"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
 	"github.com/fatih/color"
@@ -51,15 +52,31 @@ NOTE: tag must exist in docker registry
 		validateDeployFlags()
 
 		var err error
-		prev, err = marathon.CurrentTag(app, env, repo)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		if promptDeploy() {
-			if err := marathon.Deploy(app, env, tag, repo); err != nil {
+
+		if viper.GetString("kubernetes_host") != "" {
+			prev, err = k8s.CurrentTag(app, env, repo)
+			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
+			}
+		} else {
+			prev, err = marathon.CurrentTag(app, env, repo)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		}
+		if promptDeploy() {
+			if viper.GetString("kubernetes_host") != "" {
+				if err := k8s.Deploy(app, env, tag, repo); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			} else {
+				if err := marathon.Deploy(app, env, tag, repo); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
 			}
 
 			diff := "redeployed"
