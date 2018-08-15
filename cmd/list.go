@@ -18,8 +18,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/betterdoctor/duncan/k8s"
 	"github.com/betterdoctor/duncan/marathon"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // listCmd represents the list command
@@ -31,9 +33,17 @@ var listCmd = &cobra.Command{
 			fmt.Printf("env %s is not a valid deployment environment\n", env)
 			os.Exit(1)
 		}
-		if err := marathon.List(app, env); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+
+		if viper.GetString("kubernetes_host") != "" {
+			if err := k8s.List(app, env); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		} else {
+			if err := marathon.List(app, env); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 	},
 }
