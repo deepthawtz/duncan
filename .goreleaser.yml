@@ -15,6 +15,7 @@ builds:
   binary: duncan
 dockers:
   - image: quay.io/betterdoctor/duncan
+    dockerfile: Dockerfile
     goos: linux
     goarch: amd64
     binary: duncan
