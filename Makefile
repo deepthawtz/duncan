@@ -2,6 +2,9 @@ package = github.com/betterdoctor/duncan
 
 .PHONY: install release test
 
+build: deps
+	goreleaser --rm-dist --skip-validate --skip-publish
+
 release: deps
 	goreleaser --rm-dist
 
