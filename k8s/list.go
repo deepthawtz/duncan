@@ -14,6 +14,9 @@ import (
 // List displays k8s pods matching given app/env
 func List(app, env string) error {
 	clientset, err := newClient()
+	if err != nil {
+		return err
+	}
 
 	if env == "" {
 		env = "stage|production"

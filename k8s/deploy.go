@@ -36,6 +36,9 @@ func CurrentTag(app, env, repo string) (string, error) {
 // Deploy updates docker image tag for a given k8s deployment
 func Deploy(app, env, tag, repo string) error {
 	clientset, err := newClient()
+	if err != nil {
+		return err
+	}
 
 	deploymentsClient := clientset.AppsV1().Deployments("pipeline")
 
