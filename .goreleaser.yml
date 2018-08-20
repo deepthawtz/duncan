@@ -20,6 +20,7 @@ dockers:
     binary: duncan
     extra_files:
     - example_duncan.yml
+    - kube_config
 archive:
   name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
   wrap_in_directory: false
