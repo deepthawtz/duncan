@@ -46,7 +46,7 @@ var (
 				fmt.Println("must provide PATTERN to search keys by")
 				os.Exit(1)
 			}
-			pattern := regexp.MustCompile(fmt.Sprintf(".*%s.*", args[0]))
+			pattern := regexp.MustCompile(fmt.Sprintf("(?i).*%s.*", args[0]))
 			green := color.New(color.FgGreen, color.Bold).SprintFunc()
 			matches := map[string]map[string]string{}
 			apps := viper.GetStringSlice("apps")
@@ -69,7 +69,7 @@ var (
 						c, _ := consul.Read(u)
 						if c != nil {
 							for k, v := range c {
-								if pattern.MatchString(k) {
+								if pattern.MatchString(k) || pattern.MatchString(v) {
 									mux.Lock()
 									if matches[ak] == nil {
 										matches[ak] = make(map[string]string)
