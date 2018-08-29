@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
 
 	"github.com/betterdoctor/duncan/deployment"
@@ -84,10 +85,12 @@ NOTE: tag must exist in docker registry
 				diff = deployment.GithubDiffLink(repo, prev, tag)
 			}
 			fmt.Println(diff)
+
+			u, _ := user.Current()
 			if err := notify.Slack(
 				viper.GetString("slack_webhook_url"),
 				fmt.Sprintf("%s %s (%s)", app, env, tag),
-				fmt.Sprintf("%s :shipit: docker deploy :whale: %s", emoji(env), diff),
+				fmt.Sprintf("%s :shipit: *%s %s* deployed by %s (diff: %s)", emoji(env), app, env, u.Username, diff),
 			); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
