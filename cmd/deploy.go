@@ -94,7 +94,7 @@ NOTE: tag must exist in docker registry
 			if err := notify.Slack(
 				viper.GetString("slack_webhook_url"),
 				fmt.Sprintf("%s %s (%s)", app, env, tag),
-				fmt.Sprintf("%s :shipit: *%s %s* deployed by %s (diff: %s)", emoji(env), app, env, username, diff),
+				fmt.Sprintf("%s :shipit: *%s %s (%s)* deployed by %s (diff: %s)", emoji(env), app, env, tag, username, diff),
 			); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
