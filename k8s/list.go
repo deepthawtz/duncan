@@ -40,13 +40,18 @@ func List(app, env string) error {
 		replicas := item.Status.Replicas
 		for _, container := range item.Spec.Template.Spec.Containers {
 			var data = make([][]string, 10)
+			parts := strings.Split(container.Image, ":")
+			var tag string
+			if len(parts) > 1 {
+				tag = parts[1]
+			}
 			data = append(data, []string{
 				cyan(container.Name),
-				white(strings.Split(container.Image, ":")[1]),
+				white(tag),
 				yellow(replicas),
 			})
 
-			parts := strings.Split(group, "-")
+			parts = strings.Split(group, "-")
 			a := strings.Join(parts[:len(parts)-1], "-")
 
 			for _, e := range strings.Split(env, "|") {
