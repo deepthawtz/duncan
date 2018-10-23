@@ -109,7 +109,11 @@ func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) 
 	if msg == "" {
 		return env, nil
 	}
-	if err := notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg); err != nil {
+	if err := notify.Slack(
+		viper.GetString("slack_webhook_url"),
+		fmt.Sprintf("%s %s", app, deployEnv),
+		fmt.Sprintf("*%s %s* %s", app, deployEnv, msg),
+	); err != nil {
 		return nil, err
 	}
 
@@ -139,7 +143,11 @@ func Delete(app, deployEnv, url string, keys []string) error {
 	if msg == "" {
 		return nil
 	}
-	return notify.Slack(viper.GetString("slack_webhook_url"), fmt.Sprintf("%s %s", app, deployEnv), msg)
+	return notify.Slack(
+		viper.GetString("slack_webhook_url"),
+		fmt.Sprintf("%s %s", app, deployEnv),
+		fmt.Sprintf("*%s %s* %s", app, deployEnv, msg),
+	)
 }
 
 func envMap(kvs []KVPair) map[string]string {
