@@ -32,6 +32,8 @@ import (
 )
 
 var (
+	k8sClient *k8s.KubeAPI
+
 	app, env, tag, repo, prev string
 	force                     bool
 )
@@ -55,7 +57,12 @@ NOTE: tag must exist in docker registry
 		var err error
 
 		if viper.GetString("kubernetes_host") != "" {
-			prev, err = k8s.CurrentTag(app, env, repo)
+			k8sClient, err := k8s.NewClient()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			prev, err = k8sClient.CurrentTag(app, env, repo)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -69,7 +76,7 @@ NOTE: tag must exist in docker registry
 		}
 		if promptDeploy() {
 			if viper.GetString("kubernetes_host") != "" {
-				if err := k8s.Deploy(app, env, tag, repo); err != nil {
+				if err := k8sClient.Deploy(app, env, tag, repo); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}

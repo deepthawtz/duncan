@@ -8,7 +8,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-func newClient() (*kubernetes.Clientset, error) {
+// KubeAPI performs all the Kubernetes API operations
+type KubeAPI struct {
+	Client kubernetes.Interface
+}
+
+// NewClient returns a new KubeAPI client
+func NewClient() (*KubeAPI, error) {
 	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
@@ -19,5 +25,5 @@ func newClient() (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 
-	return clientset, nil
+	return &KubeAPI{Client: clientset}, nil
 }
