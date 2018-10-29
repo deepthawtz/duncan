@@ -89,7 +89,7 @@ var (
 						s, _ := vault.Read(u)
 						if s != nil {
 							for k, v := range s.KVPairs {
-								if pattern.MatchString(k) {
+								if pattern.MatchString(k) || pattern.MatchString(v) {
 									mux.Lock()
 									if matches[ak] == nil {
 										matches[ak] = make(map[string]string)
