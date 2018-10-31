@@ -25,8 +25,8 @@ func (k *KubeAPI) List(app, env string) error {
 	if env == "" {
 		env = "stage|production"
 	}
-	deploymentsClient := k.Client.AppsV1().Deployments("pipeline")
-	ssClient := k.Client.AppsV1().StatefulSets("pipeline")
+	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
+	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
 
 	deploymentList, err := deploymentsClient.List(metav1.ListOptions{})
 	if err != nil {

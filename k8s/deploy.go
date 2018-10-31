@@ -14,7 +14,7 @@ import (
 // given app and env if it exists. First checks Kubernetes Deployment API
 // and then Stateful Sets API
 func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error) {
-	deploymentsClient := k.Client.AppsV1().Deployments("pipeline")
+	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
 	deploymentList, err := deploymentsClient.List(metav1.ListOptions{})
 	if err != nil {
 		return "", err
@@ -26,7 +26,7 @@ func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error) {
 		}
 	}
 
-	ssClient := k.Client.AppsV1().StatefulSets("pipeline")
+	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
 	ssList, err := ssClient.List(metav1.ListOptions{})
 	if err != nil {
 		return "", err
@@ -68,7 +68,7 @@ func findTag(app, env string, template corev1.PodTemplateSpec) string {
 }
 
 func (k *KubeAPI) updateDeployment(app, env, tag, repo string) error {
-	deploymentsClient := k.Client.AppsV1().Deployments("pipeline")
+	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
 
 	list, err := deploymentsClient.List(metav1.ListOptions{})
 	if err != nil {
@@ -103,7 +103,7 @@ func (k *KubeAPI) updateDeployment(app, env, tag, repo string) error {
 }
 
 func (k *KubeAPI) updateStatefulSet(app, env, tag, repo string) error {
-	ssClient := k.Client.AppsV1().StatefulSets("pipeline")
+	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
 
 	ssList, err := ssClient.List(metav1.ListOptions{})
 	if err != nil {

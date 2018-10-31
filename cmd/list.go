@@ -35,7 +35,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if viper.GetString("kubernetes_host") != "" {
-			k8sClient, err := k8s.NewClient()
+			k8sClient, err := k8s.NewClient(viper.GetString("kubernetes_namespace"))
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
