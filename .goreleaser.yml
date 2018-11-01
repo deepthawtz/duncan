@@ -13,17 +13,6 @@ builds:
   main: .
   ldflags: -s -w -X github.com/betterdoctor/duncan/cmd.Version={{.Tag}}
   binary: duncan
-dockers:
-  - image: quay.io/betterdoctor/duncan
-    dockerfile: Dockerfile
-    goos: linux
-    goarch: amd64
-    binary: duncan
-    tag_templates:
-    - "{{ .Tag }}"
-    extra_files:
-    - example_duncan.yml
-    - kube_config
 archive:
   name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
   wrap_in_directory: false
