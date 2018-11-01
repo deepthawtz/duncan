@@ -11,9 +11,11 @@
 
 
 ## <a name="pkg-index">Index</a>
-* [func CurrentTag(app, env, repo string) (string, error)](#CurrentTag)
-* [func Deploy(app, env, tag, repo string) error](#Deploy)
-* [func List(app, env string) error](#List)
+* [type KubeAPI](#KubeAPI)
+  * [func NewClient(namespace string) (*KubeAPI, error)](#NewClient)
+  * [func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error)](#KubeAPI.CurrentTag)
+  * [func (k *KubeAPI) Deploy(app, env, tag, repo string) error](#KubeAPI.Deploy)
+  * [func (k *KubeAPI) List(app, env string) error](#KubeAPI.List)
 
 
 #### <a name="pkg-files">Package files</a>
@@ -23,26 +25,55 @@
 
 
 
-## <a name="CurrentTag">func</a> [CurrentTag](/src/target/deploy.go?s=238:292#L4)
+
+## <a name="KubeAPI">type</a> [KubeAPI](/src/target/client.go?s=204:277#L3)
 ``` go
-func CurrentTag(app, env, repo string) (string, error)
+type KubeAPI struct {
+    Client    kubernetes.Interface
+    Namespace string
+}
+```
+KubeAPI performs all the Kubernetes API operations
+
+
+
+
+
+
+
+### <a name="NewClient">func</a> [NewClient](/src/target/client.go?s=321:371#L9)
+``` go
+func NewClient(namespace string) (*KubeAPI, error)
+```
+NewClient returns a new KubeAPI client
+
+
+
+
+
+### <a name="KubeAPI.CurrentTag">func</a> (\*KubeAPI) [CurrentTag](/src/target/deploy.go?s=350:417#L6)
+``` go
+func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error)
 ```
 CurrentTag fetches the currently deployed docker image tag for
-given app and env
+given app and env if it exists. First checks Kubernetes Deployment API
+and then Stateful Sets API
 
 
 
-## <a name="Deploy">func</a> [Deploy](/src/target/deploy.go?s=899:944#L27)
+
+### <a name="KubeAPI.Deploy">func</a> (\*KubeAPI) [Deploy](/src/target/deploy.go?s=1131:1189#L35)
 ``` go
-func Deploy(app, env, tag, repo string) error
+func (k *KubeAPI) Deploy(app, env, tag, repo string) error
 ```
 Deploy updates docker image tag for a given k8s deployment
 
 
 
-## <a name="List">func</a> [List](/src/target/list.go?s=210:242#L5)
+
+### <a name="KubeAPI.List">func</a> (\*KubeAPI) [List](/src/target/list.go?s=516:561#L14)
 ``` go
-func List(app, env string) error
+func (k *KubeAPI) List(app, env string) error
 ```
 List displays k8s pods matching given app/env
 

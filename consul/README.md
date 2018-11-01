@@ -27,7 +27,7 @@
 
 
 
-## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2930:2990#L110)
+## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2983:3043#L114)
 ``` go
 func Delete(app, deployEnv, url string, keys []string) error
 ```
@@ -35,7 +35,7 @@ Delete removes key/values from Consul by given keys
 
 
 
-## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4088:4123#L149)
+## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4194:4229#L157)
 ``` go
 func EnvURL(app, env string) string
 ```
@@ -51,7 +51,7 @@ Read returns ENV for given consul KV URL
 
 
 
-## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=4276:4296#L155)
+## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=4382:4402#L163)
 ``` go
 func TxnURL() string
 ```
