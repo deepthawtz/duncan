@@ -2,6 +2,7 @@
 ---
 marathon_host: https://mesos.host
 # kubernetes_host: https://kube.host
+kubernetes_namespace: pipeline
 
 # for autoscaling commands
 slythe_host: https://slythe.host
