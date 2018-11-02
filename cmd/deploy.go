@@ -57,7 +57,7 @@ NOTE: tag must exist in docker registry
 		var err error
 
 		if viper.GetString("kubernetes_host") != "" {
-			k8sClient, err := k8s.NewClient(viper.GetString("kubernetes_namespace"))
+			k8sClient, err = k8s.NewClient(viper.GetString("kubernetes_namespace"))
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
