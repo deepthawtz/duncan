@@ -45,7 +45,7 @@ func (k *KubeAPI) List(app, env string) error {
 	for k, v := range groups {
 		fmt.Println(green(k))
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ID", "Tag", "Instances"})
+		table.SetHeader([]string{"ID", "Tag", "Instances", "CPU", "Mem"})
 		table.AppendBulk(v)
 		table.Render()
 	}
@@ -86,10 +86,14 @@ func addContainerToGroup(groups map[string][][]string, app, env, group, groupEnv
 	if len(parts) > 1 {
 		tag = parts[1]
 	}
+	cpu := container.Resources.Limits["cpu"]
+	mem := container.Resources.Limits["memory"]
 	data = append(data, []string{
 		cyan(container.Name),
 		white(tag),
 		yellow(replicas),
+		cyan(cpu.String()),
+		cyan(mem.String()),
 	})
 
 	parts = strings.Split(group, "-")
