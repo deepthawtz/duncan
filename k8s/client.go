@@ -2,11 +2,11 @@ package k8s
 
 import (
 	"fmt"
-	"path/filepath"
+
+	"github.com/spf13/viper"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 // KubeAPI performs all the Kubernetes API operations
@@ -16,12 +16,21 @@ type KubeAPI struct {
 }
 
 // NewClient returns a new KubeAPI client
-func NewClient(namespace string) (*KubeAPI, error) {
+func NewClient() (*KubeAPI, error) {
+	cluster := viper.GetString("kubernetes_cluster")
+	namespace := viper.GetString("kubernetes_namespace")
+	if cluster == "" {
+		return nil, fmt.Errorf("must supply kubernetes_cluster in duncan.yml")
+	}
 	if namespace == "" {
 		return nil, fmt.Errorf("must supply kubernetes_namespace in duncan.yml")
 	}
-	kubeconfig := filepath.Join(homedir.HomeDir(), ".kube", "config")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{
+		CurrentContext: cluster,
+	}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	config, err := kubeConfig.ClientConfig()
 	if err != nil {
 		return nil, err
 	}
