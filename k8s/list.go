@@ -20,6 +20,8 @@ var (
 	green  = color.New(color.FgGreen, color.Bold).SprintFunc()
 )
 
+type deploymentGroups map[string][][]string
+
 // List displays k8s pods matching given app/env
 func (k *KubeAPI) List(app, env string) error {
 	if env == "" {
@@ -38,7 +40,7 @@ func (k *KubeAPI) List(app, env string) error {
 		return err
 	}
 
-	groups := map[string][][]string{}
+	groups := deploymentGroups{}
 	groups = collectDeploymentGroups(deploymentList, app, env, groups)
 	groups = collectStatefulSetGroups(statefulSetList, app, env, groups)
 
@@ -53,7 +55,7 @@ func (k *KubeAPI) List(app, env string) error {
 	return nil
 }
 
-func collectDeploymentGroups(deploymentList *apiv1.DeploymentList, app string, env string, groups map[string][][]string) map[string][][]string {
+func collectDeploymentGroups(deploymentList *apiv1.DeploymentList, app string, env string, groups deploymentGroups) deploymentGroups {
 	for _, item := range deploymentList.Items {
 		group := item.Spec.Template.ObjectMeta.Labels["group"]
 		groupEnv := item.Spec.Template.ObjectMeta.Labels["env"]
@@ -66,7 +68,7 @@ func collectDeploymentGroups(deploymentList *apiv1.DeploymentList, app string, e
 	return groups
 }
 
-func collectStatefulSetGroups(deploymentList *apiv1.StatefulSetList, app string, env string, groups map[string][][]string) map[string][][]string {
+func collectStatefulSetGroups(deploymentList *apiv1.StatefulSetList, app string, env string, groups deploymentGroups) deploymentGroups {
 	for _, item := range deploymentList.Items {
 		group := item.Spec.Template.ObjectMeta.Labels["group"]
 		groupEnv := item.Spec.Template.ObjectMeta.Labels["env"]
@@ -79,7 +81,7 @@ func collectStatefulSetGroups(deploymentList *apiv1.StatefulSetList, app string,
 	return groups
 }
 
-func addContainerToGroup(groups map[string][][]string, app, env, group, groupEnv string, replicas int32, container corev1.Container) map[string][][]string {
+func addContainerToGroup(groups deploymentGroups, app, env, group, groupEnv string, replicas int32, container corev1.Container) deploymentGroups {
 	var data = make([][]string, 10)
 	parts := strings.Split(container.Image, ":")
 	var tag string

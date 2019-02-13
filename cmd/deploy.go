@@ -34,8 +34,8 @@ import (
 var (
 	k8sClient *k8s.KubeAPI
 
-	app, env, tag, repo, prev string
-	force                     bool
+	cluster, app, env, tag, repo, prev string
+	force                              bool
 )
 
 // deployCmd represents the deploy command
@@ -56,8 +56,9 @@ NOTE: tag must exist in docker registry
 
 		var err error
 
-		if viper.GetString("kubernetes_host") != "" {
-			k8sClient, err = k8s.NewClient(viper.GetString("kubernetes_namespace"))
+		if viper.GetString("kubernetes_cluster") != "" {
+			cluster = viper.GetString("kubernetes_cluster")
+			k8sClient, err = k8s.NewClient()
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -68,6 +69,7 @@ NOTE: tag must exist in docker registry
 				os.Exit(1)
 			}
 		} else {
+			cluster = viper.GetString("marathon_host")
 			prev, err = marathon.CurrentTag(app, env, repo)
 			if err != nil {
 				fmt.Println(err)
@@ -75,7 +77,7 @@ NOTE: tag must exist in docker registry
 			}
 		}
 		if promptDeploy() {
-			if viper.GetString("kubernetes_host") != "" {
+			if viper.GetString("kubernetes_cluster") != "" {
 				if err := k8sClient.Deploy(app, env, tag, repo); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -101,7 +103,7 @@ NOTE: tag must exist in docker registry
 			if err := notify.Slack(
 				viper.GetString("slack_webhook_url"),
 				fmt.Sprintf("%s %s (%s)", app, env, tag),
-				fmt.Sprintf("%s :shipit: *%s %s (%s)* deployed by %s (diff: %s)", emoji(env), app, env, tag, username, diff),
+				fmt.Sprintf("%s :shipit: *%s %s (%s)* deployed to %s by %s (diff: %s)", emoji(env), app, env, tag, cluster, username, diff),
 			); err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -161,6 +163,7 @@ func promptDeploy() bool {
 	green := color.New(color.FgGreen, color.Bold).SprintFunc()
 	yellow := color.New(color.FgYellow, color.Bold).SprintFunc()
 	fmt.Printf("You are about to deploy:\n\n")
+	fmt.Printf(white("  cluster: %s\n"), white(cluster))
 	fmt.Printf(white("  app: %s\n"), yellow(app))
 	if env == "production" {
 		fmt.Printf(white("  env: %s\n"), red(env))
