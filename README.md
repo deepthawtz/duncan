@@ -9,13 +9,11 @@ Usage:
   duncan [command]
 
 Available Commands:
-    autoscale   Commands to manage autoscaling policies
     config      Search ENV/secrets across all applications
     deploy      Deploy an application
     env         Manage Consul key/values (ENV vars) for an app
     help        Help about any command
     list        List applications
-    scale       Scale an app process
     secrets     Manage Vault secrets (ENV vars) for an app
     version     Print the version of duncan
 ```

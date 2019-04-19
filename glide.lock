@@ -1,16 +1,10 @@
-hash: 5dc403d6c04b55da9db47d4389d919409621ded36b379536794fe6510a537968
-updated: 2018-08-29T09:38:15.95097-07:00
+hash: 0477a2ca55607e5c4ad28aa3a1fb804c98c4c3fc11f40b7297578d2b7fc692f2
+updated: 2019-04-19T10:31:00.111279-07:00
 imports:
 - name: github.com/betterdoctor/kit
   version: 5fb0ae5b8b5ff070de142ce84f6387b67d1520ad
   subpackages:
   - notify
-- name: github.com/betterdoctor/slythe
-  version: 7037b34a29f16bd9d28aba4c31e30d07de1af659
-  repo: git@github.com:betterdoctor/slythe.git
-  vcs: git
-  subpackages:
-  - rpc
 - name: github.com/fatih/color
   version: 62e9147c64a1ed519147b62a56a14e83e2be02c1
 - name: github.com/fsnotify/fsnotify
@@ -27,12 +21,10 @@ imports:
 - name: github.com/golang/protobuf
   version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
-  - jsonpb
   - proto
   - ptypes
   - ptypes/any
   - ptypes/duration
-  - ptypes/struct
   - ptypes/timestamp
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
@@ -103,11 +95,6 @@ imports:
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/spf13/viper
   version: 0967fc9aceab2ce9da34061253ac10fb99bba5b2
-- name: github.com/twitchtv/twirp
-  version: 8ad347ff7c94521ec5cc9e7a6c578d335fd676a5
-  subpackages:
-  - ctxsetters
-  - internal/contextkeys
 - name: golang.org/x/crypto
   version: de0752318171da717af4ce24d0a2e8626afaeb11
   subpackages:

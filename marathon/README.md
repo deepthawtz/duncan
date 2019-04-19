@@ -15,7 +15,6 @@
 * [func CurrentTag(app, env, repo string) (string, error)](#CurrentTag)
 * [func Deploy(app, env, tag, repo string) error](#Deploy)
 * [func List(app, env string) error](#List)
-* [func Scale(group *Group, rules map[string]int) (string, error)](#Scale)
 * [type App](#App)
   * [func (a *App) InstanceType() string](#App.InstanceType)
   * [func (a *App) IsApp(app string) bool](#App.IsApp)
@@ -30,7 +29,7 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[app.go](/src/github.com/betterdoctor/duncan/marathon/app.go) [deploy.go](/src/github.com/betterdoctor/duncan/marathon/deploy.go) [groups.go](/src/github.com/betterdoctor/duncan/marathon/groups.go) [scale.go](/src/github.com/betterdoctor/duncan/marathon/scale.go) 
+[app.go](/src/github.com/betterdoctor/duncan/marathon/app.go) [deploy.go](/src/github.com/betterdoctor/duncan/marathon/deploy.go) [groups.go](/src/github.com/betterdoctor/duncan/marathon/groups.go) 
 
 
 
@@ -66,15 +65,6 @@ Deploy deploys a given marathon app, env and tag
 func List(app, env string) error
 ```
 List shows the list of applications duncan knows about
-
-
-
-## <a name="Scale">func</a> [Scale](/src/target/scale.go?s=180:242#L2)
-``` go
-func Scale(group *Group, rules map[string]int) (string, error)
-```
-Scale increases or decreases number of running instances of
-an application within a Marathon Group
 
 
 

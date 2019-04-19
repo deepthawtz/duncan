@@ -4,7 +4,3 @@ import:
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/betterdoctor/kit
-- package: github.com/betterdoctor/slythe
-  repo: git@github.com:betterdoctor/slythe.git
-  vcs: git
-  version: ~1.10.0

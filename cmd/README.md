@@ -16,7 +16,7 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[autoscale.go](/src/github.com/betterdoctor/duncan/cmd/autoscale.go) [config.go](/src/github.com/betterdoctor/duncan/cmd/config.go) [deploy.go](/src/github.com/betterdoctor/duncan/cmd/deploy.go) [env.go](/src/github.com/betterdoctor/duncan/cmd/env.go) [list.go](/src/github.com/betterdoctor/duncan/cmd/list.go) [root.go](/src/github.com/betterdoctor/duncan/cmd/root.go) [scale.go](/src/github.com/betterdoctor/duncan/cmd/scale.go) [secrets.go](/src/github.com/betterdoctor/duncan/cmd/secrets.go) [version.go](/src/github.com/betterdoctor/duncan/cmd/version.go) 
+[config.go](/src/github.com/betterdoctor/duncan/cmd/config.go) [deploy.go](/src/github.com/betterdoctor/duncan/cmd/deploy.go) [env.go](/src/github.com/betterdoctor/duncan/cmd/env.go) [list.go](/src/github.com/betterdoctor/duncan/cmd/list.go) [root.go](/src/github.com/betterdoctor/duncan/cmd/root.go) [secrets.go](/src/github.com/betterdoctor/duncan/cmd/secrets.go) [version.go](/src/github.com/betterdoctor/duncan/cmd/version.go) 
 
 
 

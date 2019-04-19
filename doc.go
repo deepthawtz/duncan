@@ -1,8 +1,7 @@
 // Duncan is a Docker deployment tool.
 //
 // Duncan can:
-//     * deploy applications as a collection of Marathon Groups and Chronos tasks
+//     * deploy applications as a collection of Kubernetes Pods or Marathon Groups
 //     * manage application secrets and ENV vars
-//     * scale individual application containers (e.g., web, worker, etc)
-//     * notify Slack webhook of deployment and scaling events
+//     * notify Slack webhook of deployment and ENV changes
 package main

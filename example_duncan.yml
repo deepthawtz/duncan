@@ -1,13 +1,11 @@
 # populate w/ valid values and save at ~/.duncan.yml
 ---
-marathon_host: https://mesos.host
-# kubernetes_host: https://kube.host
+# marathon_host: https://mesos.host
+kubernetes_cluster: kube.host
 kubernetes_namespace: pipeline
 
-# for autoscaling commands
-slythe_host: https://slythe.host
 # used to generate github compare links to view diff being deployed
-github_org: betterdoctor
+github_org: myorg
 
 docker_repo_prefix: quay.io/myorg
 quay_token:
@@ -17,18 +15,17 @@ consul_token:
 vault_host: https://vault.host
 vault_token:
 
-# NOTE: not complete list different teams may only care about certain services
-# in which case it makes sense to add/remove to this list accordingly
+# NOTE: since env/secrets ACL does not allow listing all subpaths we must name them
+# explicitly. `duncan config search` will search env and secrets across all
+# apps listed below
 apps:
-  - dex
-  - etl
-  - dapi
-  - validation-service
-  - papi
-  - feedback
+  - dogfood
+  - skulls
+  - beefcake
+  - pantyhose
 
 # NOTE: if app name does not match a github repo name this mapping is necessary
 # to generate github compare links to view changes being deployed
 # NOTE: if app name matches github repo name this mapping is unecessary
 repos:
-  papi: betterdoctor-api-proxy
+  dogfood: dogfood-repo
