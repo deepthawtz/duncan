@@ -12,7 +12,7 @@
 
 ## <a name="pkg-index">Index</a>
 * [type KubeAPI](#KubeAPI)
-  * [func NewClient(namespace string) (*KubeAPI, error)](#NewClient)
+  * [func NewClient() (*KubeAPI, error)](#NewClient)
   * [func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error)](#KubeAPI.CurrentTag)
   * [func (k *KubeAPI) Deploy(app, env, tag, repo string) error](#KubeAPI.Deploy)
   * [func (k *KubeAPI) List(app, env string) error](#KubeAPI.List)
@@ -26,7 +26,7 @@
 
 
 
-## <a name="KubeAPI">type</a> [KubeAPI](/src/target/client.go?s=204:277#L3)
+## <a name="KubeAPI">type</a> [KubeAPI](/src/target/client.go?s=181:254#L3)
 ``` go
 type KubeAPI struct {
     Client    kubernetes.Interface
@@ -41,9 +41,9 @@ KubeAPI performs all the Kubernetes API operations
 
 
 
-### <a name="NewClient">func</a> [NewClient](/src/target/client.go?s=321:371#L9)
+### <a name="NewClient">func</a> [NewClient](/src/target/client.go?s=298:332#L9)
 ``` go
-func NewClient(namespace string) (*KubeAPI, error)
+func NewClient() (*KubeAPI, error)
 ```
 NewClient returns a new KubeAPI client
 
@@ -71,7 +71,7 @@ Deploy updates docker image tag for a given k8s deployment
 
 
 
-### <a name="KubeAPI.List">func</a> (\*KubeAPI) [List](/src/target/list.go?s=516:561#L14)
+### <a name="KubeAPI.List">func</a> (\*KubeAPI) [List](/src/target/list.go?s=561:606#L16)
 ``` go
 func (k *KubeAPI) List(app, env string) error
 ```
