@@ -2,14 +2,11 @@ package = github.com/betterdoctor/duncan
 
 .PHONY: install release test
 
-build: deps
+build:
 	goreleaser --rm-dist --skip-validate --skip-publish
 
-release: deps
+release:
 	goreleaser --rm-dist
-
-deps:
-	glide install
 
 install:
 	cp dist/darwin_amd64/duncan /usr/local/bin/duncan
