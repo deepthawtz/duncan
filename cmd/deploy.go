@@ -127,11 +127,6 @@ func validateDeployFlags() {
 		os.Exit(1)
 	}
 
-	if env != "stage" && env != "production" {
-		fmt.Printf("env %s is not a valid deployment environment\n", env)
-		os.Exit(1)
-	}
-
 	// if no --repo flag use app name as repo name
 	// this is important to use
 	if repo == "" {

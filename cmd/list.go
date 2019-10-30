@@ -29,11 +29,6 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List applications",
 	Run: func(cmd *cobra.Command, args []string) {
-		if env != "" && env != "stage" && env != "production" {
-			fmt.Printf("env %s is not a valid deployment environment\n", env)
-			os.Exit(1)
-		}
-
 		if viper.GetString("kubernetes_cluster") != "" {
 			k8sClient, err := k8s.NewClient()
 			if err != nil {
