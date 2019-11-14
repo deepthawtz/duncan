@@ -9,7 +9,7 @@ release:
 	goreleaser --rm-dist
 
 install:
-	cp dist/darwin_amd64/duncan /usr/local/bin/duncan
+	cp dist/duncan_darwin_amd64/duncan /usr/local/bin/duncan
 	chmod +x /usr/local/bin/duncan
 
 test:
