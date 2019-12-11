@@ -66,18 +66,22 @@ func TestEnvMap(t *testing.T) {
 
 func TestEnvURL(t *testing.T) {
 	cases := []struct {
-		app string
-		env string
+		app        string
+		env        string
+		exactMatch bool
 	}{
-		{app: "foo", env: "stage"},
-		{app: "foo", env: "production"},
+		{app: "foo", env: "stage", exactMatch: true},
+		{app: "foo", env: "production", exactMatch: true},
 	}
 	ch := "https://consul.yodawg.com"
 	viper.Set("consul_host", ch)
 
 	for _, test := range cases {
 		exp := fmt.Sprintf("%s/v1/kv/env/%s/%s", ch, test.app, test.env)
-		u := EnvURL(test.app, test.env)
+		if test.exactMatch {
+			exp += "/"
+		}
+		u := EnvURL(test.app, test.env, test.exactMatch)
 		if exp != u {
 			t.Errorf("expected %s but got %s", exp, u)
 		}

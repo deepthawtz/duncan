@@ -43,7 +43,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			checkAppEnv(app, env)
 
-			u := consul.EnvURL(app, env)
+			u := consul.EnvURL(app, env, true)
 			env, err := consul.Read(u)
 			if err != nil {
 				fmt.Println(err)
@@ -60,7 +60,25 @@ var (
 			checkAppEnv(app, env)
 			validateKeyValues(args)
 
-			if promptModifyEnvironment("set", "env", app, env, args) {
+			u := consul.EnvURL(app, env, true)
+			envVals, err := consul.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			changes := make(map[string][2]string)
+			for _, x := range args {
+				parts := strings.Split(x, "=")
+				k, v := parts[0], parts[1]
+				prev, ok := envVals[k]
+				if !ok {
+					changes[k] = [2]string{"", v}
+					continue
+				}
+				changes[k] = [2]string{prev, v}
+			}
+
+			if promptModifyEnvironment("set", "env", app, env, changes) {
 				url := consul.TxnURL()
 				env, err := consul.Write(app, env, url, args)
 				if err != nil {
@@ -79,8 +97,28 @@ var (
 			checkAppEnv(app, env)
 			validateKeys(args)
 
-			if promptModifyEnvironment("delete", "env", app, env, args) {
-				url := consul.EnvURL(app, env)
+			u := consul.EnvURL(app, env, true)
+			envVals, err := consul.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			changes := make(map[string][2]string)
+			for _, k := range args {
+				prev, ok := envVals[k]
+				if !ok {
+					fmt.Printf("nothing to delete. no keys exists for %s\n", k)
+					continue
+				}
+				changes[k] = [2]string{prev, ""}
+			}
+
+			if len(changes) == 0 {
+				os.Exit(0)
+			}
+
+			if promptModifyEnvironment("delete", "env", app, env, changes) {
+				url := consul.EnvURL(app, env, true)
 				if err := consul.Delete(app, env, url, args); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -111,7 +149,7 @@ func printSorted(m map[string]string) {
 	}
 }
 
-func promptModifyEnvironment(op, cmd, app, env string, args []string) bool {
+func promptModifyEnvironment(op, cmd, app, env string, changes map[string][2]string) bool {
 	if force {
 		return true
 	}
@@ -134,8 +172,8 @@ func promptModifyEnvironment(op, cmd, app, env string, args []string) bool {
 		fmt.Printf(white("  encryption: %s\n"), green("enabled"))
 	}
 	fmt.Println()
-	for _, el := range args {
-		fmt.Println(el)
+	for k, transition := range changes {
+		fmt.Printf("change %s from %s => %s\n", k, white(transition[0]), cyan(transition[1]))
 	}
 	if op == "set" && cmd == "env" {
 		fmt.Printf("\n%s ", red("WARNING:"))

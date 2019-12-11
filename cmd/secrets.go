@@ -58,14 +58,26 @@ var (
 			checkAppEnv(app, env)
 			validateKeyValues(args)
 
-			if promptModifyEnvironment("set", "secrets", app, env, args) {
-				u := vault.SecretsURL(app, env)
-				s, err := vault.Read(u)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+			u := vault.SecretsURL(app, env)
+			secrets, err := vault.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			changes := make(map[string][2]string)
+			for _, x := range args {
+				parts := strings.Split(x, "=")
+				k, v := parts[0], parts[1]
+				prev, ok := secrets.KVPairs[k]
+				if !ok {
+					changes[k] = [2]string{"", v}
+					continue
 				}
-				s, err = vault.Write(u, args, s)
+				changes[k] = [2]string{prev, v}
+			}
+
+			if promptModifyEnvironment("set", "secrets", app, env, changes) {
+				s, err := vault.Write(u, args, secrets)
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -83,14 +95,28 @@ var (
 			checkAppEnv(app, env)
 			validateKeys(args)
 
-			if promptModifyEnvironment("delete", "secrets", app, env, args) {
-				u := vault.SecretsURL(app, env)
-				s, err := vault.Read(u)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
+			u := vault.SecretsURL(app, env)
+			secrets, err := vault.Read(u)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			changes := make(map[string][2]string)
+			for _, k := range args {
+				prev, ok := secrets.KVPairs[k]
+				if !ok {
+					fmt.Printf("nothing to delete. no keys exists for %s\n", k)
+					continue
 				}
-				if _, err := vault.Delete(u, args, s); err != nil {
+				changes[k] = [2]string{prev, ""}
+			}
+
+			if len(changes) == 0 {
+				os.Exit(0)
+			}
+
+			if promptModifyEnvironment("delete", "secrets", app, env, changes) {
+				if _, err := vault.Delete(u, args, secrets); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}

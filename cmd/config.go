@@ -63,7 +63,7 @@ var (
 					go func(app, env string) {
 						defer wg.Done()
 						ak := fmt.Sprintf("%s-%s", app, env)
-						u := consul.EnvURL(app, env)
+						u := consul.EnvURL(app, env, false)
 						// assume Consul read error means ACL restriction
 						// or keyspace does not exist yet
 						c, _ := consul.Read(u)

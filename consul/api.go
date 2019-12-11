@@ -61,7 +61,8 @@ func Read(url string) (map[string]string, error) {
 // changing BAR_ENABLED from true => false
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error) {
 	changes := map[string][]string{}
-	u := EnvURL(app, deployEnv)
+	u := EnvURL(app, deployEnv, false)
+	fmt.Println(u)
 	env, err := Read(u)
 	if err != nil {
 		return nil, err
@@ -164,9 +165,13 @@ func envMap(kvs []KVPair) map[string]string {
 }
 
 // EnvURL returns a Consul KV URL for an app/env
-func EnvURL(app, env string) string {
+func EnvURL(app, env string, strictMatch bool) string {
 	host := viper.GetString("consul_host")
-	return fmt.Sprintf("%s/v1/kv/env/%s/%s", host, app, env)
+	url := fmt.Sprintf("%s/v1/kv/env/%s/%s", host, app, env)
+	if strictMatch {
+		url += "/"
+	}
+	return url
 }
 
 // TxnURL returns a Consul transaction (txn) URL
