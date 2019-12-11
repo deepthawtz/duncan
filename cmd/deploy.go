@@ -24,7 +24,6 @@ import (
 	"github.com/betterdoctor/duncan/deployment"
 	"github.com/betterdoctor/duncan/docker"
 	"github.com/betterdoctor/duncan/k8s"
-	"github.com/betterdoctor/duncan/marathon"
 	"github.com/betterdoctor/kit/notify"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -56,37 +55,21 @@ NOTE: tag must exist in docker registry
 
 		var err error
 
-		if viper.GetString("kubernetes_cluster") != "" {
-			cluster = viper.GetString("kubernetes_cluster")
-			k8sClient, err = k8s.NewClient()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			prev, err = k8sClient.CurrentTag(app, env, repo)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-		} else {
-			cluster = viper.GetString("marathon_host")
-			prev, err = marathon.CurrentTag(app, env, repo)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		cluster = viper.GetString("kubernetes_cluster")
+		k8sClient, err = k8s.NewClient()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		prev, err = k8sClient.CurrentTag(app, env, repo)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
 		if promptDeploy() {
-			if viper.GetString("kubernetes_cluster") != "" {
-				if err := k8sClient.Deploy(app, env, tag, repo); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-			} else {
-				if err := marathon.Deploy(app, env, tag, repo); err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
+			if err := k8sClient.Deploy(app, env, tag, repo); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 
 			diff := "redeployed"

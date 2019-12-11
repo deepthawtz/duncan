@@ -19,9 +19,7 @@ import (
 	"os"
 
 	"github.com/betterdoctor/duncan/k8s"
-	"github.com/betterdoctor/duncan/marathon"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // listCmd represents the list command
@@ -29,21 +27,14 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List applications",
 	Run: func(cmd *cobra.Command, args []string) {
-		if viper.GetString("kubernetes_cluster") != "" {
-			k8sClient, err := k8s.NewClient()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if err := k8sClient.List(app, env); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-		} else {
-			if err := marathon.List(app, env); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		k8sClient, err := k8s.NewClient()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if err := k8sClient.List(app, env); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	},
 }

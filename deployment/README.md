@@ -13,9 +13,6 @@
 ## <a name="pkg-index">Index</a>
 * [func AllowedToManage(app, env string) (bool, error)](#AllowedToManage)
 * [func GithubDiffLink(app, prev, tag string) string](#GithubDiffLink)
-* [func MarathonGroupID(app, env string) string](#MarathonGroupID)
-* [func Watch(id string) error](#Watch)
-* [type Deployment](#Deployment)
 
 
 #### <a name="pkg-files">Package files</a>
@@ -25,7 +22,7 @@
 
 
 
-## <a name="AllowedToManage">func</a> [AllowedToManage](/src/target/utils.go?s=367:418#L14)
+## <a name="AllowedToManage">func</a> [AllowedToManage](/src/target/utils.go?s=237:288#L6)
 ``` go
 func AllowedToManage(app, env string) (bool, error)
 ```
@@ -34,44 +31,11 @@ an app/env
 
 
 
-## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=2211:2260#L93)
+## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=1143:1192#L43)
 ``` go
 func GithubDiffLink(app, prev, tag string) string
 ```
 GithubDiffLink returns a GitHub diff link to view deployment changes
-
-
-
-## <a name="MarathonGroupID">func</a> [MarathonGroupID](/src/target/utils.go?s=2037:2081#L88)
-``` go
-func MarathonGroupID(app, env string) string
-```
-MarathonGroupID returns a Marathon Group id for an app and env
-
-
-
-## <a name="Watch">func</a> [Watch](/src/target/utils.go?s=1271:1298#L51)
-``` go
-func Watch(id string) error
-```
-Watch watches a Marathon deployment and handles success or failure
-
-
-
-
-## <a name="Deployment">type</a> [Deployment](/src/target/utils.go?s=243:292#L8)
-``` go
-type Deployment struct {
-    ID string `json:"id"`
-}
-```
-Deployment represents a Marathon deployment
-
-
-
-
-
-
 
 
 

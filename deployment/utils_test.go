@@ -2,29 +2,10 @@ package deployment
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/spf13/viper"
 )
-
-func TestMarathonGroupID(t *testing.T) {
-	cases := []struct {
-		app string
-		env string
-	}{
-		{app: "foo", env: "stage"},
-		{app: "foo", env: "production"},
-	}
-
-	for _, test := range cases {
-		id := MarathonGroupID(test.app, test.env)
-		exp := "/" + strings.Join([]string{test.app, test.env}, "-")
-		if id != exp {
-			t.Errorf("expected %s but got %s", exp, id)
-		}
-	}
-}
 
 func TestGithubDiffLink(t *testing.T) {
 	cases := []struct {

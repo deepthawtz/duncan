@@ -1,6 +1,5 @@
 # populate w/ valid values and save at ~/.duncan.yml
 ---
-# marathon_host: https://mesos.host
 kubernetes_cluster: kube.host
 kubernetes_namespace: pipeline
 
