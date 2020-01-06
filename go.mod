@@ -4,13 +4,13 @@ go 1.12
 
 require (
 	github.com/betterdoctor/kit v0.0.0-20170330150728-5fb0ae5b8b5f
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v0.0.0-20170523202404-62e9147c64a1
-	github.com/fsnotify/fsnotify v0.0.0-20170329110642-4da3e2cfbabc // indirect
 	github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680 // indirect
 	github.com/gogo/protobuf v0.0.0-20170330071051-c0656edd0d9e // indirect
 	github.com/golang/glog v0.0.0-20141105023935-44145f04b68c // indirect
-	github.com/golang/protobuf v1.1.0 // indirect
+	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/btree v0.0.0-20160524151835-7d79101e329e // indirect
 	github.com/google/gofuzz v0.0.0-20161122191042-44d81051d367 // indirect
 	github.com/googleapis/gnostic v0.0.0-20170729233727-0c5108395e2d // indirect
@@ -19,7 +19,6 @@ require (
 	github.com/imdario/mergo v0.3.5 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/magiconair/properties v0.0.0-20170321093039-51463bfca257 // indirect
 	github.com/mattn/go-colorable v0.0.0-20170210172801-5411d3eea597 // indirect
 	github.com/mattn/go-isatty v0.0.0-20170307163044-57fdcb988a5c // indirect
@@ -31,6 +30,7 @@ require (
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
 	github.com/pelletier/go-toml v0.0.0-20170602065532-fe7536c3dee2 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
+	github.com/rhysd/go-github-selfupdate v1.2.1
 	github.com/spf13/afero v0.0.0-20170217164146-9be650865eab // indirect
 	github.com/spf13/cast v1.1.0 // indirect
 	github.com/spf13/cobra v0.0.0-20170605173233-84f471618b36
@@ -38,12 +38,14 @@ require (
 	github.com/spf13/pflag v1.0.0 // indirect
 	github.com/spf13/viper v0.0.0-20170417080815-0967fc9aceab
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/ulikunitz/xz v0.5.6 // indirect
 	golang.org/x/crypto v0.0.0-20190424203555-c05e17bb3b2d // indirect
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
+	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6 // indirect
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
 	golang.org/x/time v0.0.0-20161028155119-f51c12702a4d // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/inf.v0 v0.9.0 // indirect
-	gopkg.in/yaml.v2 v2.0.0-20170407172122-cd8b52f8269e // indirect
 	k8s.io/api v0.0.0-20180828152522-d150a5833232
 	k8s.io/apimachinery v0.0.0-20180828123425-c6b66c9c507a
 	k8s.io/client-go v0.0.0-20180828232743-87935b98dd4a
