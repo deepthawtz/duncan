@@ -81,7 +81,6 @@ func checkExecutableVersion() {
 
 	v := semver.MustParse(Version[1:])
 	if !found || latest.Version.LTE(v) {
-		fmt.Printf("Current version is the latest: %s\n", v)
 		return
 	}
 
