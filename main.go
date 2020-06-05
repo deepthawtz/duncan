@@ -1,4 +1,4 @@
-// Copyright © 2016 Dylan Clendenin <dylan@betterdoctor.com>
+// Copyright © 2020 Dylan Clendenin <dylan.clendenin@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/betterdoctor/duncan/cmd"
+import "github.com/deepthawtz/duncan/cmd"
 
 func main() {
 	cmd.Execute()

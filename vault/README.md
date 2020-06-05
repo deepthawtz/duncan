@@ -1,7 +1,7 @@
 
 
 # vault
-`import "github.com/betterdoctor/duncan/vault"`
+`import "github.com/deepthawtz/duncan/vault"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -19,13 +19,13 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[api.go](/src/github.com/betterdoctor/duncan/vault/api.go) 
+[api.go](/src/github.com/deepthawtz/duncan/vault/api.go) 
 
 
 
 
 
-## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=4124:4163#L153)
+## <a name="SecretsURL">func</a> [SecretsURL](/src/target/api.go?s=4120:4159#L163)
 ``` go
 func SecretsURL(app, env string) string
 ```
@@ -35,11 +35,12 @@ for a given app and env
 
 
 
-## <a name="Secrets">type</a> [Secrets](/src/target/api.go?s=246:310#L6)
+## <a name="Secrets">type</a> [Secrets](/src/target/api.go?s=242:306#L16)
 ``` go
 type Secrets struct {
     KVPairs map[string]string `json:"data"`
 }
+
 ```
 Secrets represents Vault key/value pairs for a prefix
 
@@ -49,14 +50,14 @@ Secrets represents Vault key/value pairs for a prefix
 
 
 
-### <a name="Delete">func</a> [Delete](/src/target/api.go?s=2009:2077#L79)
+### <a name="Delete">func</a> [Delete](/src/target/api.go?s=2005:2073#L89)
 ``` go
 func Delete(url string, keys []string, s *Secrets) (*Secrets, error)
 ```
 Delete removes a key/value pair from the prefix
 
 
-### <a name="Read">func</a> [Read](/src/target/api.go?s=459:498#L12)
+### <a name="Read">func</a> [Read](/src/target/api.go?s=455:494#L22)
 ``` go
 func Read(url string) (*Secrets, error)
 ```
@@ -64,7 +65,7 @@ Read displays all key/value pairs at the given prefix if no key is given
 If a key is passed will just display the key/value pair for the key
 
 
-### <a name="Write">func</a> [Write](/src/target/api.go?s=648:714#L21)
+### <a name="Write">func</a> [Write](/src/target/api.go?s=644:710#L31)
 ``` go
 func Write(url string, kvs []string, s *Secrets) (*Secrets, error)
 ```

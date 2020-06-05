@@ -1,7 +1,7 @@
 
 
 # config
-`import "github.com/betterdoctor/duncan/config"`
+`import "github.com/deepthawtz/duncan/config"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -15,13 +15,13 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[changes.go](/src/github.com/betterdoctor/duncan/config/changes.go) 
+[changes.go](/src/github.com/deepthawtz/duncan/config/changes.go) 
 
 
 
 
 
-## <a name="Changes">func</a> [Changes](/src/target/changes.go?s=167:227#L1)
+## <a name="Changes">func</a> [Changes](/src/target/changes.go?s=167:227#L10)
 ``` go
 func Changes(typ string, updated map[string][]string) string
 ```

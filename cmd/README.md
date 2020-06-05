@@ -1,7 +1,7 @@
 
 
 # cmd
-`import "github.com/betterdoctor/duncan/cmd"`
+`import "github.com/deepthawtz/duncan/cmd"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -16,7 +16,7 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[config.go](/src/github.com/betterdoctor/duncan/cmd/config.go) [deploy.go](/src/github.com/betterdoctor/duncan/cmd/deploy.go) [env.go](/src/github.com/betterdoctor/duncan/cmd/env.go) [list.go](/src/github.com/betterdoctor/duncan/cmd/list.go) [root.go](/src/github.com/betterdoctor/duncan/cmd/root.go) [secrets.go](/src/github.com/betterdoctor/duncan/cmd/secrets.go) [version.go](/src/github.com/betterdoctor/duncan/cmd/version.go) 
+[config.go](/src/github.com/deepthawtz/duncan/cmd/config.go) [deploy.go](/src/github.com/deepthawtz/duncan/cmd/deploy.go) [env.go](/src/github.com/deepthawtz/duncan/cmd/env.go) [list.go](/src/github.com/deepthawtz/duncan/cmd/list.go) [root.go](/src/github.com/deepthawtz/duncan/cmd/root.go) [secrets.go](/src/github.com/deepthawtz/duncan/cmd/secrets.go) [version.go](/src/github.com/deepthawtz/duncan/cmd/version.go) 
 
 
 
@@ -36,7 +36,7 @@ Version is a build time variable set via -ldflags
 
 
 
-## <a name="Execute">func</a> [Execute](/src/target/root.go?s=1064:1078#L25)
+## <a name="Execute">func</a> [Execute](/src/target/root.go?s=1163:1177#L39)
 ``` go
 func Execute()
 ```

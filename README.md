@@ -22,7 +22,7 @@ Available Commands:
 
 #### Installation
 
-Download a [binary release](https://github.com/betterdoctor/duncan/releases)
+Download a [binary release](https://github.com/deepthawtz/duncan/releases)
 
 **OR** build from source
 
@@ -30,8 +30,8 @@ Requires [Golang](https://golang.org/)
 
 ```bash
 # clone to $GOPATH
-cd $GOPATH/src/github.com/betterdoctor
-git clone git@github.com:betterdoctor/duncan.git && cd duncan
+cd $GOPATH/src/github.com/deepthawtz
+git clone git@github.com:deepthawtz/duncan.git && cd duncan
 make
 make install
 

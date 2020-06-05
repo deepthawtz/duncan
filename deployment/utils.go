@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/betterdoctor/duncan/consul"
+	"github.com/deepthawtz/duncan/consul"
 	"github.com/spf13/viper"
 )
 

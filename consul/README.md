@@ -1,7 +1,7 @@
 
 
 # consul
-`import "github.com/betterdoctor/duncan/consul"`
+`import "github.com/deepthawtz/duncan/consul"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -12,7 +12,7 @@
 
 ## <a name="pkg-index">Index</a>
 * [func Delete(app, deployEnv, url string, keys []string) error](#Delete)
-* [func EnvURL(app, env string) string](#EnvURL)
+* [func EnvURL(app, env string, strictMatch bool) string](#EnvURL)
 * [func Read(url string) (map[string]string, error)](#Read)
 * [func TxnURL() string](#TxnURL)
 * [func Write(app, deployEnv, url string, kvs []string) (map[string]string, error)](#Write)
@@ -21,13 +21,13 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[api.go](/src/github.com/betterdoctor/duncan/consul/api.go) 
+[api.go](/src/github.com/deepthawtz/duncan/consul/api.go) 
 
 
 
 
 
-## <a name="Delete">func</a> [Delete](/src/target/api.go?s=2983:3043#L114)
+## <a name="Delete">func</a> [Delete](/src/target/api.go?s=3002:3062#L125)
 ``` go
 func Delete(app, deployEnv, url string, keys []string) error
 ```
@@ -35,15 +35,15 @@ Delete removes key/values from Consul by given keys
 
 
 
-## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4194:4229#L157)
+## <a name="EnvURL">func</a> [EnvURL](/src/target/api.go?s=4213:4266#L168)
 ``` go
-func EnvURL(app, env string) string
+func EnvURL(app, env string, strictMatch bool) string
 ```
 EnvURL returns a Consul KV URL for an app/env
 
 
 
-## <a name="Read">func</a> [Read](/src/target/api.go?s=535:583#L20)
+## <a name="Read">func</a> [Read](/src/target/api.go?s=531:579#L30)
 ``` go
 func Read(url string) (map[string]string, error)
 ```
@@ -51,7 +51,7 @@ Read returns ENV for given consul KV URL
 
 
 
-## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=4382:4402#L163)
+## <a name="TxnURL">func</a> [TxnURL](/src/target/api.go?s=4465:4485#L178)
 ``` go
 func TxnURL() string
 ```
@@ -59,7 +59,7 @@ TxnURL returns a Consul transaction (txn) URL
 
 
 
-## <a name="Write">func</a> [Write](/src/target/api.go?s=1425:1504#L52)
+## <a name="Write">func</a> [Write](/src/target/api.go?s=1421:1500#L62)
 ``` go
 func Write(app, deployEnv, url string, kvs []string) (map[string]string, error)
 ```
@@ -72,13 +72,14 @@ changing BAR_ENABLED from true => false
 
 
 
-## <a name="KVPair">type</a> [KVPair](/src/target/api.go?s=373:489#L13)
+## <a name="KVPair">type</a> [KVPair](/src/target/api.go?s=369:485#L23)
 ``` go
 type KVPair struct {
     Key   string `json:"Key"`
     Value string `json:"Value"`
     Verb  string `json:"Verb,omitempty"`
 }
+
 ```
 KVPair represents an individual key/value pair
 
@@ -91,11 +92,12 @@ KVPair represents an individual key/value pair
 
 
 
-## <a name="TxnItem">type</a> [TxnItem](/src/target/api.go?s=274:321#L8)
+## <a name="TxnItem">type</a> [TxnItem](/src/target/api.go?s=270:317#L18)
 ``` go
 type TxnItem struct {
     KV *KVPair `json:"KV"`
 }
+
 ```
 TxnItem represents a KV element in a transaction
 

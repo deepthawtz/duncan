@@ -1,4 +1,4 @@
-package = github.com/betterdoctor/duncan
+package = github.com/deepthawtz/duncan
 
 .PHONY: install release test
 

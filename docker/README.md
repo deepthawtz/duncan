@@ -1,7 +1,7 @@
 
 
 # docker
-`import "github.com/betterdoctor/duncan/docker"`
+`import "github.com/deepthawtz/duncan/docker"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -16,13 +16,13 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[utils.go](/src/github.com/betterdoctor/duncan/docker/utils.go) 
+[utils.go](/src/github.com/deepthawtz/duncan/docker/utils.go) 
 
 
 
 
 
-## <a name="VerifyTagExists">func</a> [VerifyTagExists](/src/target/utils.go?s=310:353#L10)
+## <a name="VerifyTagExists">func</a> [VerifyTagExists](/src/target/utils.go?s=310:353#L20)
 ``` go
 func VerifyTagExists(app, tag string) error
 ```
@@ -31,13 +31,14 @@ VerifyTagExists checks if a docker tag exists for a given repo
 
 
 
-## <a name="TagResponse">type</a> [TagResponse](/src/target/utils.go?s=153:242#L3)
+## <a name="TagResponse">type</a> [TagResponse](/src/target/utils.go?s=153:242#L13)
 ``` go
 type TagResponse struct {
     Tags []struct {
         Name string `json:"name"`
     } `json:"tags"`
 }
+
 ```
 TagResponse represents a Quay API tags response
 

@@ -1,4 +1,4 @@
-// Copyright © 2017 Dylan Clendenin <dylan@betterdoctor.com>
+// Copyright © 2020 Dylan Clendenin <dylan.clendenin@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/betterdoctor/duncan/consul"
-	"github.com/betterdoctor/duncan/vault"
+	"github.com/deepthawtz/duncan/consul"
+	"github.com/deepthawtz/duncan/vault"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

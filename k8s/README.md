@@ -1,7 +1,7 @@
 
 
 # k8s
-`import "github.com/betterdoctor/duncan/k8s"`
+`import "github.com/deepthawtz/duncan/k8s"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -19,19 +19,20 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[client.go](/src/github.com/betterdoctor/duncan/k8s/client.go) [deploy.go](/src/github.com/betterdoctor/duncan/k8s/deploy.go) [list.go](/src/github.com/betterdoctor/duncan/k8s/list.go) 
+[client.go](/src/github.com/deepthawtz/duncan/k8s/client.go) [deploy.go](/src/github.com/deepthawtz/duncan/k8s/deploy.go) [list.go](/src/github.com/deepthawtz/duncan/k8s/list.go) 
 
 
 
 
 
 
-## <a name="KubeAPI">type</a> [KubeAPI](/src/target/client.go?s=181:254#L3)
+## <a name="KubeAPI">type</a> [KubeAPI](/src/target/client.go?s=181:254#L13)
 ``` go
 type KubeAPI struct {
     Client    kubernetes.Interface
     Namespace string
 }
+
 ```
 KubeAPI performs all the Kubernetes API operations
 
@@ -41,7 +42,7 @@ KubeAPI performs all the Kubernetes API operations
 
 
 
-### <a name="NewClient">func</a> [NewClient](/src/target/client.go?s=298:332#L9)
+### <a name="NewClient">func</a> [NewClient](/src/target/client.go?s=298:332#L19)
 ``` go
 func NewClient() (*KubeAPI, error)
 ```
@@ -51,7 +52,7 @@ NewClient returns a new KubeAPI client
 
 
 
-### <a name="KubeAPI.CurrentTag">func</a> (\*KubeAPI) [CurrentTag](/src/target/deploy.go?s=350:417#L6)
+### <a name="KubeAPI.CurrentTag">func</a> (\*KubeAPI) [CurrentTag](/src/target/deploy.go?s=350:417#L16)
 ``` go
 func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error)
 ```
@@ -62,7 +63,7 @@ and then Stateful Sets API
 
 
 
-### <a name="KubeAPI.Deploy">func</a> (\*KubeAPI) [Deploy](/src/target/deploy.go?s=1131:1189#L35)
+### <a name="KubeAPI.Deploy">func</a> (\*KubeAPI) [Deploy](/src/target/deploy.go?s=1131:1189#L45)
 ``` go
 func (k *KubeAPI) Deploy(app, env, tag, repo string) error
 ```
@@ -71,7 +72,7 @@ Deploy updates docker image tag for a given k8s deployment
 
 
 
-### <a name="KubeAPI.List">func</a> (\*KubeAPI) [List](/src/target/list.go?s=561:606#L16)
+### <a name="KubeAPI.List">func</a> (\*KubeAPI) [List](/src/target/list.go?s=561:606#L26)
 ``` go
 func (k *KubeAPI) List(app, env string) error
 ```

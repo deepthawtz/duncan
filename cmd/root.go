@@ -1,4 +1,4 @@
-// Copyright © 2016 Dylan Clendenin <dylan@betterdoctor.com>
+// Copyright © 2020 Dylan Clendenin <dylan.clendenin@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ func checkExecutableVersion() {
 		return
 	}
 
-	latest, found, err := selfupdate.DetectLatest("betterdoctor/duncan")
+	latest, found, err := selfupdate.DetectLatest("deepthawtz/duncan")
 	if err != nil {
 		fmt.Printf("Error occurred while detecting version: %s\n", err)
 		return

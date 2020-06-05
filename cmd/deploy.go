@@ -1,4 +1,4 @@
-// Copyright © 2016 Dylan Clendenin <dylan@betterdoctor.com>
+// Copyright © 2020 Dylan Clendenin <dylan.clendenin@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/betterdoctor/duncan/deployment"
-	"github.com/betterdoctor/duncan/docker"
-	"github.com/betterdoctor/duncan/k8s"
-	"github.com/betterdoctor/kit/notify"
+	"github.com/deepthawtz/duncan/deployment"
+	"github.com/deepthawtz/duncan/docker"
+	"github.com/deepthawtz/duncan/k8s"
+	"github.com/deepthawtz/kit/notify"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/betterdoctor/duncan/config"
-	"github.com/betterdoctor/kit/notify"
+	"github.com/deepthawtz/duncan/config"
+	"github.com/deepthawtz/kit/notify"
 	"github.com/spf13/viper"
 )
 

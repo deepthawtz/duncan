@@ -1,7 +1,7 @@
 
 
 # deployment
-`import "github.com/betterdoctor/duncan/deployment"`
+`import "github.com/deepthawtz/duncan/deployment"`
 
 * [Overview](#pkg-overview)
 * [Index](#pkg-index)
@@ -16,13 +16,13 @@
 
 
 #### <a name="pkg-files">Package files</a>
-[utils.go](/src/github.com/betterdoctor/duncan/deployment/utils.go) 
+[utils.go](/src/github.com/deepthawtz/duncan/deployment/utils.go) 
 
 
 
 
 
-## <a name="AllowedToManage">func</a> [AllowedToManage](/src/target/utils.go?s=237:288#L6)
+## <a name="AllowedToManage">func</a> [AllowedToManage](/src/target/utils.go?s=235:286#L16)
 ``` go
 func AllowedToManage(app, env string) (bool, error)
 ```
@@ -31,7 +31,7 @@ an app/env
 
 
 
-## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=1143:1192#L43)
+## <a name="GithubDiffLink">func</a> [GithubDiffLink](/src/target/utils.go?s=1141:1190#L53)
 ``` go
 func GithubDiffLink(app, prev, tag string) string
 ```
