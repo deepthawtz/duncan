@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 // and then Stateful Sets API
 func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error) {
 	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
-	deploymentList, err := deploymentsClient.List(metav1.ListOptions{})
+	deploymentList, err := deploymentsClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +28,7 @@ func (k *KubeAPI) CurrentTag(app, env, repo string) (string, error) {
 	}
 
 	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
-	ssList, err := ssClient.List(metav1.ListOptions{})
+	ssList, err := ssClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +71,7 @@ func findTag(app, env string, template corev1.PodTemplateSpec) string {
 func (k *KubeAPI) updateDeployment(app, env, tag, repo string) error {
 	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
 
-	list, err := deploymentsClient.List(metav1.ListOptions{})
+	list, err := deploymentsClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -84,14 +85,14 @@ func (k *KubeAPI) updateDeployment(app, env, tag, repo string) error {
 
 	for _, deployment := range toUpdate {
 		retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			item, err := deploymentsClient.Get(deployment.ObjectMeta.Name, metav1.GetOptions{})
+			item, err := deploymentsClient.Get(context.Background(), deployment.ObjectMeta.Name, metav1.GetOptions{})
 			if err != nil {
 				return err
 			}
 			image := item.Spec.Template.Spec.Containers[0].Image
 			parts := strings.Split(image, ":")
 			item.Spec.Template.Spec.Containers[0].Image = fmt.Sprintf("%s:%s", parts[0], tag)
-			_, err = deploymentsClient.Update(item)
+			_, err = deploymentsClient.Update(context.Background(), item, metav1.UpdateOptions{})
 			return err
 		})
 		if retryErr != nil {
@@ -105,7 +106,7 @@ func (k *KubeAPI) updateDeployment(app, env, tag, repo string) error {
 func (k *KubeAPI) updateStatefulSet(app, env, tag, repo string) error {
 	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
 
-	ssList, err := ssClient.List(metav1.ListOptions{})
+	ssList, err := ssClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -119,14 +120,14 @@ func (k *KubeAPI) updateStatefulSet(app, env, tag, repo string) error {
 
 	for _, deployment := range toUpdate {
 		retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			item, err := ssClient.Get(deployment.ObjectMeta.Name, metav1.GetOptions{})
+			item, err := ssClient.Get(context.Background(), deployment.ObjectMeta.Name, metav1.GetOptions{})
 			if err != nil {
 				return err
 			}
 			image := item.Spec.Template.Spec.Containers[0].Image
 			parts := strings.Split(image, ":")
 			item.Spec.Template.Spec.Containers[0].Image = fmt.Sprintf("%s:%s", parts[0], tag)
-			_, err = ssClient.Update(item)
+			_, err = ssClient.Update(context.Background(), item, metav1.UpdateOptions{})
 			return err
 		})
 		if retryErr != nil {

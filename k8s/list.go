@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -30,12 +31,12 @@ func (k *KubeAPI) List(app, env string) error {
 	deploymentsClient := k.Client.AppsV1().Deployments(k.Namespace)
 	ssClient := k.Client.AppsV1().StatefulSets(k.Namespace)
 
-	deploymentList, err := deploymentsClient.List(metav1.ListOptions{})
+	deploymentList, err := deploymentsClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	statefulSetList, err := ssClient.List(metav1.ListOptions{})
+	statefulSetList, err := ssClient.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -104,9 +105,7 @@ func addContainerToGroup(groups deploymentGroups, app, env, group, groupEnv stri
 	for _, e := range strings.Split(env, "|") {
 		if groupEnv == e {
 			if app == "" || a == app {
-				for _, d := range data {
-					groups[group] = append(groups[group], d)
-				}
+				groups[group] = append(groups[group], data...)
 			}
 		}
 	}
